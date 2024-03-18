@@ -1,6 +1,7 @@
 public class Main {
     public static void main(String arg[]){
-        System.out.println("Main Class is executed!");
-
+        System.out.println("hello");
+        ODESolver s=new ODESolver();
+        s.p();
     }
 }
