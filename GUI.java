@@ -1,26 +1,28 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
-
 public class GUI extends JFrame {
 
     private JComboBox<String> solverSelector;
-    private JTextField initialConditionsField;
-    private JTextField stepSizeField;
-    private JTextField integrationTimeField;
+    private JTextField initialConditionsField; // Assume y0 is the initial condition
+    private JTextField stepSizeField; // Unused in this example, but could be for numerical solvers
+    private JTextField integrationTimeField; // Assume this is 't'
     private JButton startSimulationButton;
     private JPanel mainPanel;
     private JButton pauseSimulationButton;
     private JButton resetSimulationButton;
-    
 
     public GUI() {
         super("Crazy Putting Simulator");
+        initializeComponents();
+        setUpLayout();
+        attachListeners();
+        finalizeSetup();
+    }
 
+    private void initializeComponents() {
         // Solver selection
         String[] solvers = { "Euler Solver", "ODE Analytical Solver", "ODE Native Solver" };
         solverSelector = new JComboBox<>(solvers);
@@ -30,23 +32,16 @@ public class GUI extends JFrame {
         stepSizeField = new JTextField(5);
         integrationTimeField = new JTextField(5);
 
-        // Simulation control
+        // Simulation control buttons
         startSimulationButton = new JButton("Start Simulation");
         pauseSimulationButton = new JButton("Pause Simulation");
         resetSimulationButton = new JButton("Reset Simulation");
-        
-        startSimulationButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Placeholder for starting the simulation
-                System.out.println("Simulation started with: " + solverSelector.getSelectedItem());
-                // You'll need to implement the actual simulation starting logic here
-            }
-        });
+    }
 
+    private void setUpLayout() {
         // Main panel layout
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayout(5, 2));
+        mainPanel.setLayout(new GridLayout(6, 2));
         mainPanel.add(new JLabel("Solver:"));
         mainPanel.add(solverSelector);
         mainPanel.add(new JLabel("Initial Conditions:"));
@@ -55,13 +50,46 @@ public class GUI extends JFrame {
         mainPanel.add(stepSizeField);
         mainPanel.add(new JLabel("Integration Time:"));
         mainPanel.add(integrationTimeField);
-        mainPanel.add(new JLabel("")); // Spacer
         mainPanel.add(startSimulationButton);
+        mainPanel.add(pauseSimulationButton); // Added pause and reset buttons to layout
+        mainPanel.add(resetSimulationButton);
+    }
 
+    private void attachListeners() {
+        startSimulationButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startSimulation();
+            }
+        });
+    }
+
+    private void finalizeSetup() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setContentPane(mainPanel);
         this.pack();
         this.setVisible(true);
     }
 
+    private void startSimulation() {
+        try {
+            String selectedSolver = (String) solverSelector.getSelectedItem();
+            double initialCondition = Double.parseDouble(initialConditionsField.getText());
+            double integrationTime = Double.parseDouble(integrationTimeField.getText());
+            double k = 0.1; // Example constant for the differential equation
+            
+            double result = 0.0;
+            if ("ODE Analytical Solver".equals(selectedSolver)) {
+                result = ODEAnalyticalSolver.analyticalSolution(integrationTime, initialCondition, k);
+            } else {
+                // Add other solvers' implementation here
+                JOptionPane.showMessageDialog(this, "Solver not implemented yet.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            JOptionPane.showMessageDialog(this, "Result: " + result, "Simulation Result", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this, "Please enter valid numbers for initial conditions and integration time.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }

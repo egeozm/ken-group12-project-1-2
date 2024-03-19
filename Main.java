@@ -6,10 +6,6 @@ public class Main {
         ODESolver s=new ODESolver();
         s.p();
 
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new GUI();
-            }
-        });
+        SwingUtilities.invokeLater(() -> new GUI());
     }
 }
