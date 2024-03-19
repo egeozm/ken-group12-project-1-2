@@ -28,13 +28,13 @@ public class LotkaVolterraTester {
         double gamma = 0.0; // (placeholder value) death rate of the predator population in the absence of prey
         double delta = 0.0; // (placeholder value)reproduction rate of predators per prey consumed
 
-        double stepSize = 0.01;
-        double integrationTime = 100.0;
+        double stepSize = 0.0;
+        double integrationTime = 0.0;
 
         LotkaVolterraTester lotkaVolterraSystem = new LotkaVolterraTester(alpha, beta, gamma, delta);
 
-        // Test Euler solver
+        // Test euler solver
 
-        // Test Runge-Kutta solver
+        // Test higher order solver
     }
 }
