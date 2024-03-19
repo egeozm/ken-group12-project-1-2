@@ -6,16 +6,16 @@ import java.awt.event.ActionListener;
 public class GUI extends JFrame {
 
     private JComboBox<String> solverSelector;
-    private JTextField initialConditionsField; // Assume y0 is the initial condition
-    private JTextField stepSizeField; // Unused in this example, but could be for numerical solvers
-    private JTextField integrationTimeField; // Assume this is 't'
+    private JTextField initialConditionsField;
+    private JTextField stepSizeField;
+    private JTextField integrationTimeField;
     private JButton startSimulationButton;
     private JPanel mainPanel;
     private JButton pauseSimulationButton;
     private JButton resetSimulationButton;
 
     public GUI() {
-        super("Crazy Putting Simulator");
+        super("ODE Solver");
         initializeComponents();
         setUpLayout();
         attachListeners();
@@ -77,19 +77,35 @@ public class GUI extends JFrame {
             double initialCondition = Double.parseDouble(initialConditionsField.getText());
             double integrationTime = Double.parseDouble(integrationTimeField.getText());
             double k = 0.1; // Example constant for the differential equation
-            
+
             double result = 0.0;
             if ("ODE Analytical Solver".equals(selectedSolver)) {
                 result = ODEAnalyticalSolver.analyticalSolution(integrationTime, initialCondition, k);
             } else {
                 // Add other solvers' implementation here
-                JOptionPane.showMessageDialog(this, "Solver not implemented yet.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
+                if ("Euler Solver".equals(selectedSolver)) {
+                    // result = EulerSolver.analyticalSolution(integrationTime, initialCondition,
+                    // k);
+                } else {
+
+                }
+                if ("ODE Native Solver".equals(selectedSolver)) {
+                    // result = ODENativeSolver.analyticalSolution(integrationTime,
+                    // initialCondition, k);
+
+                } else {
+                    JOptionPane.showMessageDialog(this, "Solver not implemented yet.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
             }
-            
-            JOptionPane.showMessageDialog(this, "Result: " + result, "Simulation Result", JOptionPane.INFORMATION_MESSAGE);
+
+            JOptionPane.showMessageDialog(this, "Result: " + result, "Simulation Result",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(this, "Please enter valid numbers for initial conditions and integration time.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Please enter valid numbers for initial conditions and integration time.", "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }
