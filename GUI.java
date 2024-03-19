@@ -84,14 +84,12 @@ public class GUI extends JFrame {
             } else {
                 // Add other solvers' implementation here
                 if ("Euler Solver".equals(selectedSolver)) {
-                    // result = EulerSolver.analyticalSolution(integrationTime, initialCondition,
-                    // k);
+                    // result = EulerSolver.analyticalSolution(integrationTime, initialCondition, k);
                 } else {
 
                 }
                 if ("ODE Native Solver".equals(selectedSolver)) {
-                    // result = ODENativeSolver.analyticalSolution(integrationTime,
-                    // initialCondition, k);
+                    // result = ODENativeSolver.analyticalSolution(integrationTime, initialCondition, k);
 
                 } else {
                     JOptionPane.showMessageDialog(this, "Solver not implemented yet.", "Error",
