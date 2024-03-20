@@ -24,7 +24,9 @@ public class ODEAnalyticalSolver {
     public static double analyticalSolution(double t, double y0, double k) {
         return y0 * Math.exp(-k * t);
     }
-
+    public static void print(String str){
+        System.out.println(str);
+}
     public static void main(String[] args) {
         System.out.println("program executed");
 
