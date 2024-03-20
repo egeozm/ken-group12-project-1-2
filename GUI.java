@@ -12,7 +12,6 @@ public class GUI extends JFrame {
     private JTextField integrationTimeField;
     private JButton startSimulationButton;
     private JPanel mainPanel;
-    private JButton pauseSimulationButton;
     private JButton resetSimulationButton;
 
     public GUI() {
@@ -35,7 +34,6 @@ public class GUI extends JFrame {
 
         // Simulation control buttons
         startSimulationButton = new JButton("Start Simulation");
-        pauseSimulationButton = new JButton("Pause Simulation");
         resetSimulationButton = new JButton("Reset Simulation");
     }
 
@@ -52,7 +50,6 @@ public class GUI extends JFrame {
         mainPanel.add(new JLabel(" Integration Time:"));
         mainPanel.add(integrationTimeField);
         mainPanel.add(startSimulationButton);
-        mainPanel.add(pauseSimulationButton); // Added pause and reset buttons to layout
         mainPanel.add(resetSimulationButton);
     }
 
