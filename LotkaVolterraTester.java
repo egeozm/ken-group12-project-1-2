@@ -1,40 +1,71 @@
-public class LotkaVolterraTester {
-    
-    // this is all placeholder stuff for now
+public class LotkaVolterraTester{
+    private double preyPop;
+    private double predatorPop;
+    private double alpha;
+    private double beta;
+    private double gamma;
+    private double delta;
 
-    private double alpha, beta, gamma, delta;
-
-    public LotkaVolterraTester(double alpha, double beta, double gamma, double delta) {
+    public LotkaVolterraTester(double initialPreyPop, double initialPredatorPop, double alpha, double beta, double gamma, double delta) {
+        this.preyPop = initialPreyPop;
+        this.predatorPop = initialPredatorPop;
         this.alpha = alpha;
         this.beta = beta;
         this.gamma = gamma;
         this.delta = delta;
     }
 
-    public double[] evaluate(double[] state) {
-        double x = state[0];
-        double y = state[1];
-        double[] derivatives = new double[2];
-        derivatives[0] = alpha * x - beta * x * y;
-        derivatives[1] = delta * x * y - gamma * y;
-        return derivatives;
+    public void simulate(int steps, double timePassed, double initialPredatorPop, double initialPreyPop) {
+
+        if (timePassed <= 0) {
+            System.out.println("Time interval must be positive.");
+            return;
+        }
+
+        if (steps <= 0) {
+            System.out.println("Steps must be at least one.");
+            return;
+        }
+
+        for (int i = 0; i < steps; i++) {
+            double preyChange = 0;
+            double predatorChange = 0;
+
+            preyChange = ((alpha * preyPop) - (beta * preyPop * predatorPop)) * timePassed;
+            predatorChange = ((delta * preyPop * predatorPop) - (gamma * predatorPop)) * timePassed;
+            preyPop += preyChange;
+            predatorPop += predatorChange;
+
+            if (preyPop < 0) {
+                System.out.println("Simulation stopped because prey population became negative.");
+                return;
+            } else if (predatorPop < 0) {
+                System.out.println("Simulation stopped because predator population became negative.");
+                return;
+            }
+
+            System.out.println("Prey Population = " + preyPop + ", Predator Population = " + predatorPop);
+        }
+        double finalPreyChange = preyPop - initialPreyPop;
+        double finalPredatorChange = predatorPop - initialPredatorPop;
+        System.out.println("-------");
+        System.out.println("Overall change in prey population: " + finalPreyChange);
+        System.out.println("Overall change in predator population: " + finalPredatorChange);
     }
+    
 
     public static void main(String[] args) {
-        double[] initialConditions = {10.0, 5.0}; // start prey and predator populations
+        double initialPreyPop = 100;
+        double initialPredatorPop = 20;
+        double alpha = 0.1; // prey growth rate
+        double beta = 0.02; // predation rate
+        double gamma = 0.2; // predator death rate
+        double delta = 0.005; // reproduction rate of predators
+        int steps = 100; // number of times the Lotka Volterra equations are used to get the new populations
+        double timeInterval = 0.01; // unit of time for the population growth/decrease
 
-        double alpha = 0.0; // (placeholder value) growth rate of the prey population in the absence of predation
-        double beta = 0.0; // (placeholder value) the rate at which predators consume prey
-        double gamma = 0.0; // (placeholder value) death rate of the predator population in the absence of prey
-        double delta = 0.0; // (placeholder value)reproduction rate of predators per prey consumed
-
-        double stepSize = 0.0;
-        double integrationTime = 0.0;
-
-        LotkaVolterraTester lotkaVolterraSystem = new LotkaVolterraTester(alpha, beta, gamma, delta);
-
-        // Test euler solver
-
-        // Test higher order solver
+        LotkaVolterraTester tester = new LotkaVolterraTester(initialPreyPop, initialPredatorPop, alpha, beta, gamma, delta);
+        tester.simulate(steps, timeInterval, initialPredatorPop, initialPreyPop);
     }
 }
+
