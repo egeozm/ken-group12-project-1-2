@@ -30,11 +30,14 @@ class NumericDocumentFilter extends DocumentFilter {
             super.replace(fb, offset, length, text, attrs);
         } else {
             Toolkit.getDefaultToolkit().beep();
+            // Optionally, you can show a dialog or another form of error message here.
+            JOptionPane.showMessageDialog(null, "Please enter a positive number for the step size.", "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private boolean isNumeric(String text) {
-        return text.matches("[+-]?\\d*(\\.\\d+)?");
+        return text.matches("\\d*(\\.\\d+)?");
     }
 }
 
