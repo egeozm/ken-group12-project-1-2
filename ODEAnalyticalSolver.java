@@ -35,7 +35,7 @@ public class ODEAnalyticalSolver {
         }));
 
         System.out.println(Double.toString(f(4, 4, 4)));
-        System.out.println(Double.toString(analyticalSolution(6, 7, 0.2)));
+        System.out.println(Double.toString(analyticalSolution(10, 7, 0.2)));
 
         SwingUtilities.invokeLater(() -> {
             LogLogPlot ex = new LogLogPlot();

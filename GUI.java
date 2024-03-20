@@ -91,7 +91,7 @@ public class GUI extends JFrame {
                 result = odeanal.analyticalSolution(integrationTime, initialCondition, k);
             } else {
                 // Add other solvers' implementation here
-                if ("Euler Solver".equals(selectedSolver)) {
+                if ("Euler Solver".equals(selectedSolver)) { //ODE Solver
                     // result = EulerSolver.analyticalSolution(integrationTime, initialCondition, k);
                 } else {
 
