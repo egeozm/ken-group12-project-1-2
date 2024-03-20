@@ -68,19 +68,19 @@ public class GUI extends JFrame {
             }});
         resetSimulationButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {//clear all textfields
+            public void actionPerformed(ActionEvent e) {//clears all textfields
                 initialConditionsField.setText("");
                 stepSizeField.setText("");
                 integrationTimeField.setText("");
             }});
-        randomSimulationButton.addActionListener(new ActionListener() {
+        randomSimulationButton.addActionListener(new ActionListener() {//random numbers in the textfields
             @Override
             public void actionPerformed(ActionEvent e) {
-               String randoma = Integer.toString(random.nextInt(100));
+               String randoma = Integer.toString(random.nextInt(100));//generates a number up to 100
                String randomb = Integer.toString(random.nextInt(100));
                String randomc = Integer.toString(random.nextInt(100));
 
-                initialConditionsField.setText(randoma);
+                initialConditionsField.setText(randoma);//inserts the numbers in the textfields
                 stepSizeField.setText(randomb);
                 integrationTimeField.setText(randomc);
 
