@@ -13,11 +13,11 @@ class NumericDocumentFilter extends DocumentFilter {
         if (string == null) {
             return;
         }
-        if (isNumeric(string)) {
+        if (isNumericOrPotentialNumeric(string)) {
             super.insertString(fb, offset, string, attr);
-        } else {
-            Toolkit.getDefaultToolkit().beep();
         }
+        // If the string is not numeric or potentially numeric, do nothing (silently
+        // ignore the input)
     }
 
     @Override
@@ -26,18 +26,17 @@ class NumericDocumentFilter extends DocumentFilter {
         if (text == null) {
             return;
         }
-        if (isNumeric(text)) {
+        if (isNumericOrPotentialNumeric(text)) {
             super.replace(fb, offset, length, text, attrs);
-        } else {
-            Toolkit.getDefaultToolkit().beep();
-            // Optionally, you can show a dialog or another form of error message here.
-            JOptionPane.showMessageDialog(null, "Please enter a positive number for the step size.", "Input Error",
-                    JOptionPane.ERROR_MESSAGE);
         }
+        // If the text is not numeric or potentially numeric, do nothing (silently
+        // ignore the input)
     }
 
-    private boolean isNumeric(String text) {
-        return text.matches("\\d*(\\.\\d+)?");
+    private boolean isNumericOrPotentialNumeric(String text) {
+        // Check if the text is numeric, or a minus sign for negative numbers, or
+        // includes a decimal point
+        return text.matches("-?\\d*(\\.\\d*)?");
     }
 }
 
@@ -146,18 +145,36 @@ public class GUI extends JFrame {
         try {
             String selectedSolver = (String) solverSelector.getSelectedItem();
             double initialCondition = Double.parseDouble(initialConditionsField.getText());
+            double stepSize = Double.parseDouble(stepSizeField.getText()); // Get step size as double
             double integrationTime = Double.parseDouble(integrationTimeField.getText());
             double k = 0.1; // Example constant for the differential equation
 
+            // Check if step size is negative
+            if (stepSize <= 0) {
+                JOptionPane.showMessageDialog(this,
+                        "Step size must be a positive number.", "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return; // Prevent simulation from starting
+            }
+
+            // Check if step size is negative
+            if (integrationTime <= 0) {
+                JOptionPane.showMessageDialog(this,
+                        "Integration time must be a positive number.", "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return; // Prevent simulation from starting
+            }
+
             double result = 0.0;
+
             if ("ODE Analytical Solver".equals(selectedSolver)) {
                 ODEAnalyticalSolver odeanal = new ODEAnalyticalSolver();
                 result = odeanal.analyticalSolution(integrationTime, initialCondition, k);
             } else {
                 // Add other solvers' implementation here
-                if ("Euler Solver".equals(selectedSolver)) { // ODE Solver
-                    // result = EulerSolver.analyticalSolution(integrationTime, initialCondition,
-                    // k);
+                if ("ODE Native Solver Function".equals(selectedSolver)) { 
+                    // Function nativeSolver = new Function();
+                    // result = nativeSolver.funcVal(integrationTime, initialCondition,k);
                 } else {
 
                 }
@@ -176,8 +193,17 @@ public class GUI extends JFrame {
                     JOptionPane.INFORMATION_MESSAGE);
         } catch (NumberFormatException nfe) {
             JOptionPane.showMessageDialog(this,
-                    "Please enter valid numbers for initial conditions and integration time.", "Input Error",
+                    "Please enter valid numbers for initial conditions, step size, and integration time.",
+                    "Input Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new GUI();
+            }
+        });
     }
 }
