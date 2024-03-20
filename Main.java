@@ -5,8 +5,10 @@ public class Main {
         ODESolver s = new ODESolver();
         System.out.println(s.EulerSolver(0.0, 3.0, 0.2, 1.0));
 
-
-
-        SwingUtilities.invokeLater(() -> new GUI());
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new GUI();
+            }
+        });
     }
 }

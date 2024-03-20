@@ -1,9 +1,42 @@
 import javax.swing.*;
 import java.awt.*;
+import javax.swing.text.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 
+// NumericDocumentFilter class definition
+class NumericDocumentFilter extends DocumentFilter {
+    @Override
+    public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
+            throws BadLocationException {
+        if (string == null) {
+            return;
+        }
+        if (isNumeric(string)) {
+            super.insertString(fb, offset, string, attr);
+        } else {
+            Toolkit.getDefaultToolkit().beep();
+        }
+    }
+
+    @Override
+    public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+            throws BadLocationException {
+        if (text == null) {
+            return;
+        }
+        if (isNumeric(text)) {
+            super.replace(fb, offset, length, text, attrs);
+        } else {
+            Toolkit.getDefaultToolkit().beep();
+        }
+    }
+
+    private boolean isNumeric(String text) {
+        return text.matches("[+-]?\\d*(\\.\\d+)?");
+    }
+}
 
 public class GUI extends JFrame {
 
@@ -31,13 +64,18 @@ public class GUI extends JFrame {
 
         // Parameter inputs
         initialConditionsField = new JTextField(20);
+        applyNumericFilter(initialConditionsField);
+
         stepSizeField = new JTextField(5);
+        applyNumericFilter(stepSizeField);
+
         integrationTimeField = new JTextField(5);
+        applyNumericFilter(integrationTimeField);
 
         // Simulation control buttons
         startSimulationButton = new JButton("Start Simulation");
         resetSimulationButton = new JButton("Reset Simulation");
-        randomSimulationButton= new JButton("Generate Random Values");
+        randomSimulationButton = new JButton("Generate Random Values");
     }
 
     private void setUpLayout() {
@@ -54,7 +92,7 @@ public class GUI extends JFrame {
         mainPanel.add(integrationTimeField);
         mainPanel.add(startSimulationButton);
         mainPanel.add(resetSimulationButton);
-        mainPanel.add( randomSimulationButton);
+        mainPanel.add(randomSimulationButton);
 
     }
 
@@ -63,28 +101,31 @@ public class GUI extends JFrame {
         startSimulationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                startSimulation();//start
+                startSimulation();// start
 
-            }});
+            }
+        });
         resetSimulationButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {//clear all textfields
+            public void actionPerformed(ActionEvent e) {// clear all textfields
                 initialConditionsField.setText("");
                 stepSizeField.setText("");
                 integrationTimeField.setText("");
-            }});
+            }
+        });
         randomSimulationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               String randoma = Integer.toString(random.nextInt(100));
-               String randomb = Integer.toString(random.nextInt(100));
-               String randomc = Integer.toString(random.nextInt(100));
+                String randoma = Integer.toString(random.nextInt(100));
+                String randomb = Integer.toString(random.nextInt(100));
+                String randomc = Integer.toString(random.nextInt(100));
 
                 initialConditionsField.setText(randoma);
                 stepSizeField.setText(randomb);
                 integrationTimeField.setText(randomc);
 
-            }});
+            }
+        });
     }
 
     private void finalizeSetup() {
@@ -92,6 +133,10 @@ public class GUI extends JFrame {
         this.setContentPane(mainPanel);
         this.pack();
         this.setVisible(true);
+    }
+
+    private void applyNumericFilter(JTextField textField) {
+        ((AbstractDocument) textField.getDocument()).setDocumentFilter(new NumericDocumentFilter());
     }
 
     private void startSimulation() {
@@ -103,17 +148,19 @@ public class GUI extends JFrame {
 
             double result = 0.0;
             if ("ODE Analytical Solver".equals(selectedSolver)) {
-                ODEAnalyticalSolver odeanal=new ODEAnalyticalSolver();
+                ODEAnalyticalSolver odeanal = new ODEAnalyticalSolver();
                 result = odeanal.analyticalSolution(integrationTime, initialCondition, k);
             } else {
                 // Add other solvers' implementation here
-                if ("Euler Solver".equals(selectedSolver)) { //ODE Solver
-                    // result = EulerSolver.analyticalSolution(integrationTime, initialCondition, k);
+                if ("Euler Solver".equals(selectedSolver)) { // ODE Solver
+                    // result = EulerSolver.analyticalSolution(integrationTime, initialCondition,
+                    // k);
                 } else {
 
                 }
                 if ("ODE Native Solver".equals(selectedSolver)) {
-                    // result = ODENativeSolver.analyticalSolution(integrationTime, initialCondition, k);
+                    // result = ODENativeSolver.analyticalSolution(integrationTime,
+                    // initialCondition, k);
 
                 } else {
                     JOptionPane.showMessageDialog(this, "Solver not implemented yet.", "Error",
