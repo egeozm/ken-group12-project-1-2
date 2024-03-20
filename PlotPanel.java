@@ -10,7 +10,7 @@ class PlotPanel extends JPanel {
 
     public PlotPanel() {
         linesData = new ArrayList<>();
-        setPreferredSize(new Dimension(220, 320)); // Size as per the provided image
+        setPreferredSize(new Dimension(220, 320));
     }
 
     public void setLinesData(List<List<Point2D.Double>> linesData) {
@@ -24,13 +24,15 @@ class PlotPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setColor(Color.BLACK);
         g2d.setStroke(new BasicStroke(2));
-
         
         g2d.drawLine(30, getHeight() - 30, 30, 30);
         g2d.drawLine(30, getHeight() - 30, getWidth() - 30, getHeight() - 30);
 
         // Plotting the data
-        for (List<Point2D.Double> line : linesData) {
+        Color[] lineColors = {Color.RED, Color.BLUE, Color.GREEN};
+        for (int lineIndex = 0; lineIndex < linesData.size(); lineIndex++) {
+            List<Point2D.Double> line = linesData.get(lineIndex);
+            g2d.setColor(lineColors[lineIndex]);
             for (int i = 0; i < line.size() - 1; i++) {
                 Point2D.Double p1 = line.get(i);
                 Point2D.Double p2 = line.get(i + 1);
