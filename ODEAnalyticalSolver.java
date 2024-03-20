@@ -1,4 +1,4 @@
-import java.util.function.Supplier;
+
 
 
 
@@ -32,7 +32,8 @@ public static void test(int j){
         System.out.println(stopwatch(() -> {// lambda expression
             test(10000);//method you want to test
         }));
-        print(Double.toString(f(4,4,4)));
+        print(Double.toString(f(4,4,4)));//test
+        print(Double.toString(analyticalSolution(6,7,0.2)));
 
     }
     public static void print(String str){
