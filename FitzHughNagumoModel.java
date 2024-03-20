@@ -1,3 +1,38 @@
-public class FitzHughNagumoModel{
+public class FitzHughNagumoModel {
+    private double v;
+    private double w;
+    private double I;
+    private double a = 0.7;
+    private double b = 0.8;
+    private double epsilon = 0.08;
 
+    public FitzHughNagumoModel(double vInitial, double wInitial, double currentI) {
+        this.v = vInitial;
+        this.w = wInitial;
+        this.I = currentI;
+    }
+
+    public void eulerStep(double dt) {
+        double dvdt = v - Math.pow(v, 3) / 3 - w + I;
+        double dwdt = epsilon * (v + a - b * w);
+
+        v += dvdt * dt;
+        w += dwdt * dt;
+    }
+
+    public static void main(String[] args) {
+        double vInitial = 0.1; // Initial value of v
+        double wInitial = 0.1; // Initial value of w
+        double currentI = 0.5; // Current value of I
+        double dt = 0.01; // Time step for Euler integration
+
+        FitzHughNagumoModel model = new FitzHughNagumoModel(vInitial, wInitial, currentI);
+
+        
+        int numSteps = 1000; // Number of integration steps
+        for (int i = 0; i < numSteps; i++) {
+            model.eulerStep(dt);
+            
+        }
+    }
 }
