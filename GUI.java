@@ -42,13 +42,13 @@ public class GUI extends JFrame {
         // Main panel layout
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayout(6, 2));
-        mainPanel.add(new JLabel("Solver:"));
+        mainPanel.add(new JLabel(" Solver:"));
         mainPanel.add(solverSelector);
-        mainPanel.add(new JLabel("Initial Conditions:"));
+        mainPanel.add(new JLabel(" Initial Conditions:"));
         mainPanel.add(initialConditionsField);
-        mainPanel.add(new JLabel("Step Size:"));
+        mainPanel.add(new JLabel(" Step Size:"));
         mainPanel.add(stepSizeField);
-        mainPanel.add(new JLabel("Integration Time:"));
+        mainPanel.add(new JLabel(" Integration Time:"));
         mainPanel.add(integrationTimeField);
         mainPanel.add(startSimulationButton);
         mainPanel.add(pauseSimulationButton); // Added pause and reset buttons to layout
