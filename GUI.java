@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Random;
 
 
 public class GUI extends JFrame {
@@ -13,6 +14,7 @@ public class GUI extends JFrame {
     private JButton startSimulationButton;
     private JPanel mainPanel;
     private JButton resetSimulationButton;
+    private JButton randomSimulationButton;
 
     public GUI() {
         super("ODE Solver");
@@ -35,6 +37,7 @@ public class GUI extends JFrame {
         // Simulation control buttons
         startSimulationButton = new JButton("Start Simulation");
         resetSimulationButton = new JButton("Reset Simulation");
+        randomSimulationButton= new JButton("Generate Random Values");
     }
 
     private void setUpLayout() {
@@ -51,13 +54,17 @@ public class GUI extends JFrame {
         mainPanel.add(integrationTimeField);
         mainPanel.add(startSimulationButton);
         mainPanel.add(resetSimulationButton);
+        mainPanel.add( randomSimulationButton);
+
     }
 
     private void attachListeners() {
+        Random random = new Random();
         startSimulationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 startSimulation();//start
+
             }});
         resetSimulationButton.addActionListener(new ActionListener() {
             @Override
@@ -65,6 +72,18 @@ public class GUI extends JFrame {
                 initialConditionsField.setText("");
                 stepSizeField.setText("");
                 integrationTimeField.setText("");
+            }});
+        randomSimulationButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               String randoma = Integer.toString(random.nextInt(100));
+               String randomb = Integer.toString(random.nextInt(100));
+               String randomc = Integer.toString(random.nextInt(100));
+
+                initialConditionsField.setText(randoma);
+                stepSizeField.setText(randomb);
+                integrationTimeField.setText(randomc);
+
             }});
     }
 
