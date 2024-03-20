@@ -2,9 +2,8 @@ import javax.swing.SwingUtilities;
 
 public class Main {
     public static void main(String arg[]) {
-        System.out.println("hello");
         ODESolver s = new ODESolver();
-        s.p();
+        System.out.println(s.EulerSolver(0.0, 3.0, 0.2, 1.0));
 
         SwingUtilities.invokeLater(() -> new GUI());
     }
