@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
 public class GUI extends JFrame {
 
     private JComboBox<String> solverSelector;
@@ -59,9 +60,15 @@ public class GUI extends JFrame {
         startSimulationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                startSimulation();
-            }
-        });
+                startSimulation();//start
+            }});
+        resetSimulationButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {//clear all textfields
+                initialConditionsField.setText("");
+                stepSizeField.setText("");
+                integrationTimeField.setText("");
+            }});
     }
 
     private void finalizeSetup() {
@@ -80,10 +87,11 @@ public class GUI extends JFrame {
 
             double result = 0.0;
             if ("ODE Analytical Solver".equals(selectedSolver)) {
-                result = ODEAnalyticalSolver.analyticalSolution(integrationTime, initialCondition, k);
+                ODEAnalyticalSolver odeanal=new ODEAnalyticalSolver();
+                result = odeanal.analyticalSolution(integrationTime, initialCondition, k);
             } else {
                 // Add other solvers' implementation here
-                if ("Euler Solver".equals(selectedSolver)) {
+                if ("Euler Solver".equals(selectedSolver)) { //ODE Solver
                     // result = EulerSolver.analyticalSolution(integrationTime, initialCondition, k);
                 } else {
 
