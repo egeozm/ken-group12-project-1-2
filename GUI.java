@@ -1,4 +1,7 @@
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import java.awt.*;
 import javax.swing.text.*;
 import java.awt.event.ActionEvent;
@@ -80,7 +83,7 @@ public class GUI extends JFrame {
         integrationTimeField = new JTextField(5);
         applyNumericFilter(integrationTimeField);
 
-        functionField = createNumericTextField(10);
+        functionField = new JTextField(10);
         stepSizeField = createNumericTextField(5);
         initialTimeField = createNumericTextField(5);
         initialValueField = createNumericTextField(5);
@@ -90,6 +93,7 @@ public class GUI extends JFrame {
         startSimulationButton = new JButton("Start Simulation");
         resetSimulationButton = new JButton("Reset Simulation");
         randomSimulationButton = new JButton("Generate Random Values");
+
     }
 
     private void setUpLayout() {
@@ -193,6 +197,28 @@ public class GUI extends JFrame {
             }
         });
 
+        // Add a DocumentListener to track changes to the functionField
+        functionField.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                logChange();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                logChange();
+            }
+
+            public void insertUpdate(DocumentEvent e) {
+                logChange();
+            }
+
+            private void logChange() {
+                // This method is called whenever the user types in the functionField
+                // Here you can handle the tracking of the input, for example:
+                String text = functionField.getText();
+                System.out.println("Current function field input: " + text); // Print to console or log it as needed
+            }
+        });
+
     }
 
     private void updateInterfaceForSolver(String solver) {
@@ -265,8 +291,8 @@ public class GUI extends JFrame {
 
             if ("ODE Analytical Solver".equals(selectedSolver)) {
                 ODEAnalyticalSolver odeanal = new ODEAnalyticalSolver();
-                double [] results= odeanal.analyticalSolution(integrationTime, initialCondition, k);
-                result=results[results.length-1];
+                double[] results = odeanal.analyticalSolution(integrationTime, initialCondition, k);
+                result = results[results.length - 1];
             } else {
                 // Add other solvers' implementation here
                 if ("RK2Solver".equals(selectedSolver)) {
