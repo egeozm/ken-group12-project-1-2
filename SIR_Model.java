@@ -13,6 +13,7 @@ public class SIR_Model {
     double recovered;
     double stepSize;
     int currentSteps;
+    int steps;
 
     double S0;
     double I0;
@@ -26,13 +27,14 @@ public class SIR_Model {
     double i_dot;
     double r_dot;
 
-    public SIR_Model(double susceptible, double infected, double recovered, int stepSize) {
+    public SIR_Model(double susceptible, double infected, double recovered, int stepSize, int steps) {
 
         this.susceptible = susceptible;
         this.infected = infected;
         this.recovered = recovered;
         this.stepSize = stepSize;
         this.currentSteps = 0;
+        this.steps = steps;
 
         this.S0 = susceptible;
         this.I0 = infected;
@@ -85,7 +87,7 @@ public class SIR_Model {
 
     public static void main(String[] args) {
 
-    SIR_Model random = new SIR_Model(10,1,0,5);
+    SIR_Model random = new SIR_Model(10,1,0,5, 100);
 
     }
 
