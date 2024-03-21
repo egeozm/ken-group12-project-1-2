@@ -66,7 +66,7 @@ public class FunctionParser {
             }
         }
         else{
-            for(int i = idx-1; i > 0; i--){
+            for(int i = idx-1; i >= 0; i--){
                 if(a.get(i).equals("("))
                     parenthesisCounter++;
                 else if(a.get(i).equals(")"))
