@@ -80,7 +80,7 @@ public class GUI extends JFrame {
         integrationTimeField = new JTextField(5);
         applyNumericFilter(integrationTimeField);
 
-        functionField = createNumericTextField(10);
+        functionField = new JTextField(10);
         stepSizeField = createNumericTextField(5);
         initialTimeField = createNumericTextField(5);
         initialValueField = createNumericTextField(5);
