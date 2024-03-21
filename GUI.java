@@ -43,7 +43,8 @@ class NumericDocumentFilter extends DocumentFilter {
 public class GUI extends JFrame {
 
     private JComboBox<String> solverSelector, outputSelector;
-    private JTextField initialConditionsField, stepSizeField, integrationTimeField;
+    private JTextField initialConditionsField, stepSizeField, integrationTimeField, functionField, initialTimeField,
+            initialValueField, endTimeField;
     private JButton startSimulationButton, resetSimulationButton, randomSimulationButton;
     private JPanel mainPanel, inputPanel, buttonPanel, outputPanel, plotPanel;
 
@@ -57,7 +58,7 @@ public class GUI extends JFrame {
 
     private void initializeComponents() {
         // Solver selection
-        String[] solvers = { "Euler Solver", "ODE Analytical Solver", "ODE Native Solver" };
+        String[] solvers = { "Euler Solver", "ODE Analytical Solver", "RK2Solver" };
         solverSelector = new JComboBox<>(solvers);
 
         // Output selection
@@ -78,6 +79,12 @@ public class GUI extends JFrame {
 
         integrationTimeField = new JTextField(5);
         applyNumericFilter(integrationTimeField);
+
+        functionField = createNumericTextField(10);
+        stepSizeField = createNumericTextField(5);
+        initialTimeField = createNumericTextField(5);
+        initialValueField = createNumericTextField(5);
+        endTimeField = createNumericTextField(5);
 
         // Simulation control buttons
         startSimulationButton = new JButton("Start Simulation");
@@ -101,6 +108,9 @@ public class GUI extends JFrame {
         inputPanel.add(stepSizeField);
         inputPanel.add(new JLabel("Integration Time:"));
         inputPanel.add(integrationTimeField);
+
+        inputPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        updateInterfaceForSolver((String) solverSelector.getSelectedItem());
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -153,14 +163,17 @@ public class GUI extends JFrame {
         randomSimulationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String randoma = Integer.toString(random.nextInt(100));
-                String randomb = Integer.toString(random.nextInt(100));
-                String randomc = Integer.toString(random.nextInt(100));
+                initialConditionsField.setText(String.valueOf(random.nextInt(100)));
+                stepSizeField.setText(String.valueOf(random.nextInt(100)));
+                integrationTimeField.setText(String.valueOf(random.nextInt(100) + 1)); // +1 to avoid zero
 
-                initialConditionsField.setText(randoma);
-                stepSizeField.setText(randomb);
-                integrationTimeField.setText(randomc);
-
+                if ("Euler Solver".equals(solverSelector.getSelectedItem())) {
+                    // Euler fields: generate double values from 0.0 to 10.0
+                    functionField.setText(String.format("%.2f", random.nextInt() * 100));
+                    initialTimeField.setText(String.format("%.2f", random.nextInt() * 100));
+                    initialValueField.setText(String.format("%.2f", random.nextInt() * 100));
+                    endTimeField.setText(String.format("%.2f", random.nextInt() * 100));
+                }
             }
         });
 
@@ -171,6 +184,47 @@ public class GUI extends JFrame {
                 plotPanel.repaint(); // Trigger repaint to update plot
             }
         });
+
+        solverSelector.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedSolver = (String) solverSelector.getSelectedItem();
+                updateInterfaceForSolver(selectedSolver);
+            }
+        });
+
+    }
+
+    private void updateInterfaceForSolver(String solver) {
+        inputPanel.removeAll(); // Clear the current interface
+
+        inputPanel.add(new JLabel("Solver:"));
+        inputPanel.add(solverSelector);
+
+        if ("Euler Solver".equals(solver)) {
+            inputPanel.add(new JLabel("Function f(t, y):"));
+            inputPanel.add(functionField);
+            inputPanel.add(new JLabel("Step Size (h):"));
+            inputPanel.add(stepSizeField);
+            inputPanel.add(new JLabel("Initial Time (t0):"));
+            inputPanel.add(initialTimeField);
+            inputPanel.add(new JLabel("Initial Value (y0):"));
+            inputPanel.add(initialValueField);
+            inputPanel.add(new JLabel("End Time (t1):"));
+            inputPanel.add(endTimeField);
+        } else {
+            // Add components for other solvers here
+            inputPanel.add(new JLabel("Initial Conditions:"));
+            inputPanel.add(initialConditionsField);
+            inputPanel.add(new JLabel("Step Size:"));
+            inputPanel.add(stepSizeField);
+            inputPanel.add(new JLabel("Integration Time:"));
+            inputPanel.add(integrationTimeField);
+        }
+
+        // Revalidate and repaint to update the UI
+        inputPanel.revalidate();
+        inputPanel.repaint();
     }
 
     private void finalizeSetup() {
@@ -188,7 +242,7 @@ public class GUI extends JFrame {
             String selectedSolver = (String) solverSelector.getSelectedItem();
             double initialCondition = Double.parseDouble(initialConditionsField.getText());
             double stepSize = Double.parseDouble(stepSizeField.getText()); // Get step size as double
-            double integrationTime = Double.parseDouble(integrationTimeField.getText());
+            int integrationTime = Integer.parseInt(integrationTimeField.getText());
             double k = 0.1; // Example constant for the differential equation
 
             // Check if step size is negative
@@ -214,9 +268,9 @@ public class GUI extends JFrame {
                 //result = odeanal.analyticalSolution(integrationTime, initialCondition, k);
             } else {
                 // Add other solvers' implementation here
-                if ("ODE Native Solver Function".equals(selectedSolver)) {
-                    // Function nativeSolver = new Function();
-                    // result = nativeSolver.funcVal(integrationTime, initialCondition,k);
+                if ("RK2Solver".equals(selectedSolver)) {
+                    RK2Solver rk = new RK2Solver();
+                    result = rk.solveODE(initialCondition, initialCondition, result, stepSize, ABORT);
                 } else {
 
                 }
@@ -239,6 +293,12 @@ public class GUI extends JFrame {
                     "Input Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private JTextField createNumericTextField(int columns) {
+        JTextField textField = new JTextField(columns);
+        applyNumericFilter(textField);
+        return textField;
     }
 
     public static void main(String[] args) {
