@@ -12,6 +12,11 @@ public class SIR_Model {
     double infected;
     double recovered;
     double stepSize;
+    int currentSteps;
+
+    double S0;
+    double I0;
+    double R0;
 
     Random randomNumber = new Random();
     double gamma = 0.1;
@@ -27,6 +32,11 @@ public class SIR_Model {
         this.infected = infected;
         this.recovered = recovered;
         this.stepSize = stepSize;
+        this.currentSteps = 0;
+
+        this.S0 = susceptible;
+        this.I0 = infected;
+        this.R0 = recovered;
 
 
         Timer timer = new Timer();
@@ -34,6 +44,11 @@ public class SIR_Model {
 
             public void run() {
                 System.out.println(changeInVariables());
+                currentSteps++;
+                if(currentSteps == steps) {
+                    System.out.println(changeInVariables());
+                    cancel();
+                }
             }
         },0,1000); //Time is in milliseconds
 
@@ -41,6 +56,14 @@ public class SIR_Model {
     }
 
     public String changeInVariables() {
+
+        if(currentSteps == steps) {
+            double differenceS = ((int)((susceptible - S0)*100))/100;
+            double differenceI = ((int)((infected - I0)*100))/100;
+            double differenceR = ((int)((recovered - R0)*100))/100;
+            return "\nChanges: " + differenceS + " susceptible, " + differenceI
+                    + " infected, " + differenceR + " recovered.";
+        }
 
         s_dot = -k * susceptible * infected + (mu * (1 - susceptible));
         i_dot = k * susceptible * infected - (gamma + mu) * infected;
