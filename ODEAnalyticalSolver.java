@@ -21,12 +21,13 @@ public class ODEAnalyticalSolver {
         return -k * y;
     }
 
-    public static double[] analyticalSolution(int t, double y0, double k) {
-        double[]sol=new double[t];
-        for(int i=0;i<t;i++){
-        sol[i]= y0 * Math.exp(-k * i);
-
-    }
+    public static double[] analyticalSolution(int t, double y0, double k, double stepSize) {
+        double[]sol=new double[(int)(t/stepSize)+1];
+        int idx = 0;
+        for(double i=0;i<t;i+=stepSize){
+            sol[idx]= y0 * Math.exp(-k * i);
+            idx++;
+        }
         return sol;
     }
     public static void print(String str){

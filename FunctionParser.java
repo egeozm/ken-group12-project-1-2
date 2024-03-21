@@ -36,6 +36,21 @@ public class FunctionParser {
 
         int i = 0;
         while (i < func.size()-1) {
+            if(func.get(i).equals("^")) {
+                if(func.get(i-1).equals(")"))
+                    findNextParenthesis(func, i, true);
+                else
+                    func.add(i-1, "(");
+                i++;
+                if(func.get(i+1).equals("("))
+                    findNextParenthesis(func, i, false);
+                else
+                    func.add(i+2, ")");
+            }
+            i++;
+        }
+        i = 0;
+        while (i < func.size()-1) {
             if(operands2nd.contains(func.get(i))) {
                 if(func.get(i-1).equals(")"))
                     findNextParenthesis(func, i, true);
@@ -86,8 +101,6 @@ public class FunctionParser {
         int firstIdx = findFirstValue(vals, arr);
         Double sum = null;
         for(int i = 0; i < arr.size(); i++){
-            if(arr.get(i).equals("^"))
-                System.out.println();
             if(arr.get(i).equals("(")) {
                 ArrayList<String> newArr = new ArrayList<>(arr.subList(i, arr.size()));
                 int buf = findParenthesis(newArr);

@@ -219,7 +219,6 @@ public class GUI extends JFrame {
                 // Here you can handle the tracking of the input, for example:
                 eulerFunc = functionField.getText();
                 h = Double.parseDouble(stepSizeField.getText());
-                System.out.println(stepSizeField.getText());
                 t0 = Double.parseDouble(initialTimeField.getText());
                 y0 = Double.parseDouble(initialValueField.getText());
                 t1 = Double.parseDouble(endTimeField.getText());
@@ -302,7 +301,7 @@ public class GUI extends JFrame {
 
             if ("ODE Analytical Solver".equals(selectedSolver)) {
                 ODEAnalyticalSolver odeanal = new ODEAnalyticalSolver();
-                double[] results = odeanal.analyticalSolution(integrationTime, initialCondition, k);
+                double[] results = odeanal.analyticalSolution(integrationTime, initialCondition, k, 0.2);
                 result = results[results.length - 1];
             } else {
                 // Add other solvers' implementation here
