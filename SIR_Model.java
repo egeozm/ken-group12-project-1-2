@@ -4,6 +4,7 @@ import java.util.TimerTask;
 
 /*
 Make sure the 'infected' value is greater than 0.
+Code still doesn't work for large values (believe this is a fault of the model itself).
  */
 public class SIR_Model {
 
@@ -45,9 +46,9 @@ public class SIR_Model {
         i_dot = k * susceptible * infected - (gamma + mu) * infected;
         r_dot = gamma * infected - mu * recovered;
 
-        susceptible += s_dot;
-        infected += i_dot;
-        recovered += r_dot;
+        susceptible += (s_dot) * stepSize;
+        infected += (i_dot) * stepSize;
+        recovered += (r_dot) * stepSize;
 
         susceptible = Math.max(susceptible, 0);
         infected = Math.max(infected, 0);
