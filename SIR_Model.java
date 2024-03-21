@@ -2,24 +2,30 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
+/*
+Make sure the 'infected' value is greater than 0.
+ */
 public class SIR_Model {
 
     double susceptible;
     double infected;
     double recovered;
+    double stepSize;
 
     Random randomNumber = new Random();
-    double gamma = randomNumber.nextInt(4) + 1;
-    double k = randomNumber.nextInt(4) + 1;
+    double gamma = 0.1;
+    double k = 0.02;
     double mu = 0.001;
+    double s_dot;
+    double i_dot;
+    double r_dot;
 
-    public SIR_Model(double susceptible, double infected, double recovered) {
+    public SIR_Model(double susceptible, double infected, double recovered, int stepSize) {
 
-        susceptible = this.susceptible;
-        infected = this.infected;
-        recovered = this.recovered;
-
+        this.susceptible = susceptible;
+        this.infected = infected;
+        this.recovered = recovered;
+        this.stepSize = stepSize;
 
 
         Timer timer = new Timer();
@@ -33,21 +39,19 @@ public class SIR_Model {
 
     }
 
-    double s_dot = 0;
-    double i_dot = 0;
-    double r_dot = 0;
-
     public String changeInVariables() {
 
-
-
-        s_dot = -k * susceptible * infected + mu * (1 - susceptible);
+        s_dot = -k * susceptible * infected + (mu * (1 - susceptible));
         i_dot = k * susceptible * infected - (gamma + mu) * infected;
         r_dot = gamma * infected - mu * recovered;
 
         susceptible += s_dot;
         infected += i_dot;
         recovered += r_dot;
+
+        susceptible = Math.max(susceptible, 0);
+        infected = Math.max(infected, 0);
+        recovered = Math.max(recovered, 0);
 
         return "There are " + susceptible + " people susceptible, " +
                 infected + " infected people and " + recovered + " recovered people.";
@@ -57,7 +61,7 @@ public class SIR_Model {
 
     public static void main(String[] args) {
 
-    SIR_Model random = new SIR_Model(10000,400,200);
+    SIR_Model random = new SIR_Model(10,1,0,5);
 
     }
 
