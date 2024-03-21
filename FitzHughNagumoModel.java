@@ -14,12 +14,12 @@ public class FitzHughNagumoModel {
         this.I = currentI;
     }
 
-    public void eulerStepFHN(double dt) {
+    public void eulerStepFHN(double timeStep) {
         dvdt = v - Math.pow(v, 3) / 3 - w + I;
         dwdt = epsilon * (v + a - b * w);
 
-        v += dvdt * dt;
-        w += dwdt * dt;
+        v += dvdt * timeStep;
+        w += dwdt * timeStep;
     }
 
     public static void main(String[] args) {
