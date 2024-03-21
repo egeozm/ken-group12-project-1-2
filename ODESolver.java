@@ -1,9 +1,11 @@
+import java.util.HashMap;
+
 public class ODESolver {
-    public static double EulerSolver(double x0, double y0, double h, double x){
-        while (x0 < x) {
-            y0 += h * (x0*y0);
-            x0 += h;
+    public static double EulerSolver(HashMap<String, Double> varVals, Function func) throws Exception {
+        while (varVals.get("x0") < varVals.get("x")) {
+            varVals.put("y0",varVals.get("y0")+ varVals.get("h") * (func.funcVal(varVals)));
+            varVals.put("x0",varVals.get("x0")+ varVals.get("h"));
         }
-        return y0;
+        return varVals.get("y0");
     }
 }
