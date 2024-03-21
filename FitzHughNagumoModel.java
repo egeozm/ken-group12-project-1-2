@@ -5,6 +5,8 @@ public class FitzHughNagumoModel {
     private double a = 0.7;
     private double b = 0.8;
     private double epsilon = 0.08;
+    private double dvdt;
+    private double dwdt;
 
     public FitzHughNagumoModel(double vInitial, double wInitial, double currentI) {
         this.v = vInitial;
@@ -12,9 +14,9 @@ public class FitzHughNagumoModel {
         this.I = currentI;
     }
 
-    public void eulerStep(double dt) {
-        double dvdt = v - Math.pow(v, 3) / 3 - w + I;
-        double dwdt = epsilon * (v + a - b * w);
+    public void eulerStepFHN(double dt) {
+        dvdt = v - Math.pow(v, 3) / 3 - w + I;
+        dwdt = epsilon * (v + a - b * w);
 
         v += dvdt * dt;
         w += dwdt * dt;
@@ -29,10 +31,10 @@ public class FitzHughNagumoModel {
         FitzHughNagumoModel model = new FitzHughNagumoModel(vInitial, wInitial, currentI);
 
         
-        int numSteps = 1000; // Number of integration steps
+        int numSteps = 11000; // Number of integration steps
         for (int i = 0; i < numSteps; i++) {
-            model.eulerStep(dt);
-            
+            model.eulerStepFHN(dt);
+            System.out.println("Membrane potential of the neuron: " + model.v + ", Recovery variable: " + model.w);
         }
     }
 }
