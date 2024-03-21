@@ -26,15 +26,24 @@ public class FitzHughNagumoModel {
         double vInitial = 0.1; // Initial value of v
         double wInitial = 0.1; // Initial value of w
         double currentI = 0.5; // Current value of I
-        double timeStep = 0.01; // Time step for Euler integration
+        double timeStep = 0.2; // Time step for Euler integration
 
         FitzHughNagumoModel model = new FitzHughNagumoModel(vInitial, wInitial, currentI);
-
+        double initialV = model.v;
+        double initialW = model.w;
         
         int numSteps = 200; // Number of integration steps
         for (int i = 0; i < numSteps; i++) {
             model.eulerStepFHN(timeStep);
             System.out.println("Membrane potential of the neuron: " + model.v + ", Recovery variable: " + model.w);
         }
+        double finalV = model.v;
+        double finalW = model.w;
+        double differenceV = finalV - initialV;
+        double differenceW = finalW - initialW;
+    
+        // Print differences
+        System.out.println("Difference in membrane potential (v): " + differenceV);
+        System.out.println("Difference in recovery variable (w): " + differenceW);
     }
 }
