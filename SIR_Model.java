@@ -87,7 +87,7 @@ public class SIR_Model {
 
     public static void main(String[] args) {
 
-    SIR_Model random = new SIR_Model(10,1,0,5);
+    SIR_Model random = new SIR_Model(10,1,0,5, 100);
 
     }
 
