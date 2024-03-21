@@ -242,7 +242,7 @@ public class GUI extends JFrame {
             String selectedSolver = (String) solverSelector.getSelectedItem();
             double initialCondition = Double.parseDouble(initialConditionsField.getText());
             double stepSize = Double.parseDouble(stepSizeField.getText()); // Get step size as double
-            double integrationTime = Double.parseDouble(integrationTimeField.getText());
+            int integrationTime = Integer.parseInt(integrationTimeField.getText());
             double k = 0.1; // Example constant for the differential equation
 
             // Check if step size is negative
@@ -265,7 +265,8 @@ public class GUI extends JFrame {
 
             if ("ODE Analytical Solver".equals(selectedSolver)) {
                 ODEAnalyticalSolver odeanal = new ODEAnalyticalSolver();
-                result = odeanal.analyticalSolution(integrationTime, initialCondition, k);
+                double [] results= odeanal.analyticalSolution(integrationTime, initialCondition, k);
+                result=results[results.length-1];
             } else {
                 // Add other solvers' implementation here
                 if ("RK2Solver".equals(selectedSolver)) {
