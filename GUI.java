@@ -58,7 +58,7 @@ public class GUI extends JFrame {
 
     private void initializeComponents() {
         // Solver selection
-        String[] solvers = { "Euler Solver", "ODE Analytical Solver", "ODE Native Solver" };
+        String[] solvers = { "Euler Solver", "ODE Analytical Solver", "RK2Solver" };
         solverSelector = new JComboBox<>(solvers);
 
         // Output selection
@@ -268,9 +268,9 @@ public class GUI extends JFrame {
                 result = odeanal.analyticalSolution(integrationTime, initialCondition, k);
             } else {
                 // Add other solvers' implementation here
-                if ("ODE Native Solver Function".equals(selectedSolver)) {
-                    // Function nativeSolver = new Function();
-                    // result = nativeSolver.funcVal(integrationTime, initialCondition,k);
+                if ("RK2Solver".equals(selectedSolver)) {
+                    RK2Solver rk = new RK2Solver();
+                    result = rk.solveODE(initialCondition, initialCondition, result, stepSize, ABORT);
                 } else {
 
                 }
