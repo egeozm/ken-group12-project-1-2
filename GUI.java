@@ -6,6 +6,7 @@ import java.awt.*;
 import javax.swing.text.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.Random;
 
 // NumericDocumentFilter class definition
@@ -50,6 +51,8 @@ public class GUI extends JFrame {
             initialValueField, endTimeField;
     private JButton startSimulationButton, resetSimulationButton, randomSimulationButton;
     private JPanel mainPanel, inputPanel, buttonPanel, outputPanel, plotPanel;
+    private String eulerFunc;
+    private double h, t0, y0, t1;
 
     public GUI() {
         super("ODE Solver");
@@ -214,8 +217,12 @@ public class GUI extends JFrame {
             private void logChange() {
                 // This method is called whenever the user types in the functionField
                 // Here you can handle the tracking of the input, for example:
-                String text = functionField.getText();
-                System.out.println("Current function field input: " + text); // Print to console or log it as needed
+                eulerFunc = functionField.getText();
+                h = Double.parseDouble(stepSizeField.getText());
+                System.out.println(stepSizeField.getText());
+                t0 = Double.parseDouble(initialTimeField.getText());
+                y0 = Double.parseDouble(initialValueField.getText());
+                t1 = Double.parseDouble(endTimeField.getText());
             }
         });
 
@@ -265,6 +272,10 @@ public class GUI extends JFrame {
 
     private void startSimulation() {
         try {
+            HashMap<String, Double> vals = new HashMap<String, Double>();
+            vals.put("t", t0); vals.put("t1", t1); vals.put("y", y0); vals.put("h", h);
+            FunctionParser a = new FunctionParser(eulerFunc);
+            System.out.println(ODESolver.EulerSolver(vals, a));
             String selectedSolver = (String) solverSelector.getSelectedItem();
             double initialCondition = Double.parseDouble(initialConditionsField.getText());
             double stepSize = Double.parseDouble(stepSizeField.getText()); // Get step size as double
@@ -319,6 +330,8 @@ public class GUI extends JFrame {
                     "Please enter valid numbers for initial conditions, step size, and integration time.",
                     "Input Error",
                     JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
