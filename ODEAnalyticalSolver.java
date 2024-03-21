@@ -21,8 +21,11 @@ public class ODEAnalyticalSolver {
         return -k * y;
     }
 
-    public static double analyticalSolution(double t, double y0, double k) {
-        return y0 * Math.exp(-k * t);
+    public static double[] analyticalSolution(int t, double y0, double k) {
+        double[]sol=new double[t];
+        for(int i=0;i<t;i++){
+        sol[i]= y0 * Math.exp(-k * i);
+        return sol;
     }
     public static void print(String str){
         System.out.println(str);
