@@ -26,7 +26,7 @@ public class ODEAnalyticalSolver {
         for(int i=0;i<t;i++){
         sol[i]= y0 * Math.exp(-k * i);
         return sol;
-    }
+    }}
     public static void print(String str){
         System.out.println(str);
 }
@@ -38,7 +38,7 @@ public class ODEAnalyticalSolver {
         }));
 
         System.out.println(Double.toString(f(4, 4, 4)));
-        System.out.println(Double.toString(analyticalSolution(10, 10, 0.2)));
+        //System.out.println(Double.toString(analyticalSolution(10, 10, 0.2)));                 I commented it out because the output is an array and I dont know how you intend to use it exactly
 
         SwingUtilities.invokeLater(() -> {
             LogLogPlot ex = new LogLogPlot();
