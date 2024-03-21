@@ -25,8 +25,9 @@ public class ODEAnalyticalSolver {
         double[]sol=new double[t];
         for(int i=0;i<t;i++){
         sol[i]= y0 * Math.exp(-k * i);
+        }
         return sol;
-    }}
+    }
     public static void print(String str){
         System.out.println(str);
 }

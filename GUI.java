@@ -211,7 +211,7 @@ public class GUI extends JFrame {
 
             if ("ODE Analytical Solver".equals(selectedSolver)) {
                 ODEAnalyticalSolver odeanal = new ODEAnalyticalSolver();
-                result = odeanal.analyticalSolution(integrationTime, initialCondition, k);
+                //result = odeanal.analyticalSolution(integrationTime, initialCondition, k);
             } else {
                 // Add other solvers' implementation here
                 if ("ODE Native Solver Function".equals(selectedSolver)) {
