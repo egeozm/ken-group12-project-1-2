@@ -2,11 +2,6 @@ public class RK2Solver {
     // change depending on the ODE
     // if ODE not in list then add it and it will be available to use
     static double calculateDerivative(double x, double y, int choice) {
-        // ODE: dx/dy = 2xy
-        // ODE: dx/dy = x^2 + y^2
-        // ODE: dx/dy = -y
-        // ODE: dx/dy = -x * y
-        // ODE: dx/dy = Math.sin(x) * Math.cos(y)
         if (choice == 1){
             return 2 * x * y;
         } else if (choice == 2){
