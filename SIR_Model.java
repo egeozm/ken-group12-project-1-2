@@ -20,14 +20,14 @@ public class SIR_Model {
     double R0;
 
     Random randomNumber = new Random();
-    double gamma = 0.1;
-    double k = 0.02;
-    double mu = 0.001;
+    double gamma = 1.0;
+    double k = 3.0;
+    double mu = 0.1;
     double s_dot;
     double i_dot;
     double r_dot;
 
-    public SIR_Model(double susceptible, double infected, double recovered, int stepSize, int steps) {
+    public SIR_Model(double susceptible, double infected, double recovered, double stepSize, int steps) {
 
         this.susceptible = susceptible;
         this.infected = infected;
@@ -52,7 +52,7 @@ public class SIR_Model {
                     cancel();
                 }
             }
-        },0,1000); //Time is in milliseconds
+        },0,1); //Time is in milliseconds
 
 
     }
@@ -87,7 +87,7 @@ public class SIR_Model {
 
     public static void main(String[] args) {
 
-    SIR_Model random = new SIR_Model(10,1,0,5, 100);
+    SIR_Model random = new SIR_Model(0.999,0.001,0,0.01, 100);
 
     }
 

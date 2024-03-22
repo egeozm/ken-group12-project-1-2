@@ -13,50 +13,43 @@ import java.util.HashMap;
 import java.util.Random;
 
 class PlotPanel extends JPanel {
-    private double[] xData;
-    private double[] yData;
+    private List<Double> xData = new ArrayList<>();
+    private List<Double> yData = new ArrayList<>();
     private String plotType = "Time Evolution"; // default plot type
 
-    public void setPlotData(double[][] Data, String plotType) {
-        this.xData = Data[0];
-        this.yData = Data[1];
+    public void setPlotData(List<Double> xData, List<Double> yData, String plotType) {
+        this.xData = xData;
+        this.yData = yData;
         this.plotType = plotType;
         repaint(); // repaint the panel whenever new data is set
     }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (xData == null || xData.length > 0) {
-            // No data to plot
-            return;
-        }
-        if (xData.length != yData.length) {
+        if (xData.size() != yData.size()) {
             // Data is not paired correctly, can't plot
             return;
         }
-        int[] xPixels = new int[xData.length];
-        int[] yPixels = new int[xData.length];
-        for (int i = 0; i < xData.length; i++) {
-            xPixels[i] = (int) (((double) xData[i] / getMax(xData)) * getWidth());
-            yPixels[i] = getHeight() - (int) (((double) yData[i] / getMax(yData)) * getHeight());
+        if (xData.isEmpty()) {
+            // No data to plot
+            return;
         }
 
-        // Draw lines between points
-        g.setColor(Color.BLUE);
-        for (int i = 0; i < xData.length - 1; i++) {
-            g.drawLine(xPixels[i], yPixels[i], xPixels[i + 1], yPixels[i + 1]);
-        }
-    }
-    private double getMax(double[] array) {
-        double max = array[0];
-        for (int i = 1; i < array.length; i++) {
-            if (array[i] > max) {
-                max = array[i];
+        // data
+        for (int i = 0; i < xData.size() - 1; i++) {
+
+            if (plotType.equals("Time Evolution")) {
+                // Draw line segment connecting points for time evolution
+
+            } else if (plotType.equals("Phase Space")) {
+                // Draw point for phase space
+
             }
         }
-        return max;
     }
 }
+
 // NumericDocumentFilter class definition
 class NumericDocumentFilter extends DocumentFilter {
     @Override
@@ -101,33 +94,7 @@ public class GUI extends JFrame {
     private JButton startSimulationButton, resetSimulationButton, randomSimulationButton;
     private JPanel mainPanel, inputPanel, buttonPanel, outputPanel;
     private String eulerFunc;
-    private static double h;
-    private static double t0;
-    private static double y0;
-
-
-    private static double[][] eulerFuncVals;
-    public static double[][] getEulerFuncVals() {
-        return eulerFuncVals;
-    }
-
-    public static double getH() {
-        return h;
-    }
-
-    public static double getT0() {
-        return t0;
-    }
-
-    public static double getY0() {
-        return y0;
-    }
-
-    public static double getT1() {
-        return t1;
-    }
-
-    private static double t1;
+    private double h, t0, y0, t1;
     private PlotPanel plotPanel;
 
     public GUI() {
@@ -324,6 +291,11 @@ public class GUI extends JFrame {
             private void logChange() {
                 // This method is called whenever the user types in the functionField
                 // Here you can handle the tracking of the input, for example:
+                eulerFunc = functionField.getText();
+                h = Double.parseDouble(stepSizeField.getText());
+                t0 = Double.parseDouble(initialTimeField.getText());
+                y0 = Double.parseDouble(initialValueField.getText());
+                t1 = Double.parseDouble(endTimeField.getText());
             }
         });
 
@@ -398,34 +370,13 @@ public class GUI extends JFrame {
 
     private void startSimulation() {
         try {
-            if (functionField != null)
-                eulerFunc = functionField.getText();
-            if (stepSizeField.getText().length() > 0) {
-                h = Double.parseDouble(stepSizeField.getText());
-            }
-            if (initialTimeField.getText().length() > 0) {
-                t0 = Double.parseDouble(initialTimeField.getText());
-            }
-            if (initialValueField.getText().length() > 0) {
-                y0 = Double.parseDouble(initialValueField.getText());
-            }
-            if (endTimeField.getText().length() > 0) {
-                t1 = Double.parseDouble(endTimeField.getText());
-            }
             HashMap<String, Double> vals = new HashMap<String, Double>();
             vals.put("t", t0);
             vals.put("t1", t1);
             vals.put("y", y0);
             vals.put("h", h);
-            eulerFuncVals = ODESolver.EulerSolverPlotter(vals, new FunctionParser(eulerFunc));
-            System.out.println(eulerFuncVals[1][eulerFuncVals[1].length-1]);
-
-
-            plotPanel.setPlotData(eulerFuncVals, "Time Evolution");
-
-
-            //plotPanel.setPreferredSize(new Dimension(400, 300));
-            //outputPanel.add(plotPanel);
+            FunctionParser a = new FunctionParser(eulerFunc);
+            System.out.println(ODESolver.EulerSolver(vals, a));
             String selectedSolver = (String) solverSelector.getSelectedItem();
 
             double stepSize = Double.parseDouble(stepSizeField.getText()); // Get step size as double
@@ -441,7 +392,8 @@ public class GUI extends JFrame {
                 variableData.add(Math.sin(i * 0.1)); // Dummy variable values (e.g., sine wave)
             }
 
-            // plot panel with new data
+            //plotPanel.setPlotData(timeData, variableData, selectedOutput); // Update the plot panel with new data
+
 
             // Check if step size is negative
             if (stepSize <= 0) {
@@ -463,12 +415,11 @@ public class GUI extends JFrame {
 
             if ("ODE Analytical Solver".equals(selectedSolver)) {
                 double initialCondition = Double.parseDouble(initialConditionsField.getText());
-                double[] results = ODEAnalyticalSolver.analyticalSolution(integrationTime, initialCondition, k,
-                        stepSize);
+                double[] results = ODEAnalyticalSolver.analyticalSolution(integrationTime, initialCondition, k, stepSize);
                 result = results[results.length - 1];
             } else {
                 // Add other solvers' implementation here
-                if ("RK2 Solver".equals(selectedSolver)) {
+                if ("RK2Solver".equals(selectedSolver)) {
                     double initialX = Double.parseDouble(initialXField.getText());
                     double initialY = Double.parseDouble(initialYField.getText());
                     double finalX = Double.parseDouble(finalXField.getText());
@@ -476,8 +427,7 @@ public class GUI extends JFrame {
 
                     result = RK2Solver.solveODE(initialX, initialY, finalX, stepSize, choice);
                 } else {
-                    FunctionParser a = new FunctionParser(eulerFunc);
-                    System.out.println(ODESolver.EulerSolver(vals, a));
+
                     if ("Euler Solver".equals(selectedSolver)) {
 
                         result = ODESolver.EulerSolver(vals, a);
