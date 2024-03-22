@@ -1,15 +1,14 @@
 import javax.swing.*;
 import java.awt.event.*;
-import java.util.HashMap;
 
-public class NewGUI extends JFrame {
+public class RK2SolverGUI extends JFrame {
     private JLabel solverLabel, initialXLabel, initialYLabel, finalXLabel, stepSizeLabel, odeChoiceLabel, resultLabel;
     private JTextField initialXField, initialYField, finalXField, stepSizeField;
     private JComboBox<String> odeChoiceComboBox, solverComboBox;
     private JButton solveButton;
     private JTextArea resultArea;
 
-    public NewGUI() {
+    public RK2SolverGUI() {
         setTitle("ODE Solver");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -19,7 +18,7 @@ public class NewGUI extends JFrame {
         solverLabel.setBounds(20, 20, 100, 25);
         add(solverLabel);
 
-        String[] solverChoices = {"RK2 Solver", "Euler Solver"};
+        String[] solverChoices = {"RK2 Solver"};
         solverComboBox = new JComboBox<String>(solverChoices);
         solverComboBox.setBounds(120, 20, 150, 25);
         add(solverComboBox);
@@ -29,8 +28,6 @@ public class NewGUI extends JFrame {
                 String selectedSolver = (String) solverComboBox.getSelectedItem();
                 if (selectedSolver.equals("RK2 Solver")) {
                     showRK2SolverFields();
-                } else if (selectedSolver.equals("Euler Solver")) {
-                    showEulerSolverFields();
                 }
             }
         });
@@ -90,12 +87,7 @@ public class NewGUI extends JFrame {
 
         solveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String selectedSolver = (String) solverComboBox.getSelectedItem();
-                if (selectedSolver.equals("RK2 Solver")) {
-                    solveRK2();
-                } else if (selectedSolver.equals("Euler Solver")) {
-                    solveEuler();
-                }
+                solveRK2();
             }
         });
     }
@@ -111,17 +103,6 @@ public class NewGUI extends JFrame {
         odeChoiceComboBox.setVisible(true);
     }
 
-    private void showEulerSolverFields() {
-        initialYLabel.setVisible(false);
-        initialYField.setVisible(false);
-        finalXLabel.setVisible(true);
-        finalXField.setVisible(true);
-        stepSizeLabel.setVisible(true);
-        stepSizeField.setVisible(true);
-        odeChoiceLabel.setVisible(false);
-        odeChoiceComboBox.setVisible(false);
-    }
-
     private void solveRK2() {
         double initialX = Double.parseDouble(initialXField.getText());
         double initialY = Double.parseDouble(initialYField.getText());
@@ -133,29 +114,10 @@ public class NewGUI extends JFrame {
         resultArea.setText("Value of y at x = " + finalX + ": " + result);
     }
 
-    private void solveEuler() {
-        double initialX = Double.parseDouble(initialXField.getText());
-        double finalX = Double.parseDouble(finalXField.getText());
-        double stepSize = Double.parseDouble(stepSizeField.getText());
-
-        HashMap<String, Double> varVals = new HashMap<>();
-        varVals.put("t", initialX);
-        varVals.put("t1", finalX);
-        varVals.put("h", stepSize);
-        varVals.put("y", 0.0);
-
-        try {
-            double result = ODESolver.EulerSolver(varVals, new FunctionParser(""));
-            resultArea.setText("Value of y at x = " + finalX + ": " + result);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new NewGUI().setVisible(true);
+                new RK2SolverGUI().setVisible(true);
             }
         });
     }
