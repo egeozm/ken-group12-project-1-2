@@ -142,10 +142,10 @@ public class NewGUI extends JFrame {
         varVals.put("t", initialX);
         varVals.put("t1", finalX);
         varVals.put("h", stepSize);
-        varVals.put("y", 0.0); // Initial Y value
+        varVals.put("y", 0.0);
 
         try {
-            double result = ODESolver.EulerSolver(varVals, new FunctionParser("")); // Pass empty string for function, as it's not used here
+            double result = ODESolver.EulerSolver(varVals, new FunctionParser(""));
             resultArea.setText("Value of y at x = " + finalX + ": " + result);
         } catch (Exception ex) {
             ex.printStackTrace();
