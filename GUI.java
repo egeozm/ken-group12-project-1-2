@@ -13,43 +13,50 @@ import java.util.HashMap;
 import java.util.Random;
 
 class PlotPanel extends JPanel {
-    private List<Double> xData = new ArrayList<>();
-    private List<Double> yData = new ArrayList<>();
+    private double[] xData;
+    private double[] yData;
     private String plotType = "Time Evolution"; // default plot type
 
-    public void setPlotData(List<Double> xData, List<Double> yData, String plotType) {
-        this.xData = xData;
-        this.yData = yData;
+    public void setPlotData(double[][] Data, String plotType) {
+        this.xData = Data[0];
+        this.yData = Data[1];
         this.plotType = plotType;
         repaint(); // repaint the panel whenever new data is set
     }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (xData.size() != yData.size()) {
-            // Data is not paired correctly, can't plot
-            return;
-        }
-        if (xData.isEmpty()) {
+        if (xData == null || xData.length > 0) {
             // No data to plot
             return;
         }
+        if (xData.length != yData.length) {
+            // Data is not paired correctly, can't plot
+            return;
+        }
+        int[] xPixels = new int[xData.length];
+        int[] yPixels = new int[xData.length];
+        for (int i = 0; i < xData.length; i++) {
+            xPixels[i] = (int) (((double) xData[i] / getMax(xData)) * getWidth());
+            yPixels[i] = getHeight() - (int) (((double) yData[i] / getMax(yData)) * getHeight());
+        }
 
-        // data
-        for (int i = 0; i < xData.size() - 1; i++) {
-
-            if (plotType.equals("Time Evolution")) {
-                // Draw line segment connecting points for time evolution
-
-            } else if (plotType.equals("Phase Space")) {
-                // Draw point for phase space
-
-            }
+        // Draw lines between points
+        g.setColor(Color.BLUE);
+        for (int i = 0; i < xData.length - 1; i++) {
+            g.drawLine(xPixels[i], yPixels[i], xPixels[i + 1], yPixels[i + 1]);
         }
     }
+    private double getMax(double[] array) {
+        double max = array[0];
+        for (int i = 1; i < array.length; i++) {
+            if (array[i] > max) {
+                max = array[i];
+            }
+        }
+        return max;
+    }
 }
-
 // NumericDocumentFilter class definition
 class NumericDocumentFilter extends DocumentFilter {
     @Override
@@ -94,7 +101,33 @@ public class GUI extends JFrame {
     private JButton startSimulationButton, resetSimulationButton, randomSimulationButton;
     private JPanel mainPanel, inputPanel, buttonPanel, outputPanel;
     private String eulerFunc;
-    private double h, t0, y0, t1;
+    private static double h;
+    private static double t0;
+    private static double y0;
+
+
+    private static double[][] eulerFuncVals;
+    public static double[][] getEulerFuncVals() {
+        return eulerFuncVals;
+    }
+
+    public static double getH() {
+        return h;
+    }
+
+    public static double getT0() {
+        return t0;
+    }
+
+    public static double getY0() {
+        return y0;
+    }
+
+    public static double getT1() {
+        return t1;
+    }
+
+    private static double t1;
     private PlotPanel plotPanel;
 
     public GUI() {
@@ -379,13 +412,20 @@ public class GUI extends JFrame {
             if(endTimeField.getText().length()>0) {
                 t1 = Double.parseDouble(endTimeField.getText());
             }
-
             HashMap<String, Double> vals = new HashMap<String, Double>();
             vals.put("t", t0);
             vals.put("t1", t1);
             vals.put("y", y0);
             vals.put("h", h);
-            System.out.println(ODESolver.EulerSolver(vals, new FunctionParser(eulerFunc)));
+            eulerFuncVals = ODESolver.EulerSolverPlotter(vals, new FunctionParser(eulerFunc));
+            System.out.println(eulerFuncVals[1][eulerFuncVals[1].length-1]);
+
+
+            plotPanel.setPlotData(eulerFuncVals, "Time Evolution");
+
+
+            //plotPanel.setPreferredSize(new Dimension(400, 300));
+            //outputPanel.add(plotPanel);
             String selectedSolver = (String) solverSelector.getSelectedItem();
 
             double stepSize = Double.parseDouble(stepSizeField.getText()); // Get step size as double
