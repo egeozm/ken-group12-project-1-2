@@ -34,7 +34,7 @@ public class ODEAnalyticalSolver {
         System.out.println(str);
 }
     //public static void main(String[] args) {
-      //  System.out.println("program executed");
+      //  System.out.pri0ntln("program executed");
 
         //System.out.println("That is the execution time: "+stopwatch(() -> {
           //  test(10000);

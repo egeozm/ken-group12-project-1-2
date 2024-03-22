@@ -6,7 +6,7 @@ public class Main {
         ODESolver s = new ODESolver();
 
         HashMap<String, Double> vals = new HashMap<String, Double>();
-        vals.put("t", 0.0); vals.put("t1", 1.0); vals.put("y", 3.0); vals.put("h", 0.2);
+        vals.put("t", 0.0); vals.put("t1", 1.0); vals.put("y", 3.0); vals.put("h", 0.02);
         //pars a = new pars("1.1*(x0*y0)+(x0-y0)^(x0*y0)/10");
         FunctionParser a = new FunctionParser("t^8/y");
         //FunctionParser a = new FunctionParser("x0/10");
