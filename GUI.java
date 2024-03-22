@@ -398,18 +398,18 @@ public class GUI extends JFrame {
 
     private void startSimulation() {
         try {
-            if(functionField!=null)
+            if (functionField != null)
                 eulerFunc = functionField.getText();
-            if(stepSizeField.getText().length()>0) {
+            if (stepSizeField.getText().length() > 0) {
                 h = Double.parseDouble(stepSizeField.getText());
             }
-            if(initialTimeField.getText().length()>0) {
+            if (initialTimeField.getText().length() > 0) {
                 t0 = Double.parseDouble(initialTimeField.getText());
             }
-            if(initialValueField.getText().length()>0) {
+            if (initialValueField.getText().length() > 0) {
                 y0 = Double.parseDouble(initialValueField.getText());
             }
-            if(endTimeField.getText().length()>0) {
+            if (endTimeField.getText().length() > 0) {
                 t1 = Double.parseDouble(endTimeField.getText());
             }
             HashMap<String, Double> vals = new HashMap<String, Double>();
@@ -441,7 +441,7 @@ public class GUI extends JFrame {
                 variableData.add(Math.sin(i * 0.1)); // Dummy variable values (e.g., sine wave)
             }
 
-            // plotPanel.setPlotData(timeData, variableData, selectedOutput); // Update the
+            plotPanel.setPlotData(timeData, variableData, selectedOutput); // Update the
             // plot panel with new data
 
             // Check if step size is negative
