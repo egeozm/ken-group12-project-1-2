@@ -17,7 +17,7 @@ public class FunctionParser {
     public FunctionParser(String functionStr) {
         functionArr = stringToFunction(functionStr);
     }
-    public static ArrayList<String> stringToFunction(String functionStr) {
+    public static ArrayList<String> stringToFunction(String functionStr){
         ArrayList<String> func = new ArrayList<String>();
         String buf = "";
         for(int i = 0; i < functionStr.length(); i++) {
@@ -66,7 +66,6 @@ public class FunctionParser {
         }
         return func;
     }
-
     private static void findNextParenthesis(ArrayList<String> a, int idx, boolean direction){
         int parenthesisCounter = 0;
         if(direction == false){

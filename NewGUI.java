@@ -2,14 +2,14 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.util.HashMap;
 
-public class RK2SolverGUI extends JFrame {
+public class NewGUI extends JFrame {
     private JLabel solverLabel, initialXLabel, initialYLabel, finalXLabel, stepSizeLabel, odeChoiceLabel, resultLabel, functionLabel;
     private JTextField initialXField, initialYField, finalXField, stepSizeField, functionField;
     private JComboBox<String> odeChoiceComboBox, solverComboBox;
     private JButton solveButton;
     private JTextArea resultArea;
 
-    public RK2SolverGUI() {
+    public NewGUI() {
         setTitle("ODE Solver");
         setSize(500, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -177,7 +177,7 @@ public class RK2SolverGUI extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new RK2SolverGUI().setVisible(true);
+                new NewGUI().setVisible(true);
             }
         });
     }
