@@ -6,6 +6,7 @@ import java.awt.*;
 import javax.swing.text.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -176,10 +177,19 @@ public class GUI extends JFrame {
 
                 if ("Euler Solver".equals(solverSelector.getSelectedItem())) {
                     // Euler fields: generate double values from 0.0 to 10.0
-                    functionField.setText(String.format("%.2f", random.nextInt() * 100));
-                    initialTimeField.setText(String.format("%.2f", random.nextInt() * 100));
-                    initialValueField.setText(String.format("%.2f", random.nextInt() * 100));
-                    endTimeField.setText(String.format("%.2f", random.nextInt() * 100));
+                    DecimalFormat df = new DecimalFormat("#.##"); // Format to two decimal places
+
+                    // Generate random values within a specified range
+                    int initialTime = (int) (0.0 + (10.0 - 0.0) * random.nextDouble()); // Example: from 0.0 to 10.0
+                    int initialValue = (int) (1.0 + (10.0 - 1.0) * random.nextDouble()); // Example: from 1.0 to 10.0
+                    int endTime = (int) (initialTime + (20.0 - initialTime) * random.nextDouble()); // Ensure endTime is
+                                                                                               // greater than
+                                                                                               // initialTime
+
+                    // Set the text fields with formatted random values
+                    initialTimeField.setText(df.format(initialTime));
+                    initialValueField.setText(df.format(initialValue));
+                    endTimeField.setText(df.format(endTime));
                 }
             }
         });
