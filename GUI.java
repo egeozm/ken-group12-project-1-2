@@ -441,7 +441,6 @@ public class GUI extends JFrame {
                 variableData.add(Math.sin(i * 0.1)); // Dummy variable values (e.g., sine wave)
             }
 
-            plotPanel.setPlotData(timeData, variableData, selectedOutput); // Update the
             // plot panel with new data
 
             // Check if step size is negative
