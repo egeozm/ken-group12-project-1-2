@@ -291,11 +291,6 @@ public class GUI extends JFrame {
             private void logChange() {
                 // This method is called whenever the user types in the functionField
                 // Here you can handle the tracking of the input, for example:
-                eulerFunc = functionField.getText();
-                h = Double.parseDouble(stepSizeField.getText());
-                t0 = Double.parseDouble(initialTimeField.getText());
-                y0 = Double.parseDouble(initialValueField.getText());
-                t1 = Double.parseDouble(endTimeField.getText());
             }
         });
 
@@ -370,12 +365,27 @@ public class GUI extends JFrame {
 
     private void startSimulation() {
         try {
+            if(functionField!=null)
+                eulerFunc = functionField.getText();
+            if(stepSizeField.getText().length()>0) {
+                h = Double.parseDouble(stepSizeField.getText());
+            }
+            if(initialTimeField.getText().length()>0) {
+                t0 = Double.parseDouble(initialTimeField.getText());
+            }
+            if(initialValueField.getText().length()>0) {
+                y0 = Double.parseDouble(initialValueField.getText());
+            }
+            if(endTimeField.getText().length()>0) {
+                t1 = Double.parseDouble(endTimeField.getText());
+            }
+
             HashMap<String, Double> vals = new HashMap<String, Double>();
             vals.put("t", t0);
             vals.put("t1", t1);
             vals.put("y", y0);
             vals.put("h", h);
-
+            System.out.println(ODESolver.EulerSolver(vals, new FunctionParser(eulerFunc)));
             String selectedSolver = (String) solverSelector.getSelectedItem();
 
             double stepSize = Double.parseDouble(stepSizeField.getText()); // Get step size as double
