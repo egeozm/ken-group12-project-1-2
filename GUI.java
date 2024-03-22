@@ -7,8 +7,48 @@ import javax.swing.text.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Random;
+
+class PlotPanel extends JPanel {
+    private List<Double> xData = new ArrayList<>();
+    private List<Double> yData = new ArrayList<>();
+    private String plotType = "Time Evolution"; // default plot type
+
+    public void setPlotData(List<Double> xData, List<Double> yData, String plotType) {
+        this.xData = xData;
+        this.yData = yData;
+        this.plotType = plotType;
+        repaint(); // repaint the panel whenever new data is set
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (xData.size() != yData.size()) {
+            // Data is not paired correctly, can't plot
+            return;
+        }
+        if (xData.isEmpty()) {
+            // No data to plot
+            return;
+        }
+
+        // data
+        for (int i = 0; i < xData.size() - 1; i++) {
+
+            if (plotType.equals("Time Evolution")) {
+                // Draw line segment connecting points for time evolution
+
+            } else if (plotType.equals("Phase Space")) {
+                // Draw point for phase space
+
+            }
+        }
+    }
+}
 
 // NumericDocumentFilter class definition
 class NumericDocumentFilter extends DocumentFilter {
@@ -48,12 +88,14 @@ class NumericDocumentFilter extends DocumentFilter {
 public class GUI extends JFrame {
 
     private JComboBox<String> solverSelector, outputSelector;
+    private JComboBox<Integer> choiceSelector;
     private JTextField initialConditionsField, stepSizeField, integrationTimeField, functionField, initialTimeField,
-            initialValueField, endTimeField;
+            initialValueField, endTimeField, initialXField, initialYField, finalXField;
     private JButton startSimulationButton, resetSimulationButton, randomSimulationButton;
-    private JPanel mainPanel, inputPanel, buttonPanel, outputPanel, plotPanel;
+    private JPanel mainPanel, inputPanel, buttonPanel, outputPanel;
     private String eulerFunc;
     private double h, t0, y0, t1;
+    private PlotPanel plotPanel;
 
     public GUI() {
         super("ODE Solver");
@@ -65,15 +107,17 @@ public class GUI extends JFrame {
 
     private void initializeComponents() {
         // Solver selection
-        String[] solvers = { "Euler Solver", "ODE Analytical Solver", "RK2Solver" };
+        String[] solvers = { "Euler Solver", "ODE Analytical Solver", "RK2 Solver" };
         solverSelector = new JComboBox<>(solvers);
 
         // Output selection
         String[] outputs = { "Time Evolution", "Phase Space" };
         outputSelector = new JComboBox<>(outputs);
+        choiceSelector = new JComboBox<>(new Integer[] { 1, 2 }); // For RK2Solver choices
+        choiceSelector.setVisible(false); // Initially hidden
 
         // Plotting panel
-        plotPanel = new JPanel();
+        plotPanel = new PlotPanel();
         plotPanel.setPreferredSize(new Dimension(400, 200)); // Set a preferred size for the plot area
         plotPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK)); // Just to visualize the panel's borders
 
@@ -92,6 +136,9 @@ public class GUI extends JFrame {
         initialTimeField = createNumericTextField(5);
         initialValueField = createNumericTextField(5);
         endTimeField = createNumericTextField(5);
+        initialXField = createNumericTextField(10);
+        initialYField = createNumericTextField(10);
+        finalXField = createNumericTextField(10);
 
         // Simulation control buttons
         startSimulationButton = new JButton("Start Simulation");
@@ -149,6 +196,9 @@ public class GUI extends JFrame {
 
         add(mainPanel);
 
+        // Adding choiceSelector to the input panel or wherever appropriate
+        inputPanel.add(choiceSelector);
+
     }
 
     private void attachListeners() {
@@ -166,6 +216,16 @@ public class GUI extends JFrame {
                 initialConditionsField.setText("");
                 stepSizeField.setText("");
                 integrationTimeField.setText("");
+                functionField.setText(""); // Clear function field
+                initialTimeField.setText(""); // Clear initial time field
+                initialValueField.setText(""); // Clear initial value field
+                endTimeField.setText(""); // Clear end time field
+                choiceSelector.setSelectedIndex(0); // Reset choice if needed
+                initialXField.setText("");
+                initialYField.setText("");
+                finalXField.setText("");
+                choiceSelector.setSelectedIndex(0);
+
             }
         });
         randomSimulationButton.addActionListener(new ActionListener() {
@@ -183,13 +243,17 @@ public class GUI extends JFrame {
                     int initialTime = (int) (0.0 + (10.0 - 0.0) * random.nextDouble()); // Example: from 0.0 to 10.0
                     int initialValue = (int) (1.0 + (10.0 - 1.0) * random.nextDouble()); // Example: from 1.0 to 10.0
                     int endTime = (int) (initialTime + (20.0 - initialTime) * random.nextDouble()); // Ensure endTime is
-                                                                                               // greater than
-                                                                                               // initialTime
+                    // greater than
+                    // initialTime
 
                     // Set the text fields with formatted random values
                     initialTimeField.setText(df.format(initialTime));
                     initialValueField.setText(df.format(initialValue));
                     endTimeField.setText(df.format(endTime));
+                } else if ("RK2 Solver".equals(solverSelector.getSelectedItem())) {
+                    initialXField.setText(String.valueOf(random.nextInt(100)));
+                    initialYField.setText(String.valueOf(random.nextInt(100)));
+                    finalXField.setText(String.valueOf(random.nextInt(100)));
                 }
             }
         });
@@ -241,7 +305,9 @@ public class GUI extends JFrame {
         inputPanel.removeAll(); // Clear the current interface
 
         inputPanel.add(new JLabel("Solver:"));
+        Integer[] rk2Choices = { 1, 2 };
         inputPanel.add(solverSelector);
+        choiceSelector.removeAllItems();
 
         if ("Euler Solver".equals(solver)) {
             inputPanel.add(new JLabel("Function f(t, y):"));
@@ -254,6 +320,27 @@ public class GUI extends JFrame {
             inputPanel.add(initialValueField);
             inputPanel.add(new JLabel("End Time (t1):"));
             inputPanel.add(endTimeField);
+
+        } else if ("RK2 Solver".equals(solver)) {
+
+            inputPanel.add(new JLabel("Initial X:"));
+            inputPanel.add(initialXField);
+            inputPanel.add(new JLabel("Initial Y:"));
+            inputPanel.add(initialYField);
+            inputPanel.add(new JLabel("Final X:"));
+            inputPanel.add(finalXField);
+            inputPanel.add(new JLabel("Step Size:"));
+            inputPanel.add(stepSizeField);
+            inputPanel.add(new JLabel("Choice:"));
+            inputPanel.add(choiceSelector);
+            choiceSelector.setVisible(true);
+
+            // Add the choice selector specific for RK2 Solver
+            for (int choice : rk2Choices) {
+                choiceSelector.addItem(choice);
+            }
+            choiceSelector.setVisible(true);
+
         } else {
             // Add components for other solvers here
             inputPanel.add(new JLabel("Initial Conditions:"));
@@ -262,6 +349,8 @@ public class GUI extends JFrame {
             inputPanel.add(stepSizeField);
             inputPanel.add(new JLabel("Integration Time:"));
             inputPanel.add(integrationTimeField);
+            choiceSelector.setVisible(false);
+
         }
 
         // Revalidate and repaint to update the UI
@@ -294,6 +383,22 @@ public class GUI extends JFrame {
             int integrationTime = Integer.parseInt(integrationTimeField.getText());
             double k = 0.1; // Example constant for the differential equation
 
+            String selectedOutput = (String) outputSelector.getSelectedItem();
+
+            List<Double> timeData = new ArrayList<>();
+            List<Double> variableData = new ArrayList<>();
+            for (int i = 0; i < 100; i++) {
+                timeData.add((double) i); // Dummy time points
+                variableData.add(Math.sin(i * 0.1)); // Dummy variable values (e.g., sine wave)
+            }
+
+            plotPanel.setPlotData(timeData, variableData, selectedOutput); // Update the plot panel with new data
+
+            double initialX = Double.parseDouble(initialXField.getText());
+            double initialY = Double.parseDouble(initialYField.getText());
+            double finalX = Double.parseDouble(finalXField.getText());
+            int choice = (int) choiceSelector.getSelectedItem(); // Make sure to cast appropriately
+
             // Check if step size is negative
             if (stepSize <= 0) {
                 JOptionPane.showMessageDialog(this,
@@ -313,13 +418,13 @@ public class GUI extends JFrame {
             double result = 0.0;
 
             if ("ODE Analytical Solver".equals(selectedSolver)) {
-
-                double[] results = ODEAnalyticalSolver.analyticalSolution(integrationTime, initialCondition, k, 0.2);
+                double[] results = ODEAnalyticalSolver.analyticalSolution(integrationTime, initialY, k, stepSize);
                 result = results[results.length - 1];
             } else {
                 // Add other solvers' implementation here
                 if ("RK2Solver".equals(selectedSolver)) {
-                    result = RK2Solver.solveODE(initialCondition, initialCondition, result, stepSize, ABORT);
+
+                    result = RK2Solver.solveODE(initialX, initialY, finalX, stepSize, choice);
                 } else {
 
                     if ("Euler Solver".equals(selectedSolver)) {
@@ -336,12 +441,12 @@ public class GUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Result: " + result, "Simulation Result",
                     JOptionPane.INFORMATION_MESSAGE);
         } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(this,
-                    "Please enter valid numbers for initial conditions, step size, and integration time.",
-                    "Input Error",
+            JOptionPane.showMessageDialog(this, "Please enter valid numbers.", "Input Error",
                     JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace(); // Print the stack trace for debugging
+            JOptionPane.showMessageDialog(this, "An error occurred during the simulation: " + e.getMessage(),
+                    "Simulation Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
