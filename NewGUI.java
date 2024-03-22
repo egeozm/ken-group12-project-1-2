@@ -157,7 +157,7 @@ public class NewGUI extends JFrame {
         double initialY = Double.parseDouble(initialYField.getText());
         double finalX = Double.parseDouble(finalXField.getText());
         double stepSize = Double.parseDouble(stepSizeField.getText());
-        String function = functionField.getText(); // Retrieve the function string from the text field
+        String function = functionField.getText();
 
         HashMap<String, Double> varVals = new HashMap<>();
         varVals.put("t", initialX);
