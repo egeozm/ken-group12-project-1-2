@@ -272,7 +272,10 @@ public class GUI extends JFrame {
     private void startSimulation() {
         try {
             HashMap<String, Double> vals = new HashMap<String, Double>();
-            vals.put("t", t0); vals.put("t1", t1); vals.put("y", y0); vals.put("h", h);
+            vals.put("t", t0);
+            vals.put("t1", t1);
+            vals.put("y", y0);
+            vals.put("h", h);
             FunctionParser a = new FunctionParser(eulerFunc);
             System.out.println(ODESolver.EulerSolver(vals, a));
             String selectedSolver = (String) solverSelector.getSelectedItem();
@@ -300,25 +303,23 @@ public class GUI extends JFrame {
             double result = 0.0;
 
             if ("ODE Analytical Solver".equals(selectedSolver)) {
-                ODEAnalyticalSolver odeanal = new ODEAnalyticalSolver();
-                double[] results = odeanal.analyticalSolution(integrationTime, initialCondition, k, 0.2);
+
+                double[] results = ODEAnalyticalSolver.analyticalSolution(integrationTime, initialCondition, k, 0.2);
                 result = results[results.length - 1];
             } else {
                 // Add other solvers' implementation here
                 if ("RK2Solver".equals(selectedSolver)) {
-                    RK2Solver rk = new RK2Solver();
-                    result = rk.solveODE(initialCondition, initialCondition, result, stepSize, ABORT);
+                    result = RK2Solver.solveODE(initialCondition, initialCondition, result, stepSize, ABORT);
                 } else {
 
-                }
-                if ("ODE Native ".equals(selectedSolver)) {
-                    // result = ODENativeSolver.analyticalSolution(integrationTime,
-                    // initialCondition, k);
+                    if ("Euler Solver".equals(selectedSolver)) {
 
-                } else {
-                    JOptionPane.showMessageDialog(this, "Solver not implemented yet.", "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
+                        result = ODESolver.EulerSolver(vals, a);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Solver not implemented yet.", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                 }
             }
 
