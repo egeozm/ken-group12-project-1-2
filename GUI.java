@@ -113,7 +113,7 @@ public class GUI extends JFrame {
         // Output selection
         String[] outputs = { "Time Evolution", "Phase Space" };
         outputSelector = new JComboBox<>(outputs);
-        choiceSelector = new JComboBox<>(new Integer[] { 1, 2 }); // For RK2Solver choices
+        choiceSelector = new JComboBox<>(new Integer[] { 1, 2, 3, 4, 5, 6 }); // For RK2Solver choices
         choiceSelector.setVisible(false); // Initially hidden
 
         // Plotting panel
@@ -305,7 +305,7 @@ public class GUI extends JFrame {
         inputPanel.removeAll(); // Clear the current interface
 
         inputPanel.add(new JLabel("Solver:"));
-        Integer[] rk2Choices = { 1, 2 };
+        Integer[] rk2Choices = { 1, 2, 3, 4, 5, 6 };
         inputPanel.add(solverSelector);
         choiceSelector.removeAllItems();
 
@@ -331,7 +331,7 @@ public class GUI extends JFrame {
             inputPanel.add(finalXField);
             inputPanel.add(new JLabel("Step Size:"));
             inputPanel.add(stepSizeField);
-            inputPanel.add(new JLabel("Choice:"));
+            inputPanel.add(new JLabel("ODE Choice:"));
             inputPanel.add(choiceSelector);
             choiceSelector.setVisible(true);
 
@@ -378,7 +378,7 @@ public class GUI extends JFrame {
             FunctionParser a = new FunctionParser(eulerFunc);
             System.out.println(ODESolver.EulerSolver(vals, a));
             String selectedSolver = (String) solverSelector.getSelectedItem();
-            double initialCondition = Double.parseDouble(initialConditionsField.getText());
+
             double stepSize = Double.parseDouble(stepSizeField.getText()); // Get step size as double
             int integrationTime = Integer.parseInt(integrationTimeField.getText());
             double k = 0.1; // Example constant for the differential equation
@@ -392,12 +392,8 @@ public class GUI extends JFrame {
                 variableData.add(Math.sin(i * 0.1)); // Dummy variable values (e.g., sine wave)
             }
 
-            plotPanel.setPlotData(timeData, variableData, selectedOutput); // Update the plot panel with new data
+            //plotPanel.setPlotData(timeData, variableData, selectedOutput); // Update the plot panel with new data
 
-            double initialX = Double.parseDouble(initialXField.getText());
-            double initialY = Double.parseDouble(initialYField.getText());
-            double finalX = Double.parseDouble(finalXField.getText());
-            int choice = (int) choiceSelector.getSelectedItem(); // Make sure to cast appropriately
 
             // Check if step size is negative
             if (stepSize <= 0) {
@@ -418,11 +414,16 @@ public class GUI extends JFrame {
             double result = 0.0;
 
             if ("ODE Analytical Solver".equals(selectedSolver)) {
-                double[] results = ODEAnalyticalSolver.analyticalSolution(integrationTime, initialY, k, stepSize);
+                double initialCondition = Double.parseDouble(initialConditionsField.getText());
+                double[] results = ODEAnalyticalSolver.analyticalSolution(integrationTime, initialCondition, k, stepSize);
                 result = results[results.length - 1];
             } else {
                 // Add other solvers' implementation here
                 if ("RK2Solver".equals(selectedSolver)) {
+                    double initialX = Double.parseDouble(initialXField.getText());
+                    double initialY = Double.parseDouble(initialYField.getText());
+                    double finalX = Double.parseDouble(finalXField.getText());
+                    int choice = (int) choiceSelector.getSelectedItem(); // Make sure to cast appropriately
 
                     result = RK2Solver.solveODE(initialX, initialY, finalX, stepSize, choice);
                 } else {
