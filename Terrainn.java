@@ -43,7 +43,7 @@ public class Terrainn extends PhysicsCoefficients {
     public static void water() {
     }
 
-    public static void gras() {
+    public static void grass() {
     }
 
     public static void sand() {
