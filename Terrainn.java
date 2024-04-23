@@ -18,10 +18,10 @@ public class Terrainn extends PhysicsCoefficients {
 
     public  void terrain_generator() {
         System.out.println("works");
-    for(int i=0;i<x_width;i++){
-        field[i][0]=new cell("wall",0,0);
-        System.out.println("works1");
-    }
+        for(int i=0;i<x_width;i++){
+            field[i][0]=new cell("wall",0,0);
+            System.out.println("works1");
+        }
         for(int i=0;i<x_width;i++){
             field[i][z_width-1]=new cell("wall",0,0);
             System.out.println("works2");
@@ -59,8 +59,8 @@ public class Terrainn extends PhysicsCoefficients {
 
     public class cell{
         private String material;
-      private  int x_tilt;
-       private int z_tilt;
+        private  int x_tilt;
+        private int z_tilt;
         cell(String material,int x_tilt,int z_tilt){
             this.material=material;
             this.x_tilt=x_tilt;
@@ -74,9 +74,9 @@ public class Terrainn extends PhysicsCoefficients {
         System.out.println("it works");
         PhysicsCoefficients pcof = new PhysicsCoefficients();
         System.out.println(pcof.vmax);
-    Terrainn test=new Terrainn(10,10,10);
-    test.terrain_generator();
-   System.out.println( test.field[1][0].get_mat());
+        Terrainn test=new Terrainn(10,10,10);
+        test.terrain_generator();
+        System.out.println( test.field[1][0].get_mat());
     }
 
 }
