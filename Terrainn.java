@@ -78,5 +78,12 @@ public class Terrainn extends PhysicsCoefficients {
         test.terrain_generator();
         System.out.println( test.field[1][0].get_mat());
     }
-
+    public boolean isWater(Vector position) {
+        // Define logic to determine if the position is water
+        return false; // Placeholder
+    }
+    public boolean isObstacle(Vector position) {
+        // Define logic to determine if the position hits an obstacle
+        return false; // Placeholder
+    }
 }
