@@ -31,7 +31,7 @@ public class Ball {
         if (currentTerrain.equals("water")) {
             yPos = 0;
         } else {
-            yPos -= 0.5 * physics.gravity * timeStep * timeStep;
+            yPos;
         }
     }
 
@@ -60,13 +60,13 @@ public class Ball {
     }
 
     public void setPosition(double x, double y, double z) {
-        this.xPos = x;
-        this.yPos = y;
-        this.zPos = z;
+        xPos = x;
+        yPos = y;
+        zPos = z;
     }
 
     public void setVelocity(double xVel, double zVel) {
-        this.xVelocity = xVel;
-        this.zVelocity = zVel;
+        xVelocity = xVel;
+        zVelocity = zVel;
     }
 }
