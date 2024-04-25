@@ -16,35 +16,39 @@ public class Ball {
         this.currentTerrain = "grass"; // we will have to get this somewhere else after but for now here it's ok
     }
 
-    public void updatePosition(double timeStep) {
-        physics.setFriction(currentTerrain);
+    private class MotionEquation implements DifferentialEquation {
+        @Override
+        public double computeDerivative(double t, double y) {
+            double frictionForce = physics.KF * physics.normalForce;
+            double frictionAccel = frictionForce / physics.golfBallMass;
+            double totalAccel = frictionAccel;
 
-        double velocityMagnitude = Math.sqrt(xVelocity * xVelocity + zVelocity * zVelocity);
-        double dragForce = physics.drag(velocityMagnitude);
-        double frictionForce = physics.KF * physics.normalForce;
-        double frictionAccel = frictionForce / physics.golfBallMass;
-
-        double dragAccel = dragForce / physics.golfBallMass;
-        double totalAccel = frictionAccel + dragAccel;
-
-        if (velocityMagnitude != 0) {
-            xVelocity = 0; // still need to figure out how to calculate this using RK4
-            yVelocity = 0; // still need to figure out how to calculate this using RK4
-            zVelocity = 0; // still need to figure out how to calculate this using RK4
+            return totalAccel;
         }
+    }
 
-        xPos += xVelocity * timeStep;
-        yPos -= 0.5 * physics.gravity * timeStep * timeStep;
-        zPos += zVelocity * timeStep;
+    public void updatePosition(double timeStep) {
+        DifferentialEquation motionEquation = new MotionEquation();
+
+        double[] newXPosArray = DifferentialEquation.RK4Method.solve(motionEquation, xPos, 0, timeStep, 1);
+        double[] newYPosArray = DifferentialEquation.RK4Method.solve(motionEquation, yPos, 0, timeStep, 1);
+        double[] newZPosArray = DifferentialEquation.RK4Method.solve(motionEquation, zPos, 0, timeStep, 1);
+
+        xPos = newXPosArray[1];
+        yPos = newYPosArray[1];
+        zPos = newZPosArray[1];
+        xVelocity = (newXPosArray[1] - previousXPos) / timeStep;
+        yVelocity = (newYPosArray[1] - previousYPos) / timeStep;
+        zVelocity = (newZPosArray[1] - previousZPos) / timeStep;
+
+        previousXPos = xPos;
+        previousYPos = yPos;
+        previousZPos = zPos;
 
         if (currentTerrain.equals("water")) {
             xPos = previousXPos;
             yPos = previousYPos;
             zPos = previousZPos;
-        } else {
-            previousXPos = xPos;
-            previousYPos = yPos;
-            previousZPos = zPos;
         }
     }
 
@@ -52,6 +56,12 @@ public class Ball {
         this.currentTerrain = terrain;
     }
 
+
+    public double[] getPosition(){
+        return new double[]{xPos, yPos, zPos};
+    }
+
+    /*
     public double getXPos(){ 
         return xPos; 
     }
@@ -63,6 +73,7 @@ public class Ball {
     public double getZPos(){ 
         return zPos; 
     }
+    */
 
     public double getXVelocity(){ 
         return xVelocity; 
