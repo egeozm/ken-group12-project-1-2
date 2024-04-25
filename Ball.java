@@ -13,7 +13,7 @@ public class Ball {
         this.yPos = y;
         this.zPos = z;
         this.physics = physics;
-        this.currentTerrain = "grass"; // will have to get this somewhere else after but for now here it's ok
+        this.currentTerrain = "grass"; // we will have to get this somewhere else after but for now here it's ok
     }
 
     public void updatePosition(double timeStep) {
