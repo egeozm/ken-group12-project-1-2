@@ -34,11 +34,7 @@ public class Terrainn extends PhysicsCoefficients {
             field[x_width-1][i]=new cell("wall",0,0);
             System.out.println("works4");
         }
-
-
     }
-
-
 
     public static void water() {
     }

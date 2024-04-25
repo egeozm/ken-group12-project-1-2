@@ -38,7 +38,7 @@ public class Ball {
         yPos = newYPosArray[1];
         zPos = newZPosArray[1];
         xVelocity = (newXPosArray[1] - previousXPos) / timeStep;
-        yVelocity = (newYPosArray[1] - previousYPos) / timeStep;
+        //yVelocity = (newYPosArray[1] - previousYPos) / timeStep;
         zVelocity = (newZPosArray[1] - previousZPos) / timeStep;
 
         previousXPos = xPos;
@@ -75,17 +75,21 @@ public class Ball {
     }
     */
 
-    public double getXVelocity(){ 
-        return xVelocity; 
+    public double[] getVelocity(){ 
+        return new double[]{xVelocity, zVelocity};
     }
 
+    /*
     public double getZVelocity(){ 
         return zVelocity; 
     }
+    */
 
+    /*
     public double getYVelocity(){
         return yVelocity;
     }
+    */
 
     public void setPosition(double x, double y, double z) {
         xPos = x;
@@ -98,4 +102,3 @@ public class Ball {
         zVelocity = zVel;
     }
 }
-
