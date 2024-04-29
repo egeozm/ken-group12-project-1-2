@@ -17,7 +17,7 @@ public class Ball {
     }
 
     private class MotionEquation implements DifferentialEquation {
-
+        
         @Override
         public double computeDerivative(double t, double y) {
             double frictionForce = physics.KF * physics.normalForce;
@@ -35,16 +35,16 @@ public class Ball {
         double[] newYPosArray = DifferentialEquation.RK4Method.solve(motionEquation, yPos, 0, timeStep, 1);
         double[] newZPosArray = DifferentialEquation.RK4Method.solve(motionEquation, zPos, 0, timeStep, 1);
 
-        previousXPos = xPos;
-        previousYPos = yPos;
-        previousZPos = zPos;
-
         xPos = newXPosArray[1];
         yPos = newYPosArray[1];
         zPos = newZPosArray[1];
         xVelocity = (newXPosArray[1] - previousXPos) / timeStep;
         //yVelocity = (newYPosArray[1] - previousYPos) / timeStep;
         zVelocity = (newZPosArray[1] - previousZPos) / timeStep;
+
+        previousXPos = xPos;
+        previousYPos = yPos;
+        previousZPos = zPos;
 
         if (currentTerrain.equals("water")) {
             xPos = previousXPos;
