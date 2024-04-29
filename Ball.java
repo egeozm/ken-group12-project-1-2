@@ -17,7 +17,6 @@ public class Ball {
     }
 
     private class MotionEquation implements DifferentialEquation {
-        
         @Override
         public double computeDerivative(double t, double y) {
             double frictionForce = physics.KF * physics.normalForce;
@@ -57,7 +56,7 @@ public class Ball {
         this.currentTerrain = terrain;
     }
 
-    
+
     public double[] getPosition(){
         return new double[]{xPos, yPos, zPos};
     }
