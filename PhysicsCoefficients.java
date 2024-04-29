@@ -44,6 +44,7 @@ public class PhysicsCoefficients {
                 break;
         }
     }
+    
     public double velocity(double velocity) {//update it every now and then with time
         return Math.sqrt(Math.pow(velocity, 2) + 2 * drag(velocity) / golfBallMass);
     }
