@@ -35,12 +35,12 @@ public class Terrainn extends PhysicsCoefficients {
 
         }
     }
-    
+
     private void material_collection_filler(){
         material_collection=new String[6];
         material_collection[0]="wall";
         material_collection[1]="sand";
-        material_collection[2]="gras";
+        material_collection[2]="grass";
         material_collection[3]="water";
         material_collection[4]="hole";
         material_collection[5]="spawn";
@@ -81,7 +81,7 @@ public class Terrainn extends PhysicsCoefficients {
     }
 
     public void grasland(){
-        String material="gras";//chooose sand if you like
+        String material="grass";//chooose sand if you like
 
         for(int i=1;i<x_width-1;i++){
             for(int j=1;j<z_width-1;j++){
@@ -110,7 +110,7 @@ public class Terrainn extends PhysicsCoefficients {
         int height=0;
         field[Math.round(x_width/2)][2]=new cell("spawn",0,0,0);
         field[Math.round(x_width/2)][z_width-2]=new cell("hole",0,0,0);
-        String material="gras";//chooose sand if you like
+        String material="grass";//chooose sand if you like
 
         for(int i=1;i<x_width-1;i++){
             for(int j=1;j<z_width-1;j++){
