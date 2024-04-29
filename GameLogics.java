@@ -23,16 +23,21 @@ public class GameLogics {
 
         if (currentTerrain.equals("water")) {
             System.out.println("Ball in water, applying penalty!");
-            resetBallPosition();
+            resetBallPositionToPrevious();
             return true;
         }
 
         return false;
     }
 
-    private void resetBallPosition() {
-        double[] previousPosition = ball.getPreviousPosition();
-        ball.setPosition(previousPosition[0], previousPosition[1], previousPosition[2]);
-        ball.setVelocity(0, 0); // Reset velocity to zero when the ball hits water
+    private void resetBallPositionToPrevious() {
+        double[] currentPosition = ball.getPosition();
+        // Subtract 1 from each coordinate to approximate the previous position
+        double previousX = currentPosition[0] - 1;
+        double previousY = currentPosition[1] - 1;
+        double previousZ = currentPosition[2] - 1;
+
+        ball.setPosition(previousX, previousY, previousZ);
+        ball.setVelocity(0, 0); // Reset velocity to zero
     }
 }
