@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Random;
 
+
 class PlotPanel extends JPanel {
     private List<Double> xData = new ArrayList<>();
     private List<Double> yData = new ArrayList<>();
@@ -425,7 +426,7 @@ public class GUI extends JFrame {
                     double finalX = Double.parseDouble(finalXField.getText());
                     int choice = (int) choiceSelector.getSelectedItem(); // Make sure to cast appropriately
 
-                    result = RK2Solver.solveODE(initialX, initialY, finalX, stepSize, choice);
+                    //result = RK2Solver.solveODE(initialX, initialY, finalX, stepSize, choice);
                 } else {
 
                     if ("Euler Solver".equals(selectedSolver)) {

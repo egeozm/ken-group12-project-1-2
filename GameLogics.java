@@ -40,4 +40,15 @@ public class GameLogics {
         ball.setPosition(previousX, previousY, previousZ);
         ball.setVelocity(0, 0); // Reset velocity to zero
     }
+
+    public void updateGameState() {
+        Terrainn terrainn = new Terrainn(10,10,10);
+        terrainn.fillTerrainWithMaterial("grass");
+        BasicBot bot = new BasicBot(terrainn);
+
+        int boxX = 5; // Starting position for the bot
+        int botZ = 5; // Starting position
+        String botDecision = bot.decideNextMove(boxX,botZ);
+        System.out.println("Bot decision: " + botDecision);
+    }
 }
