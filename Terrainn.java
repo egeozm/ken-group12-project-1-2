@@ -10,7 +10,7 @@ public class Terrainn {
         this.y_height = y_height;
         this.z_width = z_width;
         this.field = new cell[x_width][z_width];
-        material_collection_filler();
+        //material_collection_filler();
         terrain_boundaries();
     }
 
@@ -45,23 +45,9 @@ public class Terrainn {
         material_collection[5] = "spawn";
     }
 
-    public static void water() {
-    }
 
-    public static void grass() {
-    }
 
-    public static void sand() {
-    }
 
-    public static void wall() {
-    }
-
-    public static void hole(double radius) {
-    }
-
-    public static void spawn() {
-    }
 
 
     public class cell {
@@ -286,3 +272,22 @@ public class Terrainn {
 
     }
 }
+
+
+
+//create the terrain with the Terrainn constructor and fill in the paramteters(int x_width, int y_height, int z_width)
+//it creates an 2d array that has the inserted attributes x_width and z_width, height is not used
+// the array consist of the class cell:
+
+//-cell can be constructed with the cell constructor(String material, int x_tilt, intz_tilt)
+//-you can read these attributes later by using the get functions for each attribute
+
+
+//the cells at the edge are filled with wall cells by the terrain_boundaries(); function
+
+
+//you can create grasland, a complete flat map out of gras or sandland, a complete flat map out of sand or the default map
+//every map has spawn and a hole
+
+//if you want to print out the map layout, use the printmap() function to get an overview
+
