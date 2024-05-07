@@ -29,9 +29,6 @@ public class PhysicsCoefficients implements DifferentialEquation{
         return acceleration;
     }
     
-    public double drag(double velocity) {
-        return 0.5 * density * Math.pow(velocity, 2) * 0.47 * Math.PI * Math.pow(golfBallRadius, 2);
-    }
 
     public double normalForce = golfBallMass * gravity * Math.cos(slope);
 
