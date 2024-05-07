@@ -1,4 +1,4 @@
-public class PhysicsCoefficients {
+public class PhysicsCoefficients implements DifferentialEquation{
     public double grassKF = 0.1;//kf is the coefficient of kinetic friction
     public double grassSF = 0.15;//sf is the coefficient of static friction
     public double sandKF = 0.6;
@@ -17,6 +17,16 @@ public class PhysicsCoefficients {
     public double waterDensity = 1000.0;//kg/m^3
     public double airDensity = 1.225;//kg/m^3
     public double density = 1000.0;
+    public double dragCoefficient = 0.47; // assumed drag coefficient for a golf ball
+    public double crossSectionalArea = Math.PI * Math.pow(golfBallRadius, 2); // m^2
+
+    @Override
+    public double computeDerivative(double t, double v) {
+        double sinTheta = Math.sin(slope);
+        double dragForce = 0.5 * airDensity * dragCoefficient * crossSectionalArea * Math.pow(v, 2);
+        double acceleration = (golfBallMass * gravity * sinTheta - dragForce) / golfBallMass;
+        return acceleration;
+    }
     
     public double drag(double velocity) {
         return 0.5 * density * Math.pow(velocity, 2) * 0.47 * Math.PI * Math.pow(golfBallRadius, 2);
