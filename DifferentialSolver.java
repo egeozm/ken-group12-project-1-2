@@ -10,18 +10,17 @@ public class DifferentialSolver {
 
         // Solve using both methods
         double[] rk4Results = DifferentialEquation.RK4Method.solve(eq, y0, t0, tf, n);
+        double[] eulerResults = DifferentialEquation.EulerMethod.solve(eq,y0,t0,tf,n);
 
-        /*
-        // Output the results
-        System.out.println("Euler Method Results:");
+        // Output the results and calculate relative errors
+        System.out.println("Step\tt\tEuler\t\tRK4\t\tRelative Error (%)");
         for (int i = 0; i <= n; i++) {
-            System.out.println("y(" + (t0 + i * (tf - t0) / n) + ") = " + eulerResults[i]);
-        }
-         */
+            double t = t0 + i * (tf - t0) / n;
+            double euler = eulerResults[i];
+            double rk4 = rk4Results[i];
+            double error = Math.abs(rk4 - euler) / Math.max(Math.abs(rk4), 1E-10) * 100;  // Avoid division by zero
 
-        System.out.println("RK4 Method Results:");
-        for (int i = 0; i <= n; i++) {
-            System.out.println("y(" + (t0 + i * (tf - t0) / n) + ") = " + rk4Results[i]);
+            System.out.printf("%d\t%.2f\t%.6f\t%.6f\t%.2f%%\n", i, t, euler, rk4, error);
         }
     }
 }

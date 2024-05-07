@@ -148,8 +148,8 @@ public class NewGUI extends JFrame {
         double stepSize = Double.parseDouble(stepSizeField.getText());
         int ODEChoice = odeChoiceComboBox.getSelectedIndex() + 1;
 
-        double result = RK2Solver.solveODE(initialX, initialY, finalX, stepSize, ODEChoice);
-        resultArea.setText("Value of y at x = " + finalX + ": " + result);
+       // double result = RK2Solver.solveODE(initialX, initialY, finalX, stepSize, ODEChoice);
+       // resultArea.setText("Value of y at x = " + finalX + ": " + result);
     }
 
     private void solveEuler() {

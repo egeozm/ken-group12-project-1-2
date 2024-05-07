@@ -1,3 +1,4 @@
+import java.util.Arrays;
 public class GameLogics {
     private Ball ball;
     private Terrainn terrain;
@@ -11,56 +12,51 @@ public class GameLogics {
 
     public void update(double deltaTime) {
         if (!handleCollisions()) {
-            Vector forces = calculateForces();
-            updateBallState(forces, deltaTime);
+            ball.updatePosition(deltaTime);
         }
     }
 
     private boolean handleCollisions() {
-        // Check for water or other hazards
-        if (terrain.isWater(ball.getPosition())) {
-            System.out.println("Ball in water, apply penalty!");
-            resetBallPosition(); // Or handle according to game rules
-            return true;
-        }else if(terrain.isObstacle(ball.getPosition())){
-            System.out.println("Ball hit an obstacle");
-            resetBallPosition(); // Or handle according to game rules
+        double[] position = ball.getPosition();
+        String currentTerrain = terrain.getTerrainType((int) position[0], (int) position[2]);
+        ball.setCurrentTerrain(currentTerrain);
+        if (currentTerrain.equals("hole")) {
+            System.out.println("Ball in hole, game finished!");
+            finishGame();
             return true;
         }
+
+        // Check if the ball is in water or out of bounds
+        if (currentTerrain.equals("water") || currentTerrain.equals("out of bounds")) {
+            System.out.println("Ball in " + currentTerrain + ", applying penalty and resetting to previous safe position!");
+            resetBallToPreviousPosition();
+            return true;
+        }
+
         return false;
     }
 
-    private Vector calculateForces() {
-        double gravity = coefficients.gravity * ball.getMass();
-        double normalForce = calculateNormalForce();
-        double friction = coefficients.getFrictionCoefficient(currentTerrain()) * normalForce;
-        // Calculate other forces if needed
+    private void resetBallToPreviousPosition() {
+        double previousX = ball.getPreviousX();
+        double previousY = ball.getPreviousY();
+        double previousZ = ball.getPreviousZ();
 
-        double totalForceX = -friction; // Simplified for example
-        double totalForceY = gravity - normalForce; // Simplified for example
-        return new Vector(totalForceX, totalForceY);
+        ball.setPosition(previousX, previousY, previousZ);
+        ball.setVelocity(0, 0); // Reset the velocity to zero
+    }
+    private void finishGame() {
+    
     }
 
-    private void updateBallState(Vector forces, double deltaTime) {
-        // Update velocity
-        Vector acceleration = forces.multiply(1 / ball.getMass());
-        ball.setVelocity(ball.getVelocity().add(acceleration.multiply(deltaTime)));
 
-        // Update position
-        ball.setPosition(ball.getPosition().add(ball.getVelocity().multiply(deltaTime)));
-    }
+    public void updateGameState() {
+        Terrainn terrainn = new Terrainn(10,10,10);
+        terrainn.grasland();
+        BasicBot bot = new BasicBot(terrainn);
 
-    private double calculateNormalForce() {
-        // Placeholder for normal force calculation
-        return coefficients.gravity * ball.getMass(); // Simplified
-    }
-
-    private void resetBallPosition() {
-        // Reset ball to last safe position or starting position
-    }
-
-    private String currentTerrain() {
-        // Determine current terrain from the ball's position
-        return "grass"; // Simplified
+        int boxX = 5; // Starting position for the bot
+        int botZ = 5; // Starting position
+        String botDecision = bot.decideNextMove(boxX,botZ);
+        System.out.println("Bot decision: " + botDecision);
     }
 }
