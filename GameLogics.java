@@ -43,11 +43,11 @@ public class GameLogics {
     public void updateGameState() {
         Terrainn terrainn = new Terrainn(10,10,10);
         terrainn.grasland();
-        BasicBot bot = new BasicBot(terrainn);
 
-        int boxX = 5; // Starting position for the bot
-        int botZ = 5; // Starting position
-        String botDecision = bot.decideNextMove(boxX,botZ);
-        System.out.println("Bot decision: " + botDecision);
+        int botX = 5; // Starting position for the bot
+        int botY = 5; // Starting position
+        BasicBot bot = new BasicBot(terrainn,botX,botY);
+        int[] botDecision = bot.decideNextMove();
+        System.out.println("Bot decision: " + Arrays.toString(botDecision));
     }
 }

@@ -51,11 +51,9 @@ public class Ball {
     }
 
 
-    
-
     public void updatePosition(double timeStep) {
         physics.setFriction(currentTerrain);
-        
+
         DifferentialEquation motionEquation = new MotionEquation();
 
         double[] newXPosArray = DifferentialEquation.RK4Method.solve(motionEquation, xPos, 0, timeStep, 1);
@@ -86,7 +84,7 @@ public class Ball {
     }
 
 
-    public double[] getPosition(){
+    public double[] getPosition() {
         return new double[]{xPos, yPos, zPos};
     }
 
@@ -104,7 +102,7 @@ public class Ball {
     }
     */
 
-    public double[] getVelocity(){ 
+    public double[] getVelocity() {
         return new double[]{xVelocity, zVelocity};
     }
 

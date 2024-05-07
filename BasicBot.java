@@ -34,6 +34,7 @@ public class BasicBot {
 
         posX = bestMove[0];
         posY = bestMove[1];
+
         return bestMove;
     }
 

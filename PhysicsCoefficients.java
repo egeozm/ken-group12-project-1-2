@@ -13,7 +13,7 @@ public class PhysicsCoefficients {
     public double time = 0.0;
     public double KF = 0.01;
     public double SF = 0.01;
-    public double slope = 0.0;//measured in radians i think
+    public double slope = 0.0;//measured in radians, I think
     public double waterDensity = 1000.0;//kg/m^3
     public double airDensity = 1.225;//kg/m^3
     public double density = airDensity;
@@ -24,7 +24,7 @@ public class PhysicsCoefficients {
 
     public double normalForce = golfBallMass * gravity * Math.cos(slope);
 
-    public void setFriction(String terrain) {//use this function when ball's shot, and you need to set the friction for current terrain
+    public void setFriction(String terrain) { //use this function when ball's shot, and you need to set the friction for current terrain
         switch (terrain) {
             case "grass":
                 density = airDensity;
@@ -47,7 +47,7 @@ public class PhysicsCoefficients {
         }
     }
 
-    public double velocity(double velocity) {//update it every now and then with time
+    public double velocity(double velocity) {//update it now and then with time
         return Math.sqrt(Math.pow(velocity, 2) + 2 * drag(velocity) / golfBallMass);
     }
 }
