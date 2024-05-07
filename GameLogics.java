@@ -20,6 +20,11 @@ public class GameLogics {
         double[] position = ball.getPosition();
         String currentTerrain = terrain.getTerrainType((int) position[0], (int) position[2]);
         ball.setCurrentTerrain(currentTerrain);
+        if (currentTerrain.equals("hole")) {
+            System.out.println("Ball in hole, game finished!");
+            finishGame();
+            return true;
+        }
 
         // Check if the ball is in water or out of bounds
         if (currentTerrain.equals("water") || currentTerrain.equals("out of bounds")) {
@@ -39,15 +44,19 @@ public class GameLogics {
         ball.setPosition(previousX, previousY, previousZ);
         ball.setVelocity(0, 0); // Reset the velocity to zero
     }
+    private void finishGame() {
+    
+    }
+
 
     public void updateGameState() {
         Terrainn terrainn = new Terrainn(10,10,10);
         terrainn.grasland();
+        BasicBot bot = new BasicBot(terrainn);
 
-        int botX = 5; // Starting position for the bot
-        int botY = 5; // Starting position
-        BasicBot bot = new BasicBot(terrainn,botX,botY);
-        int[] botDecision = bot.decideNextMove();
-        System.out.println("Bot decision: " + Arrays.toString(botDecision));
+        int boxX = 5; // Starting position for the bot
+        int botZ = 5; // Starting position
+        String botDecision = bot.decideNextMove(boxX,botZ);
+        System.out.println("Bot decision: " + botDecision);
     }
 }
