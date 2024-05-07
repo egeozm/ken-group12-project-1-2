@@ -130,4 +130,15 @@ public class Ball {
         xVelocity = xVel;
         zVelocity = zVel;
     }
+    public double getPreviousX() {
+        return previousXPos;
+    }
+
+    public double getPreviousY() {
+        return previousYPos;
+    }
+
+    public double getPreviousZ() {
+        return previousZPos;
+    }
 }

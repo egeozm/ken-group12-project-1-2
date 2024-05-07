@@ -259,7 +259,12 @@ public class Terrainn {
         }
         System.out.println("legend wall:x gras:g sand:s water:w spawn:I hole:O");
     }
-
+    public String getTerrainType(int x, int z) {
+        if (x < 0 || x >= x_width || z < 0 || z >= z_width) {
+            return "out of bounds"; // Return a default value if the coordinates are out of the field bounds
+        }
+        return field[x][z].get_mat(); // Return the material of the cell at the given coordinates
+    }
 
     public static void main(String[] args) {
         System.out.println("it works");
