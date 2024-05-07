@@ -55,7 +55,8 @@ public class PhysicsCoefficients implements DifferentialEquation{
         }
     }
 
-    public double velocity(double velocity) {//update it now and then with time
-        return Math.sqrt(Math.pow(velocity, 2) + 2 * drag(velocity) / golfBallMass);
+    public double velocity(double velocity) { // update it now and then with time
+        double dragForce = 0.5 * density * Math.pow(velocity, 2) * dragCoefficient * crossSectionalArea;
+        return Math.sqrt(Math.pow(velocity, 2) + 2 * dragForce / golfBallMass);
     }
 }
