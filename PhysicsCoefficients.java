@@ -1,10 +1,6 @@
-<<<<<<< HEAD
+
 public class PhysicsCoefficients implements DifferentialEquation{
-    public double grassKF = 0.1;//kf is the coefficient of kinetic friction
-=======
-public class PhysicsCoefficients {
     public double grassKF = 0.10;//kf is the coefficient of kinetic friction
->>>>>>> 55e931a4b59cfbd7ece2de0955582fbaca7f6c30
     public double grassSF = 0.15;//sf is the coefficient of static friction
     public double sandKF = 0.60;
     public double sandSF = 0.90;
