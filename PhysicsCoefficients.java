@@ -1,8 +1,8 @@
 public class PhysicsCoefficients {
-    public double grassKF = 0.1;//kf is the coefficient of kinetic friction
+    public double grassKF = 0.10;//kf is the coefficient of kinetic friction
     public double grassSF = 0.15;//sf is the coefficient of static friction
-    public double sandKF = 0.6;
-    public double sandSF = 0.9;
+    public double sandKF = 0.60;
+    public double sandSF = 0.90;
     public double waterKF = 0.1;
     public double waterSF = 0.15;
     public double gravity = 9.81;//m/s^2
@@ -16,13 +16,15 @@ public class PhysicsCoefficients {
     public double slope = 0.0;//measured in radians i think
     public double waterDensity = 1000.0;//kg/m^3
     public double airDensity = 1.225;//kg/m^3
-    public double density = 1000.0;
-    
+    public double density = airDensity;
+
     public double drag(double velocity) {
         return 0.5 * density * Math.pow(velocity, 2) * 0.47 * Math.PI * Math.pow(golfBallRadius, 2);
     }
-    public double normalForce = golfBallMass*gravity*Math.cos(slope);
-    public void setFriction(String terrain) {//use this function when ball's shot and you need to set the friction for current terrain
+
+    public double normalForce = golfBallMass * gravity * Math.cos(slope);
+
+    public void setFriction(String terrain) {//use this function when ball's shot, and you need to set the friction for current terrain
         switch (terrain) {
             case "grass":
                 density = airDensity;
@@ -34,7 +36,7 @@ public class PhysicsCoefficients {
                 SF = sandSF;
                 KF = sandKF;
                 break;
-            case "water"://lets assume the terrain below water is sand
+            case "water":// let's assume the terrain below water is sand
                 density = waterDensity;
                 SF = sandSF;
                 KF = grassSF;
@@ -44,7 +46,7 @@ public class PhysicsCoefficients {
                 break;
         }
     }
-    
+
     public double velocity(double velocity) {//update it every now and then with time
         return Math.sqrt(Math.pow(velocity, 2) + 2 * drag(velocity) / golfBallMass);
     }
