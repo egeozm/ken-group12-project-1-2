@@ -3,15 +3,13 @@ public class Ball {
     private double y;
     private double vx;
     private double vy;
-    private PhysicsCoefficients coefficients;
     private Terrain terrain;
 
-    public Ball(double x, double y, PhysicsCoefficients coefficients, Terrain terrain) {
+    public Ball(double x, double y, Terrain terrain) {
         this.x = x;
         this.y = y;
         this.vx = 0;
         this.vy = 0;
-        this.coefficients = coefficients;
         this.terrain = terrain;
     }
 
@@ -31,8 +29,8 @@ public class Ball {
                 speed = epsilon;
             }
 
-            double fx = -coefficients.GRAVITATIONAL_CONSTANT * slope[0] - friction * vx / speed;
-            double fy = -coefficients.GRAVITATIONAL_CONSTANT * slope[1] - friction * vy / speed;
+            double fx = -PhysicsCoefficients.GRAVITATIONAL_CONSTANT * slope[0] - friction * vx / speed;
+            double fy = -PhysicsCoefficients.GRAVITATIONAL_CONSTANT * slope[1] - friction * vy / speed;
 
             return new double[]{vx, vy, fx, fy};
         };

@@ -6,9 +6,9 @@ public class Terrain {
     private double staticFrictionGrass;
     private double kineticFrictionSand;
     private double staticFrictionSand;
-    private PhysicsCoefficients coefficients;
 
     public static void main(String[] args) {
+        // height function for the terrain to be generated
         BiFunction<Double, Double, Double> heightFunction = (x, y) -> 0.4 * (0.9 - Math.exp(-(x * x + y * y) / 8));
         PhysicsCoefficients coefficients = new PhysicsCoefficients(0.08, 0.15, 0.2, 0.25, 0.15);
 
