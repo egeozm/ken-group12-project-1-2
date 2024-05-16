@@ -1,11 +1,13 @@
-public class Terrainn {
+package src.main;
+
+public class Terrain {
     public cell[][] field;
     int x_width;
     int y_height;
     int z_width;
     String[] material_collection;
 
-    Terrainn(int x_width, int y_height, int z_width) {
+    Terrain(int x_width, int y_height, int z_width) {
         this.x_width = x_width;
         this.y_height = y_height;
         this.z_width = z_width;
@@ -46,10 +48,6 @@ public class Terrainn {
     }
 
 
-
-
-
-
     public class cell {
         private int height;
         private int x_tilt;
@@ -76,8 +74,8 @@ public class Terrainn {
         }
     }
 
-    public void grasland() {
-        String material = "gras";//chooose sand if you like
+    public void grassLand() {
+        String material = "gras";//choose sand if you like
 
         for (int i = 1; i < z_width - 1; i++) {
             for (int j = 1; j < x_width - 1; j++) {
@@ -90,8 +88,8 @@ public class Terrainn {
     }
 
 
-    public void sandland() {
-        String material = "sand";//chooose sand if you like
+    public void sandLand() {
+        String material = "sand";//choose sand if you like
 
         for (int i = 1; i < x_width - 1; i++) {
             for (int j = 1; j < z_width - 1; j++) {
@@ -103,7 +101,7 @@ public class Terrainn {
 
     }
 
-    public void hillland() {
+    public void hillLand() {
         int height = 0;
         field[Math.round(x_width / 2)][2] = new cell("spawn", 0, 0);
         field[Math.round(x_width / 2)][z_width - 2] = new cell("hole", 0, 0);
@@ -225,7 +223,7 @@ public class Terrainn {
     }
 
     public void printmap() {
-        System.out.println("Current Terrain Layout:");
+        System.out.println("Current src.main.Terrain Layout:");
         String mat = "";
         for (int i = z_width - 1; i >= 0; i--) {
             for (int j = 0; j < x_width; j++) {
@@ -259,6 +257,7 @@ public class Terrainn {
         }
         System.out.println("legend wall:x gras:g sand:s water:w spawn:I hole:O");
     }
+
     public String getTerrainType(int x, int z) {
         if (x < 0 || x >= x_width || z < 0 || z >= z_width) {
             return "out of bounds"; // Return a default value if the coordinates are out of the field bounds
@@ -269,7 +268,7 @@ public class Terrainn {
     public static void main(String[] args) {
         System.out.println("it works");
 
-        Terrainn test = new Terrainn(10, 10, 10);
+        Terrain test = new Terrain(10, 10, 10);
         test.default_map();
         System.out.println(test.field[4][4].get_mat());
         test.printmap();
@@ -277,7 +276,6 @@ public class Terrainn {
 
     }
 }
-
 
 
 //create the terrain with the Terrainn constructor and fill in the paramteters(int x_width, int y_height, int z_width)

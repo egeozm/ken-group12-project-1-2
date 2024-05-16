@@ -1,62 +1,88 @@
+public class PhysicsCoefficients {
 
-public class PhysicsCoefficients implements DifferentialEquation{
-    public double grassKF = 0.10;//kf is the coefficient of kinetic friction
-    public double grassSF = 0.15;//sf is the coefficient of static friction
-    public double sandKF = 0.60;
-    public double sandSF = 0.90;
-    public double waterKF = 0.1;
-    public double waterSF = 0.15;
-    public double gravity = 9.81;//m/s^2
-    public double golfBallMass = 0.0459;//kg
-    public double golfBallRadius = 0.021;//m
-    public double velocity = 0.0;//m/s
-    public double vmax = 5.0;//m/s
-    public double time = 0.0;
-    public double KF = 0.01;
-    public double SF = 0.01;
-    public double slope = 0.0;//measured in radians, I think
-    public double waterDensity = 1000.0;//kg/m^3
-    public double airDensity = 1.225;//kg/m^3
-    public double density = 1000.0;
-    public double dragCoefficient = 0.47; // assumed drag coefficient for a golf ball
-    public double crossSectionalArea = Math.PI * Math.pow(golfBallRadius, 2); // m^2
+    public static final double GRAVITATIONAL_CONSTANT = 9.81;
 
-    @Override
-    public double computeDerivative(double t, double v) {
-        double sinTheta = Math.sin(slope);
-        double dragForce = 0.5 * airDensity * dragCoefficient * crossSectionalArea * Math.pow(v, 2);
-        double acceleration = (golfBallMass * gravity * sinTheta - dragForce) / golfBallMass;
-        return acceleration;
+    public static final double MASS_OF_GOLF_BALL = 0.0459;
+
+    // range: 0.05 - 0.1
+    private double kineticFrictionGrass;
+
+    // range: 0.1 - 0.2
+    private double staticFrictionGrass;
+
+    // should be higher than grass kinetic friction
+    private double kineticFrictionSand;
+
+    // should be higher than grass static friction
+    private double staticFrictionSand;
+
+    // maximum speed of ball in m/s
+    public static final double MAXIMUM_SPEED = 5.0;
+
+    // range: 0.05m - 0.15m
+    private double targetRadius;
+
+    public PhysicsCoefficients(double kineticFrictionGrass, double staticFrictionGrass, double kineticFrictionSand, double staticFrictionSand, double targetRadius) {
+        setKineticFrictionGrass(kineticFrictionGrass);
+        setStaticFrictionGrass(staticFrictionGrass);
+        setKineticFrictionSand(kineticFrictionSand);
+        setStaticFrictionSand(staticFrictionSand);
+        setTargetRadius(targetRadius);
     }
-    
 
-    public double normalForce = golfBallMass * gravity * Math.cos(slope);
+    public double getKineticFrictionGrass() {
+        return kineticFrictionGrass;
+    }
 
-    public void setFriction(String terrain) { //use this function when ball's shot, and you need to set the friction for current terrain
-        switch (terrain) {
-            case "grass":
-                density = airDensity;
-                SF = grassSF;
-                KF = grassKF;
-                break;
-            case "sand":
-                density = airDensity;
-                SF = sandSF;
-                KF = sandKF;
-                break;
-            case "water":// let's assume the terrain below water is sand
-                density = waterDensity;
-                SF = sandSF;
-                KF = grassSF;
-                break;
-            default:
-                System.out.println("Invalid terrain");
-                break;
+    public void setKineticFrictionGrass(double kineticFrictionGrass) {
+        if (kineticFrictionGrass < 0.05 || kineticFrictionGrass > 0.1) {
+            throw new IllegalArgumentException("Kinetic friction on grass must be between 0.05 and 0.1");
         }
+        this.kineticFrictionGrass = kineticFrictionGrass;
     }
 
-    public double velocity(double velocity) { // update it now and then with time
-        double dragForce = 0.5 * density * Math.pow(velocity, 2) * dragCoefficient * crossSectionalArea;
-        return Math.sqrt(Math.pow(velocity, 2) + 2 * dragForce / golfBallMass);
+    public double getStaticFrictionGrass() {
+        return staticFrictionGrass;
+    }
+
+    public void setStaticFrictionGrass(double staticFrictionGrass) {
+        if (staticFrictionGrass < 0.1 || staticFrictionGrass > 0.2) {
+            throw new IllegalArgumentException("Static friction on grass must be between 0.1 and 0.2");
+        }
+        this.staticFrictionGrass = staticFrictionGrass;
+    }
+
+    public double getKineticFrictionSand() {
+        return kineticFrictionSand;
+    }
+
+    public void setKineticFrictionSand(double kineticFrictionSand) {
+        if (kineticFrictionSand <= kineticFrictionGrass || kineticFrictionSand >= 1) {
+            throw new IllegalArgumentException("Kinetic friction in sand must be higher than kinetic friction on grass and less than 1");
+        }
+        this.kineticFrictionSand = kineticFrictionSand;
+    }
+
+    public double getStaticFrictionSand() {
+        return staticFrictionSand;
+    }
+
+    public void setStaticFrictionSand(double staticFrictionSand) {
+        if (staticFrictionSand <= kineticFrictionSand || staticFrictionSand >= 1) {
+            throw new IllegalArgumentException("Static friction in sand must be higher than kinetic friction in sand and less than 1");
+        }
+        this.staticFrictionSand = staticFrictionSand;
+    }
+
+    public double getTargetRadius() {
+        return targetRadius;
+    }
+
+    public void setTargetRadius(double targetRadius) {
+        if (targetRadius < 0.05 || targetRadius > 0.15) {
+            throw new IllegalArgumentException("Target radius must be between 0.05m and 0.15m");
+        }
+        this.targetRadius = targetRadius;
     }
 }
+
