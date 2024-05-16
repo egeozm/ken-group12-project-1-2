@@ -1,144 +1,117 @@
 package com.example;
 
-public class Ball {
-    private double previousXPos, previousYPos, previousZPos; // for if the ball lands in water and has to be brought back
-    private double xPos, yPos, zPos;
-    private double xVelocity, yVelocity, zVelocity;
-    private PhysicsCoefficients physics;
-    private String currentTerrain;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
 
-    public Ball(double x, double y, double z, PhysicsCoefficients physics) {
-        this.previousXPos = x;
-        this.previousYPos = y;
-        this.previousZPos = z;
-        this.xPos = x;
-        this.yPos = y;
-        this.zPos = z;
-        this.physics = physics;
-        this.currentTerrain = "sand"; // we will have to get this somewhere else after but for now here it's ok
+import javax.sound.midi.Soundbank;
+
+public class Ball {
+    private double initialX;
+    private double initialY;
+    private double x;
+    private double y;
+    private double vx;
+    private double vy;
+    private double [][] statesStored;
+    private Terrain terrain;
+
+    public Ball(Terrain terrain) {
+        this.vx = 0;
+        this.vy = 0;
+        this.terrain = terrain;
     }
 
     public static void main(String[] args) {
-        double initialX = 0.0;
-        double initialY = 0.0;
-        double initialZ = 0.0;
-        PhysicsCoefficients physics = new PhysicsCoefficients();
-        Ball ball = new Ball(initialX, initialY, initialZ, physics);
+        BiFunction<Double, Double, Double> heightFunction = (x, y) -> 0.4 * (0.9 - Math.exp(-(x * x + y * y) / 8));
+        PhysicsCoefficients coefficients = new PhysicsCoefficients(0.08, 0.15, 0.2, 0.25, 0.15);
+        Terrain terrain = new Terrain(heightFunction, coefficients.getKineticFrictionGrass(), coefficients.getStaticFrictionGrass(), coefficients.getKineticFrictionSand(), coefficients.getStaticFrictionSand());
 
-        double timeStep = 0.1; // example time step in seconds
-        double totalTime = 1.0; // example total time in seconds
+        Ball ball = new Ball(terrain);
 
-        System.out.println("Start coordinates:");
-        double[] startPos = ball.getPosition();
-        System.out.println("X: " + startPos[0] + ", Y: " + startPos[1] + ", Z: " + startPos[2]);
-
-        for (double t = 0; t < totalTime; t += timeStep) {
-            ball.updatePosition(timeStep);
-        }
-
-        System.out.println("\nEnd coordinates after " + totalTime + " seconds:");
-        double[] endPos = ball.getPosition();
-        System.out.println("X: " + endPos[0] + ", Y: " + endPos[1] + ", Z: " + endPos[2]);
-    }
-
-    private class MotionEquation implements DifferentialEquation {
-        @Override
-        public double computeDerivative(double t, double y) {
-            double frictionForce = physics.KF * physics.normalForce;
-            double frictionAccel = frictionForce / physics.golfBallMass;
-            double totalAccel = frictionAccel;
-
-            return totalAccel;
+        double timeStep = 0.1; 
+        double[][] trajectory = ball.getTrajectoryArray(timeStep, 4.0, 4.0, 0.3, 0);
+        for (double[] state : trajectory) {
+            System.out.println("xPos: " + state[0] + ", yPos: " + state[1] + ", xVel: " + state[2] + ", yVel: " + state[3]);
         }
     }
 
+    public void updateBallStateRungeKutta(double timeStep) {
+        DifferentialEquation system = (t, state) -> {
+            double x = state[0];
+            double y = state[1];
+            double vx = state[2];
+            double vy = state[3];
 
-    public void updatePosition(double timeStep) {
-        physics.setFriction(currentTerrain);
+            double[] slope = terrain.getSlope(x, y);
+            double friction = terrain.getKineticFriction(x, y);
 
-        DifferentialEquation motionEquation = new MotionEquation();
+            double speed = Math.sqrt(vx * vx + vy * vy);
+            double epsilon = 1e-6;
+            if (speed < epsilon) {
+                speed = epsilon;
+            }
 
-        double[] newXPosArray = DifferentialEquation.RK4Method.solve(motionEquation, xPos, 0, timeStep, 1);
-        double[] newYPosArray = DifferentialEquation.RK4Method.solve(motionEquation, yPos, 0, timeStep, 1);
-        double[] newZPosArray = DifferentialEquation.RK4Method.solve(motionEquation, zPos, 0, timeStep, 1);
+            double fx = -PhysicsCoefficients.GRAVITATIONAL_CONSTANT * slope[0] - friction * vx / speed;
+            double fy = -PhysicsCoefficients.GRAVITATIONAL_CONSTANT * slope[1] - friction * vy / speed;
 
-        previousXPos = xPos;
-        previousYPos = yPos;
-        previousZPos = zPos;
+            return new double[]{vx, vy, fx, fy};
+        };
 
-        xPos = newXPosArray[1];
-        yPos = newYPosArray[1];
-        zPos = newZPosArray[1];
-        xVelocity = (xPos - previousXPos) / timeStep;
-        yVelocity = (yPos - previousYPos) / timeStep;
-        zVelocity = (zPos - previousZPos) / timeStep;
+        double[] state = { getX(), getY(), getVx(), getVy() };
+        double[] newState = DifferentialEquation.RK4Method.solve(system, state, timeStep);
 
-        // If the ball is in water, reset its position to the previous position
-        if (currentTerrain.equals("water")) {
-            xPos = previousXPos;
-            yPos = previousYPos;
-            zPos = previousZPos;
+        setState(newState[0], newState[1], newState[2], newState[3]);
+
+        if (terrain.isWater(getX(), getY())) {
+            resetToInitialState();
         }
+
     }
 
-    public void setCurrentTerrain(String terrain) {
-        this.currentTerrain = terrain;
+    public double[][] getTrajectoryArray(double timeStep, double x, double y, double vx, double vy) {
+        setState(x, y, vx, vy);
+
+        double[][] trajectory = new double[steps][4]; 
+        while (vx != 0 && vy !=0) {
+            updateBallStateRungeKutta(timeStep);
+            trajectory[i][0] = getX();
+            trajectory[i][1] = getY();
+            trajectory[i][2] = getVx();
+            trajectory[i][3] = getVy();
+        }
+        return trajectory;
     }
 
-
-    public double[] getPosition() {
-        return new double[]{xPos, yPos, zPos};
+    public void resetToInitialState(){
+        x = initialX;
+        y = initialY;
+        vx = 0;
+        vy = 0;
     }
 
-    /*
-    public double getXPos(){ 
-        return xPos; 
+    public double getX() {
+        return x;
     }
 
-    public double getYPos(){ 
-        return yPos; 
+    public double getY() {
+        return y;
     }
 
-    public double getZPos(){ 
-        return zPos; 
-    }
-    */
-
-    public double[] getVelocity() {
-        return new double[]{xVelocity, zVelocity};
+    public double getVx() {
+        return vx;
     }
 
-    /*
-    public double getZVelocity(){ 
-        return zVelocity; 
-    }
-    */
-
-    /*
-    public double getYVelocity(){
-        return yVelocity;
-    }
-    */
-
-    public void setPosition(double x, double y, double z) {
-        xPos = x;
-        yPos = y;
-        zPos = z;
+    public double getVy() {
+        return vy;
     }
 
-    public void setVelocity(double xVel, double zVel) {
-        xVelocity = xVel;
-        zVelocity = zVel;
-    }
-    public double getPreviousX() {
-        return previousXPos;
-    }
-
-    public double getPreviousY() {
-        return previousYPos;
-    }
-
-    public double getPreviousZ() {
-        return previousZPos;
+    public void setState(double x, double y, double vx, double vy) {
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
     }
 }
+
+
