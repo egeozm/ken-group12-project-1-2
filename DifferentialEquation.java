@@ -1,38 +1,46 @@
 public interface DifferentialEquation {
-    double computeDerivative(double t, double y);
+    double[] computeDerivatives(double t, double[] state);
 
     public class EulerMethod {
-        public static double[] solve(DifferentialEquation eq, double y0, double t0, double tf, int n) {
-            double h = (tf - t0) / n;
-            double[] ys = new double[n + 1];
-            ys[0] = y0;
-            double t = t0;
-
-            for (int i = 1; i <= n; i++) {
-                ys[i] = ys[i - 1] + h * eq.computeDerivative(t, ys[i - 1]);
-                t += h;
+        public static double[] solve(DifferentialEquation eq, double[] state, double dt) {
+            double[] derivatives = eq.computeDerivatives(0, state);
+            double[] newState = new double[state.length];
+            for (int i = 0; i < state.length; i++) {
+                newState[i] = state[i] + dt * derivatives[i];
             }
-
-            return ys;
+            return newState;
         }
     }
+
     public class RK4Method {
-        public static double[] solve(DifferentialEquation eq, double y0, double t0, double tf, int n) {
-            double h = (tf - t0) / n;
-            double[] ys = new double[n + 1];
-            ys[0] = y0;
-            double t = t0;
+        public static double[] solve(DifferentialEquation eq, double[] state, double dt) {
+            double[] k1 = eq.computeDerivatives(0, state);
+            double[] k2 = eq.computeDerivatives(0, addVectors(state, multiplyVector(k1, dt / 2)));
+            double[] k3 = eq.computeDerivatives(0, addVectors(state, multiplyVector(k2, dt / 2)));
+            double[] k4 = eq.computeDerivatives(0, addVectors(state, multiplyVector(k3, dt)));
 
-            for (int i = 1; i <= n; i++) {
-                double k1 = h * eq.computeDerivative(t, ys[i - 1]);
-                double k2 = h * eq.computeDerivative(t + h / 2, ys[i - 1] + k1 / 2);
-                double k3 = h * eq.computeDerivative(t + h / 2, ys[i - 1] + k2 / 2);
-                double k4 = h * eq.computeDerivative(t + h, ys[i - 1] + k3);
-                ys[i] = ys[i - 1] + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
-                t += h;
+            double[] newState = new double[state.length];
+            for (int i = 0; i < state.length; i++) {
+                newState[i] = state[i] + (dt / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
             }
+            return newState;
+        }
 
-            return ys;
+        private static double[] addVectors(double[] v1, double[] v2) {
+            double[] result = new double[v1.length];
+            for (int i = 0; i < v1.length; i++) {
+                result[i] = v1[i] + v2[i];
+            }
+            return result;
+        }
+
+        private static double[] multiplyVector(double[] v, double scalar) {
+            double[] result = new double[v.length];
+            for (int i = 0; i < v.length; i++) {
+                result[i] = v[i] * scalar;
+            }
+            return result;
         }
     }
 }
+
