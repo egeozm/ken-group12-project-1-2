@@ -28,7 +28,7 @@ public class Ball {
         Ball ball = new Ball(terrain);
 
         double timeStep = 0.1; 
-        double[][] trajectory = ball.getTrajectoryArray(timeStep, steps, 4.0, 4.0, 0.3, 0);
+        double[][] trajectory = ball.getTrajectoryArray(timeStep, 4.0, 4.0, 0.3, 0);
         for (double[] state : trajectory) {
             System.out.println("xPos: " + state[0] + ", yPos: " + state[1] + ", xVel: " + state[2] + ", yVel: " + state[3]);
         }
