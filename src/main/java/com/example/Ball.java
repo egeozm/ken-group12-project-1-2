@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import javax.sound.midi.Soundbank;
-
 public class Ball {
     private double initialX;
     private double initialY;
@@ -13,7 +11,6 @@ public class Ball {
     private double y;
     private double vx;
     private double vy;
-    private double [][] statesStored;
     private Terrain terrain;
 
     public Ball(Terrain terrain) {
@@ -71,16 +68,20 @@ public class Ball {
 
     public double[][] getTrajectoryArray(double timeStep, double x, double y, double vx, double vy) {
         setState(x, y, vx, vy);
+        initialX = x;
+        initialY = y;
 
-        double[][] trajectory = new double[steps][4]; 
-        while (vx != 0 && vy !=0) {
+        List<double[]> trajectory = new ArrayList<>();
+        double epsilon = 1e-6;
+
+        while (Math.abs(vx) > epsilon || Math.abs(vy) > epsilon) {
             updateBallStateRungeKutta(timeStep);
-            trajectory[i][0] = getX();
-            trajectory[i][1] = getY();
-            trajectory[i][2] = getVx();
-            trajectory[i][3] = getVy();
+            trajectory.add(new double[]{getX(), getY(), getVx(), getVy()});
+            vx = getVx();
+            vy = getVy();
         }
-        return trajectory;
+
+        return trajectory.toArray(new double[trajectory.size()][4]);
     }
 
     public void resetToInitialState(){
