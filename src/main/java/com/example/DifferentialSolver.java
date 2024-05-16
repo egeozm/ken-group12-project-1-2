@@ -1,4 +1,4 @@
-package src.main;
+package com.example;
 
 public class DifferentialSolver {
     public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package src.main;
+package com.example;
 
 public class Ball {
     private double previousXPos, previousYPos, previousZPos; // for if the ball lands in water and has to be brought back

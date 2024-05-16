@@ -1,4 +1,4 @@
-package src.main;
+package com.example;
 
 import java.util.Arrays;
 public class GameLogics {

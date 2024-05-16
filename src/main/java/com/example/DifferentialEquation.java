@@ -1,4 +1,4 @@
-package src.main;
+package com.example;
 
 public interface DifferentialEquation {
     double computeDerivative(double t, double y);

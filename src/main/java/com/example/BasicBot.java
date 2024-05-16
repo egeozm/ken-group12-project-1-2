@@ -1,4 +1,4 @@
-package src.main;
+package com.example;
 
 public class BasicBot {
     int posX, posY; // Current position of the bot

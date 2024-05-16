@@ -1,4 +1,4 @@
-package src.main;
+package com.example;
 
 public class LotkaVolterraTester {
     private double x0; // Initial prey population

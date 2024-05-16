@@ -1,4 +1,4 @@
-package src.main;
+package com.example;
 
 public class FitzHughNagumoModel {
     private double v;

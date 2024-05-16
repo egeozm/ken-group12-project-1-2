@@ -1,4 +1,4 @@
-package src.main;
+package com.example;
 
 public class PhysicsCoefficients {
     public double grassKF = 0.10;//kf is the coefficient of kinetic friction
