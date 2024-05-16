@@ -5,6 +5,8 @@ import java.util.function.BiFunction;
 import javax.sound.midi.Soundbank;
 
 public class Ball {
+    private double initialX;
+    private double initialY;
     private double x;
     private double y;
     private double vx;
@@ -12,9 +14,7 @@ public class Ball {
     private double [][] statesStored;
     private Terrain terrain;
 
-    public Ball(double x, double y, Terrain terrain) {
-        this.x = x;
-        this.y = y;
+    public Ball(Terrain terrain) {
         this.vx = 0;
         this.vy = 0;
         this.terrain = terrain;
@@ -25,10 +25,9 @@ public class Ball {
         PhysicsCoefficients coefficients = new PhysicsCoefficients(0.08, 0.15, 0.2, 0.25, 0.15);
         Terrain terrain = new Terrain(heightFunction, coefficients.getKineticFrictionGrass(), coefficients.getStaticFrictionGrass(), coefficients.getKineticFrictionSand(), coefficients.getStaticFrictionSand());
 
-        Ball ball = new Ball(4.0, 4.0, terrain);
+        Ball ball = new Ball(terrain);
 
         double timeStep = 0.1; 
-        int steps = 300;
         double[][] trajectory = ball.getTrajectoryArray(timeStep, steps, 4.0, 4.0, 0.3, 0);
         for (double[] state : trajectory) {
             System.out.println("xPos: " + state[0] + ", yPos: " + state[1] + ", xVel: " + state[2] + ", yVel: " + state[3]);
@@ -62,13 +61,17 @@ public class Ball {
 
         setState(newState[0], newState[1], newState[2], newState[3]);
 
+        if (terrain.isWater(getX(), getY())) {
+            resetToInitialState();
+        }
+
     }
 
-    public double[][] getTrajectoryArray(double timeStep, int steps, double x, double y, double vx, double vy) {
+    public double[][] getTrajectoryArray(double timeStep, double x, double y, double vx, double vy) {
         setState(x, y, vx, vy);
 
         double[][] trajectory = new double[steps][4]; 
-        for (int i = 0; i < steps; i++) {
+        while (vx != 0 && vy !=0) {
             updateBallStateRungeKutta(timeStep);
             trajectory[i][0] = getX();
             trajectory[i][1] = getY();
@@ -76,6 +79,13 @@ public class Ball {
             trajectory[i][3] = getVy();
         }
         return trajectory;
+    }
+
+    public void resetToInitialState(){
+        x = initialX;
+        y = initialY;
+        vx = 0;
+        vy = 0;
     }
 
     public double getX() {
