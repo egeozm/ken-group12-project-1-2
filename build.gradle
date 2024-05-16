@@ -1,0 +1,67 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+
+sourceCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+def lwjglVersion = "3.3.1"
+def lwjglNatives = "natives-macos"
+
+dependencies {
+    // LibGDX dependencies
+    implementation "com.badlogicgames.gdx:gdx:1.10.0"
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:1.10.0"
+    implementation "com.badlogicgames.gdx:gdx-platform:1.10.0:natives-desktop"
+    implementation "com.badlogicgames.gdx:gdx-freetype:1.10.0"
+    implementation "com.badlogicgames.gdx:gdx-freetype-platform:1.10.0:natives-desktop"
+
+    // LWJGL dependencies
+    implementation "org.lwjgl:lwjgl:${lwjglVersion}"
+    implementation "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
+    implementation "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
+    implementation "org.lwjgl:lwjgl-openal:${lwjglVersion}"
+    implementation "org.lwjgl:lwjgl-stb:${lwjglVersion}"
+
+    runtimeOnly "org.lwjgl:lwjgl:${lwjglVersion}:${lwjglNatives}"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjglVersion}:${lwjglNatives}"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjglVersion}:${lwjglNatives}"
+    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjglVersion}:${lwjglNatives}"
+    runtimeOnly "org.lwjgl:lwjgl-stb:${lwjglVersion}:${lwjglNatives}"
+
+    // Test dependencies
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
+}
+
+application {
+    mainClassName = 'com.example.Main' // Adjust this to your actual main class package and name
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaExec) {
+    def osName = System.getProperty("os.name").toLowerCase()
+    if (osName.contains("mac")) {
+        jvmArgs = ["-Djava.library.path=${buildDir}/natives", "-XstartOnFirstThread"]
+    } else {
+        jvmArgs = ["-Djava.library.path=${buildDir}/natives"]
+    }
+}
+
+task copyNatives(type: Copy) {
+    from configurations.runtimeClasspath.filter { it.name.endsWith('natives-macos.jar') }.collect { zipTree(it) }
+    into "${buildDir}/natives"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+compileJava.dependsOn(copyNatives)
