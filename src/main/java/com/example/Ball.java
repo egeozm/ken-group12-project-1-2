@@ -20,8 +20,13 @@ public class Ball {
     }
 
     public static void main(String[] args) {
+        // the height function is the function for the map heneration
         BiFunction<Double, Double, Double> heightFunction = (x, y) -> 0.4 * (0.9 - Math.exp(-(x * x + y * y) / 8));
+
+        // set the coefficients depending on what the examiners give us
         PhysicsCoefficients coefficients = new PhysicsCoefficients(0.08, 0.15, 0.2, 0.25, 0.15);
+
+        // this creates the terrain with the height funtion as the shape of the map
         Terrain terrain = new Terrain(heightFunction, coefficients.getKineticFrictionGrass(), coefficients.getStaticFrictionGrass(), coefficients.getKineticFrictionSand(), coefficients.getStaticFrictionSand());
 
         Ball ball = new Ball(terrain);
