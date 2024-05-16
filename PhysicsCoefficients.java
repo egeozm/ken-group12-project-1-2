@@ -21,15 +21,6 @@ public class PhysicsCoefficients implements DifferentialEquation{
     public double dragCoefficient = 0.47; // assumed drag coefficient for a golf ball
     public double crossSectionalArea = Math.PI * Math.pow(golfBallRadius, 2); // m^2
 
-    @Override
-    public double computeDerivative(double t, double v) {
-        double sinTheta = Math.sin(slope);
-        double dragForce = 0.5 * airDensity * dragCoefficient * crossSectionalArea * Math.pow(v, 2);
-        double acceleration = (golfBallMass * gravity * sinTheta - dragForce) / golfBallMass;
-        return acceleration;
-    }
-    
-
     public double normalForce = golfBallMass * gravity * Math.cos(slope);
 
     public void setFriction(String terrain) { //use this function when ball's shot, and you need to set the friction for current terrain
@@ -55,8 +46,42 @@ public class PhysicsCoefficients implements DifferentialEquation{
         }
     }
 
-    public double velocity(double velocity) { // update it now and then with time
-        double dragForce = 0.5 * density * Math.pow(velocity, 2) * dragCoefficient * crossSectionalArea;
-        return Math.sqrt(Math.pow(velocity, 2) + 2 * dragForce / golfBallMass);
+    @Override
+    public double computeDerivative(double t, double v) {
+        double sinTheta = Math.sin(slope);
+        double dragForce = 0.5 * density * dragCoefficient * crossSectionalArea * Math.pow(v, 2);
+        double frictionForce = KF * normalForce;
+        double netForce = (golfBallMass * gravity * sinTheta) - dragForce - frictionForce;
+        return netForce / golfBallMass;
+    }
+
+    public double updateVelocity(double dt) {
+        double acceleration = computeDerivative(time, velocity);
+        velocity += acceleration * dt;
+        return velocity;
+    }
+
+    public double computeDistance(double initialVelocity, double dt) {
+        double distance = 0.0;
+        velocity = initialVelocity;
+        
+        while (velocity > 0) {
+            double prevVelocity = velocity;
+            velocity = updateVelocity(dt);
+            distance += prevVelocity * dt;
+            time += dt;
+        }
+        
+        return distance;
+    }
+/* 
+    public static void main(String[] args) {
+        PhysicsCoefficients physics = new PhysicsCoefficients();
+        physics.setFriction("grass");
+        double initialVelocity = 5.0; // m/s
+        double dt = 0.01; // time step in seconds
+        double distance = physics.computeDistance(initialVelocity, dt);
+        System.out.println("Distance traveled: " + distance + " meters");
     }
 }
+*/
