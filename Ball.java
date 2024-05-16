@@ -1,8 +1,15 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
+
+import javax.sound.midi.Soundbank;
+
 public class Ball {
     private double x;
     private double y;
     private double vx;
     private double vy;
+    private double [][] statesStored;
     private Terrain terrain;
 
     public Ball(double x, double y, Terrain terrain) {
@@ -13,7 +20,22 @@ public class Ball {
         this.terrain = terrain;
     }
 
-    public void updateBallStateRungeKutta(Ball ball, double dt) {
+    public static void main(String[] args) {
+        BiFunction<Double, Double, Double> heightFunction = (x, y) -> 0.4 * (0.9 - Math.exp(-(x * x + y * y) / 8));
+        PhysicsCoefficients coefficients = new PhysicsCoefficients(0.08, 0.15, 0.2, 0.25, 0.15);
+        Terrain terrain = new Terrain(heightFunction, coefficients.getKineticFrictionGrass(), coefficients.getStaticFrictionGrass(), coefficients.getKineticFrictionSand(), coefficients.getStaticFrictionSand());
+
+        Ball ball = new Ball(4.0, 4.0, terrain);
+
+        double timeStep = 0.1; 
+        int steps = 300;
+        double[][] trajectory = ball.getTrajectoryArray(timeStep, steps, 4.0, 4.0, 0.3, 0);
+        for (double[] state : trajectory) {
+            System.out.println("xPos: " + state[0] + ", yPos: " + state[1] + ", xVel: " + state[2] + ", yVel: " + state[3]);
+        }
+    }
+
+    public void updateBallStateRungeKutta(double timeStep) {
         DifferentialEquation system = (t, state) -> {
             double x = state[0];
             double y = state[1];
@@ -35,10 +57,25 @@ public class Ball {
             return new double[]{vx, vy, fx, fy};
         };
 
-        double[] state = { ball.getX(), ball.getY(), ball.getVx(), ball.getVy() };
-        double[] newState = DifferentialEquation.RK4Method.solve(system, state, dt);
+        double[] state = { getX(), getY(), getVx(), getVy() };
+        double[] newState = DifferentialEquation.RK4Method.solve(system, state, timeStep);
 
         setState(newState[0], newState[1], newState[2], newState[3]);
+
+    }
+
+    public double[][] getTrajectoryArray(double timeStep, int steps, double x, double y, double vx, double vy) {
+        setState(x, y, vx, vy);
+
+        double[][] trajectory = new double[steps][4]; 
+        for (int i = 0; i < steps; i++) {
+            updateBallStateRungeKutta(timeStep);
+            trajectory[i][0] = getX();
+            trajectory[i][1] = getY();
+            trajectory[i][2] = getVx();
+            trajectory[i][3] = getVy();
+        }
+        return trajectory;
     }
 
     public double getX() {
@@ -64,4 +101,5 @@ public class Ball {
         this.vy = vy;
     }
 }
+
 

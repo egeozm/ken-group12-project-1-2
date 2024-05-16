@@ -1,26 +1,40 @@
 public class DifferentialSolver {
     public static void main(String[] args) {
-        DifferentialEquation eq = (t, y) -> y - t * t + 1;
+        DifferentialEquation eq = new DifferentialEquation() {
+            @Override
+            public double[] computeDerivatives(double t, double[] state) {
+                double[] derivatives = new double[1];
+                derivatives[0] = state[0] - t * t + 1;
+                return derivatives;
+            }
+        };
 
         // Define the initial conditions and the time span
-        double y0 = 0.5;
+        double[] y0 = {0.5}; // Initial value of y
         double t0 = 0.0;
         double tf = 2.0;
-        int n = 10; // You can vary this to see different results
+        int n = 10; // Number of steps
+
+        // Define the time step
+        double dt = (tf - t0) / n;
 
         // Solve using both methods
-        double[] rk4Results = DifferentialEquation.RK4Method.solve(eq, y0, t0, tf, n);
-        double[] eulerResults = DifferentialEquation.EulerMethod.solve(eq,y0,t0,tf,n);
+        double[] rk4Results = new double[n + 1];
+        double[] eulerResults = new double[n + 1];
+        rk4Results[0] = y0[0];
+        eulerResults[0] = y0[0];
 
-        // Output the results and calculate relative errors
-        System.out.println("Step\tt\tEuler\t\tRK4\t\tRelative Error (%)");
-        for (int i = 0; i <= n; i++) {
-            double t = t0 + i * (tf - t0) / n;
-            double euler = eulerResults[i];
-            double rk4 = rk4Results[i];
-            double error = Math.abs(rk4 - euler) / Math.max(Math.abs(rk4), 1E-10) * 100;  // Avoid division by zero
-
-            System.out.printf("%d\t%.2f\t%.6f\t%.6f\t%.2f%%\n", i, t, euler, rk4, error);
+        for (int i = 1; i <= n; i++) {
+            rk4Results[i] = DifferentialEquation.RK4Method.solve(eq, new double[]{rk4Results[i - 1]}, dt)[0];
+            eulerResults[i] = DifferentialEquation.EulerMethod.solve(eq, new double[]{eulerResults[i - 1]}, dt)[0];
         }
+
+        double eulerFinalResult = eulerResults[n];
+        double rk4FinalResult = rk4Results[n];
+
+        System.out.println("Final Results:");
+        System.out.printf("Euler: " + eulerFinalResult);
+        System.out.printf("RK4: " + rk4FinalResult);
     }
 }
+

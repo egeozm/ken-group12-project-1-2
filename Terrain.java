@@ -14,6 +14,8 @@ public class Terrain {
 
         // this creates the terrain according to the height function
         Terrain terrain = new Terrain(heightFunction, coefficients.getKineticFrictionGrass(), coefficients.getStaticFrictionGrass(), coefficients.getKineticFrictionSand(), coefficients.getStaticFrictionSand());
+
+        
     }
 
     public Terrain(BiFunction<Double, Double, Double> heightFunction, double kineticFrictionGrass, double staticFrictionGrass, double kineticFrictionSand, double staticFrictionSand) {
@@ -70,4 +72,5 @@ public class Terrain {
         return staticFrictionGrass;
     }
 }
+
 
