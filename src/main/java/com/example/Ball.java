@@ -31,7 +31,7 @@ public class Ball {
 
         Ball ball = new Ball(terrain);
 
-        double timeStep = 0.1; 
+        double timeStep = 0.1;
 
         // this is how you get the ball to move and also get the trajectory
         double[][] trajectory = ball.getTrajectoryArray(timeStep, 4.0, 4.0, 0.3, 0);
@@ -62,7 +62,7 @@ public class Ball {
             return new double[]{vx, vy, fx, fy};
         };
 
-        double[] state = { getX(), getY(), getVx(), getVy() };
+        double[] state = {getX(), getY(), getVx(), getVy()};
         double[] newState = DifferentialEquation.RK4Method.solve(system, state, timeStep);
 
         setState(newState[0], newState[1], newState[2], newState[3]);
@@ -91,7 +91,7 @@ public class Ball {
         return trajectory.toArray(new double[trajectory.size()][4]);
     }
 
-    public void resetToInitialState(){
+    public void resetToInitialState() {
         x = initialX;
         y = initialY;
         vx = 0;
@@ -120,6 +120,17 @@ public class Ball {
         this.vx = vx;
         this.vy = vy;
     }
+
+    public double[] getCurrentState() {
+        return new double[]{this.x, this.y, this.vx, this.vy};
+    }
+
+    public void setVelocity(double vx, double vy) {
+        this.vx = vx;
+        this.vy = vy;
+    }
+
+
 }
 
 

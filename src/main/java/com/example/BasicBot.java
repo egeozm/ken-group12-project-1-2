@@ -1,54 +1,96 @@
 package com.example;
 
 public class BasicBot {
-    int posX, posY; // Current position of the bot
-    Terrain terrain; // The terrain the bot is in
-    int targetX, targetY; // Target position
+    private Ball ball;
+    private double timeStep;
+    private double maxVelocity;
+    private GameLogics gameLogics;
+    private Terrain terrain;
 
-    public BasicBot(Terrain terrain, int targetX, int targetY) {
+    public BasicBot(Ball ball, double timeStep, double maxVelocity, GameLogics gameLogics, Terrain terrain) {
+        this.ball = ball;
+        this.timeStep = timeStep;
+        this.maxVelocity = maxVelocity;
+        this.gameLogics = gameLogics;
         this.terrain = terrain;
-        this.posX = 0; // Starting X position
-        this.posY = 0; // Starting Y position
-        this.targetX = targetX;
-        this.targetY = targetY;
     }
 
-    public int[] decideNextMove() {
-        int[] bestMove = new int[]{posX, posY};
-        double bestDistance = Double.MAX_VALUE;
+    // Calculate the next move for the bot
+    public void calculateNextMove() {
+        // Get the current state of the ball (position and velocity)
+        double[] currentState = ball.getCurrentState();
+        double currentX = currentState[0];
+        double currentY = currentState[1];
+        double currentVx = currentState[2];
+        double currentVy = currentState[3];
 
-        int[][] moves = {
-                {posX + 1, posY}, // East
-                {posX - 1, posY}, // West
-                {posX, posY + 1}, // South
-                {posX, posY - 1}  // North
-        };
+        // Determine the target position (goal)
+        double targetX = gameLogics.getGoalPositionX();
+        double targetY = gameLogics.getGoalPositionY();
 
-        for (int[] move : moves) {
-            if (isValidPosition(move[0], move[1])) {
-                double distance = calculateDistance(move[0], move[1], targetX, targetY);
-                if (distance < bestDistance) {
-                    bestDistance = distance;
-                    bestMove = move;
-                }
+        // Calculate the distance and direction to the target
+        double deltaX = targetX - currentX;
+        double deltaY = targetY - currentY;
+        double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        double requiredVx = (deltaX / distance) * maxVelocity;
+        double requiredVy = (deltaY / distance) * maxVelocity;
+
+        // Adjust velocity based on terrain slope and friction
+        double[] slope = terrain.getSlope(currentX, currentY);
+        double friction = terrain.getKineticFriction(currentX, currentY);
+        requiredVx -= slope[0] * friction * timeStep;
+        requiredVy -= slope[1] * friction * timeStep;
+
+        // Ensure velocity does not exceed maximum allowed velocity
+        double speed = Math.sqrt(requiredVx * requiredVx + requiredVy * requiredVy);
+        if (speed > maxVelocity) {
+            double scalingFactor = maxVelocity / speed;
+            requiredVx *= scalingFactor;
+            requiredVy *= scalingFactor;
+        }
+
+        // Set the ball's velocity
+        ball.setVelocity(requiredVx, requiredVy);
+    }
+
+    // Check the current status of the bot
+    public String checkStatus() {
+        // Get the current state of the ball
+        double[] currentState = ball.getCurrentState();
+        double currentX = currentState[0];
+        double currentY = currentState[1];
+
+        double targetX = gameLogics.getGoalPositionX();
+        double targetY = gameLogics.getGoalPositionY();
+
+        // Check if the ball has reached the target
+        if (Math.abs(currentX - targetX) < 0.1 && Math.abs(currentY - targetY) < 0.1) {
+            return "Reached Target";
+        }
+
+        // Check if the ball is stuck
+        double currentVx = currentState[2];
+        double currentVy = currentState[3];
+        if (Math.abs(currentVx) < 0.01 && Math.abs(currentVy) < 0.01) {
+            return "Stuck";
+        }
+
+        return "Moving";
+    }
+
+    // Simulate the bot's movement until it reaches the target
+    public void playUntilTarget() {
+        while (true) {
+            calculateNextMove();  // Calculate the next move
+            ball.updateBallStateRungeKutta(timeStep);  // Update the ball's state
+            String status = checkStatus();  // Check the status of the bot
+            if ("Reached Target".equals(status)) {
+                System.out.println("Bot has reached the target.");
+                break;
+            } else if ("Stuck".equals(status)) {
+                System.out.println("Bot is stuck.");
+                break;
             }
         }
-
-        posX = bestMove[0];
-        posY = bestMove[1];
-
-        return bestMove;
-    }
-
-    private boolean isValidPosition(int x, int y) {
-        if (x >= 0 && x < terrain.field.length && y >= 0 && y < terrain.field[x].length) {
-            Terrain.cell c = terrain.field[x][y];
-            return !c.get_mat().equals("wall") && !c.get_mat().equals("hole");
-        }
-        return false;
-    }
-
-    private double calculateDistance(int x1, int y1, int x2, int y2) {
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 }
