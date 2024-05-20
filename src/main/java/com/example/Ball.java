@@ -1,5 +1,7 @@
 package com.example;
 
+import com.gui.Terrain;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -34,7 +36,7 @@ public class Ball {
         double timeStep = 0.1;
 
         // this is how you get the ball to move and also get the trajectory
-        double[][] trajectory = ball.getTrajectoryArray(timeStep, 4.0, 4.0, 0.3, 0);
+        double[][] trajectory = ball.getTrajectoryArray(timeStep, 4.0, 4.0, 0.3, 0, 10);
         for (double[] state : trajectory) {
             System.out.println("xPos: " + state[0] + ", yPos: " + state[1] + ", xVel: " + state[2] + ", yVel: " + state[3]);
         }
@@ -62,17 +64,35 @@ public class Ball {
             return new double[]{vx, vy, fx, fy};
         };
 
-        double[] state = {getX(), getY(), getVx(), getVy()};
+        double[] state = { getX(), getY(), getVx(), getVy() };
         double[] newState = DifferentialEquation.RK4Method.solve(system, state, timeStep);
 
         setState(newState[0], newState[1], newState[2], newState[3]);
 
-        if (terrain.isWater(getX(), getY())) {
-            resetToInitialState();
-        }
+        //if (terrain.isWater(getX(), getY())) {
+        //   resetToInitialState();
+        //}
 
     }
 
+    public double[][] getTrajectoryArray(double timeStep, double x, double y, double vx, double vy, int maxSteps) {
+        setState(x, y, vx, vy);
+        initialX = x;
+        initialY = y;
+        int initialStep = 0;
+        List<double[]> trajectory = new ArrayList<>();
+        double epsilon = 1e-6;
+
+        while ((Math.abs(vx) > epsilon || Math.abs(vy) > epsilon) && initialStep < maxSteps) {
+            initialStep++;
+            updateBallStateRungeKutta(timeStep);
+            trajectory.add(new double[]{getX(), getY(), getVx(), getVy()});
+            vx = getVx();
+            vy = getVy();
+        }
+
+        return trajectory.toArray(new double[trajectory.size()][4]);
+    }
     public double[][] getTrajectoryArray(double timeStep, double x, double y, double vx, double vy) {
         setState(x, y, vx, vy);
         initialX = x;
@@ -130,7 +150,30 @@ public class Ball {
         this.vy = vy;
     }
 
+    public void updatePosition(double deltaTime) {
+    }
 
+    public void setCurrentTerrain(String currentTerrain) {
+    }
+
+    public double[] getPosition() {
+        return new double[1];
+    }
+
+    public void setPosition(double previousX, double previousY, double previousZ) {
+    }
+
+    public double getPreviousZ() {
+        return 0;
+    }
+
+    public double getPreviousY() {
+        return 0;
+    }
+
+    public double getPreviousX() {
+        return 0;
+    }
 }
 
 

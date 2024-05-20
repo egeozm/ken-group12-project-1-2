@@ -15,6 +15,9 @@ public class BasicBot {
         this.terrain = terrain;
     }
 
+    public BasicBot(Terrain terrainn, int botX, int botY) {
+    }
+
     // Calculate the next move for the bot
     public void calculateNextMove() {
         // Get the current state of the ball (position and velocity)
@@ -92,5 +95,9 @@ public class BasicBot {
                 break;
             }
         }
+    }
+
+    public int[] decideNextMove() {
+        return new int[1];
     }
 }

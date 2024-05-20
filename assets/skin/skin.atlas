@@ -1,0 +1,21 @@
+textfield
+  rotate: false
+  xy: 0, 0
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+selection
+  rotate: false
+  xy: 64, 0
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+cursor
+  rotate: false
+  xy: 128, 0
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1

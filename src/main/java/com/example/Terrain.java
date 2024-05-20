@@ -9,6 +9,9 @@ public class Terrain {
     private double kineticFrictionSand;
     private double staticFrictionSand;
 
+    public Terrain(int i, int kineticFrictionGrass, int staticFrictionGrass) {
+    }
+
     public static void main(String[] args) {
         // height function for the terrain to be generated
         BiFunction<Double, Double, Double> heightFunction = (x, y) -> 0.4 * (0.9 - Math.exp(-(x * x + y * y) / 8));
@@ -72,6 +75,13 @@ public class Terrain {
             return staticFrictionSand;
         }
         return staticFrictionGrass;
+    }
+
+    public String getTerrainType(int i, int i1) {
+        return "";
+    }
+
+    public void grassLand() {
     }
 }
 

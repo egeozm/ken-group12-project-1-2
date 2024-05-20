@@ -1,0 +1,47 @@
+{
+  "com.badlogic.gdx.graphics.g2d.BitmapFont": {
+    "default-font": {
+      "file": "default-font.fnt",
+      "incremental": false
+    }
+  },
+  "com.badlogic.gdx.graphics.Color": {
+    "white": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 1
+    },
+    "black": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 1
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
+    "default": {
+      "font": "default-font",
+      "fontColor": "white"
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+    "default": {
+      "up": { "class": "com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable", "region": "textfield" },
+      "down": { "class": "com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable", "region": "textfield" },
+      "checked": { "class": "com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable", "region": "textfield" },
+      "over": { "class": "com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable", "region": "textfield" },
+      "font": "default-font",
+      "fontColor": "white"
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
+    "default": {
+      "font": "default-font",
+      "fontColor": "white",
+      "cursor": { "class": "com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable", "region": "cursor" },
+      "background": { "class": "com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable", "region": "textfield" },
+      "selection": { "class": "com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable", "region": "selection" }
+    }
+  }
+}
