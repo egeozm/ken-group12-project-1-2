@@ -11,16 +11,26 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 
+/**
+ * Represents a house in the 3D golf game.
+ */
 public class House {
-    private ModelInstance wallInstance;
-    private ModelInstance roofInstance;
-    private ModelInstance doorInstance;
-    private ModelInstance windowInstance;
-    private ModelInstance baseInstance;
-    private double sizeCoefficient;
-    private float xbias = -0.5f;
-    private float zbias = -0.5f;
+    private final ModelInstance wallInstance;
+    private final ModelInstance roofInstance;
+    private final ModelInstance doorInstance;
+    private final ModelInstance windowInstance;
+    private final double sizeCoefficient;
 
+    /**
+     * Constructs a House instance.
+     *
+     * @param wallTexturePath   The path to the texture for the walls.
+     * @param roofTexturePath   The path to the texture for the roof.
+     * @param doorTexturePath   The path to the texture for the door.
+     * @param windowTexturePath The path to the texture for the windows.
+     * @param baseTexturePath   The path to the texture for the base.
+     * @param sizeCoefficient   The size coefficient to scale the house.
+     */
     public House(String wallTexturePath, String roofTexturePath, String doorTexturePath, String windowTexturePath, String baseTexturePath, float sizeCoefficient) {
         this.sizeCoefficient = sizeCoefficient;
         // Load textures
@@ -35,13 +45,13 @@ public class House {
         Material roofMaterial = new Material(TextureAttribute.createDiffuse(roofTexture));
         Material doorMaterial = new Material(TextureAttribute.createDiffuse(doorTexture));
         Material windowMaterial = new Material(TextureAttribute.createDiffuse(windowTexture));
-        Material baseMaterial = new Material(TextureAttribute.createDiffuse(baseTexture));
+        new Material(TextureAttribute.createDiffuse(baseTexture));
 
         // Create model builder
         ModelBuilder modelBuilder = new ModelBuilder();
 
         float width = 10 * sizeCoefficient;
-        float height = 10 * sizeCoefficient+7;
+        float height = 10 * sizeCoefficient + 7;
         float depth = 10 * sizeCoefficient;
         float doorWidth = 2 * sizeCoefficient;
         float doorHeight = 4 * sizeCoefficient;
@@ -57,14 +67,14 @@ public class House {
         Model wallModel = modelBuilder.end();
         wallInstance = new ModelInstance(wallModel);
 
-        // Create roof
+        // Create a roof
         modelBuilder.begin();
         MeshPartBuilder roofBuilder = modelBuilder.part("roof", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal | Usage.TextureCoordinates, roofMaterial);
         createRoof(roofBuilder, width, roofHeight, depth);
         Model roofModel = modelBuilder.end();
         roofInstance = new ModelInstance(roofModel);
 
-        // Create door
+        // Create a door
         modelBuilder.begin();
         MeshPartBuilder doorBuilder = modelBuilder.part("door", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal | Usage.TextureCoordinates, doorMaterial);
         createDoor(doorBuilder, doorWidth, doorHeight);
@@ -78,21 +88,20 @@ public class House {
         Model windowModel = modelBuilder.end();
         windowInstance = new ModelInstance(windowModel);
 
-        // Create base
-        /*modelBuilder.begin();
-        MeshPartBuilder baseBuilder = modelBuilder.part("base", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal | Usage.TextureCoordinates, baseMaterial);
-        createBase(baseBuilder, width + 2 * sizeCoefficient, baseHeight, depth + 2 * sizeCoefficient);
-        Model baseModel = modelBuilder.end();
-        baseInstance = new ModelInstance(baseModel);*/
-
         // Position parts
         wallInstance.transform.setToTranslation(0, baseHeight, 0);
         roofInstance.transform.setToTranslation(0, height + baseHeight, 0);
         doorInstance.transform.setToTranslation(0, baseHeight, depth / 2 - doorWidth / 2);
         windowInstance.transform.setToTranslation(width / 2 - windowWidth / 2, height / 2 + baseHeight, depth / 2 - windowWidth / 2);
-        //baseInstance.transform.setToTranslation(0, 0, 0);
     }
 
+    /**
+     * Creates the walls of the house.
+     *
+     * @param builder The MeshPartBuilder to use for creating the walls.
+     * @param width   The width of the walls.
+     * @param height  The height of the walls.
+     */
     private void createWalls(MeshPartBuilder builder, float width, float height) {
         // Front wall
         builder.rect(
@@ -156,6 +165,14 @@ public class House {
         );
     }
 
+    /**
+     * Creates the roof of the house.
+     *
+     * @param builder The MeshPartBuilder to use for creating the roof.
+     * @param width   The width of the roof.
+     * @param height  The height of the roof.
+     * @param depth   The depth of the roof.
+     */
     private void createRoof(MeshPartBuilder builder, float width, float height, float depth) {
         // Bottom face of the roof (front side)
         builder.rect(
@@ -198,17 +215,17 @@ public class House {
                 0, 1, 0
         );
         builder.rect(
-                width / 2, -height/8, -depth / 2,
+                width / 2, -height / 8, -depth / 2,
                 width / 2, height, -depth / 2,
                 width / 2, height, depth / 2,
-                width / 2, -height/8, depth / 2,
+                width / 2, -height / 8, depth / 2,
                 0, 1, 0
         );
         builder.rect(
-                -width / 2, -height/4, depth / 2,
+                -width / 2, -height / 4, depth / 2,
                 -width / 2, height, depth / 2,
                 -width / 2, height, -depth / 2,
-                -width / 2, -height/4, -depth / 2,
+                -width / 2, -height / 4, -depth / 2,
                 0, 1, 0
         );
         builder.rect(
@@ -236,6 +253,13 @@ public class House {
         );
     }
 
+    /**
+     * Creates the door of the house.
+     *
+     * @param builder The MeshPartBuilder to use for creating the door.
+     * @param width   The width of the door.
+     * @param height  The height of the door.
+     */
     private void createDoor(MeshPartBuilder builder, float width, float height) {
         // Front face of the door
         builder.rect(
@@ -254,6 +278,13 @@ public class House {
         );
     }
 
+    /**
+     * Creates the windows of the house.
+     *
+     * @param builder The MeshPartBuilder to use for creating the windows.
+     * @param width   The width of the windows.
+     * @param height  The height of the windows.
+     */
     private void createWindows(MeshPartBuilder builder, float width, float height) {
         // Front face of the window
         builder.rect(
@@ -272,102 +303,65 @@ public class House {
         );
     }
 
-    private void createBase(MeshPartBuilder builder, float width, float height, float depth) {
-        // Front face of the base
-        builder.rect(
-                -width / 2, 0, -depth / 2,
-                width / 2, 0, -depth / 2,
-                width / 2, height, -depth / 2,
-                -width / 2, height, -depth / 2,
-                0, 0, -1
-        );
-        builder.rect(
-                width / 2, 0, -depth / 2,
-                -width / 2, 0, -depth / 2,
-                -width / 2, height, -depth / 2,
-                width / 2, height, -depth / 2,
-                0, 0, 1
-        );
-        // Back face of the base
-        builder.rect(
-                -width / 2, 0, depth / 2,
-                width / 2, 0, depth / 2,
-                width / 2, height, depth / 2,
-                -width / 2, height, depth / 2,
-                0, 0, 1
-        );
-        builder.rect(
-                width / 2, 0, depth / 2,
-                -width / 2, 0, depth / 2,
-                -width / 2, height, depth / 2,
-                width / 2, height, depth / 2,
-                0, 0, -1
-        );
-        // Left face of the base
-        builder.rect(
-                -width / 2, 0, -depth / 2,
-                -width / 2, 0, depth / 2,
-                -width / 2, height, depth / 2,
-                -width / 2, height, -depth / 2,
-                -1, 0, 0
-        );
-        builder.rect(
-                -width / 2, 0, depth / 2,
-                -width / 2, 0, -depth / 2,
-                -width / 2, height, -depth / 2,
-                -width / 2, height, depth / 2,
-                1, 0, 0
-        );
-        // Right face of the base
-        builder.rect(
-                width / 2, 0, -depth / 2,
-                width / 2, 0, depth / 2,
-                width / 2, height, depth / 2,
-                width / 2, height, -depth / 2,
-                1, 0, 0
-        );
-        builder.rect(
-                width / 2, 0, depth / 2,
-                width / 2, 0, -depth / 2,
-                width / 2, height, -depth / 2,
-                width / 2, height, depth / 2,
-                -1, 0, 0
-        );
-    }
-
+    /**
+     * Gets the ModelInstance representing the walls of the house.
+     *
+     * @return The ModelInstance representing the walls.
+     */
     public ModelInstance getWallInstance() {
         return wallInstance;
     }
 
+    /**
+     * Gets the ModelInstance representing the roof of the house.
+     *
+     * @return The ModelInstance representing the roof.
+     */
     public ModelInstance getRoofInstance() {
         return roofInstance;
     }
 
+    /**
+     * Gets the ModelInstance representing the door of the house.
+     *
+     * @return The ModelInstance representing the door.
+     */
     public ModelInstance getDoorInstance() {
         return doorInstance;
     }
 
+    /**
+     * Gets the ModelInstance representing the windows of the house.
+     *
+     * @return The ModelInstance representing the windows.
+     */
     public ModelInstance getWindowInstance() {
         return windowInstance;
     }
 
-    /*public ModelInstance getBaseInstance() {
-        return baseInstance;
-    }*/
-
+    /**
+     * Sets the position of the house.
+     *
+     * @param x The x-coordinate of the house.
+     * @param y The y-coordinate of the house.
+     * @param z The z-coordinate of the house.
+     */
     public void setPosition(float x, float y, float z) {
-        wallInstance.transform.setToTranslation(x+xbias, y-7, z+zbias);
-        roofInstance.transform.setToTranslation(x+xbias, (float) (y + 10*sizeCoefficient), z+zbias);
-        doorInstance.transform.setToTranslation((float) (x - 4*sizeCoefficient)+xbias, y, (float) (z + 5.1*sizeCoefficient)+zbias); // Position door at the front
-        windowInstance.transform.setToTranslation((float) (x + 4*sizeCoefficient)+xbias, (float) (y + 5*sizeCoefficient), (float) (z + 5.1*sizeCoefficient)+zbias); // Position window at the front
-        //baseInstance.transform.setToTranslation(x, (float) (y - 1*sizeCoefficient), z); // Position base under the house
+        float xBias = -0.5f;
+        float zBias = -0.5f;
+        wallInstance.transform.setToTranslation(x + xBias, y - 7, z + zBias);
+        roofInstance.transform.setToTranslation(x + xBias, (float) (y + 10 * sizeCoefficient), z + zBias);
+        doorInstance.transform.setToTranslation((float) (x - 4 * sizeCoefficient) + xBias, y, (float) (z + 5.1 * sizeCoefficient) + zBias); // Position a door at the front
+        windowInstance.transform.setToTranslation((float) (x + 4 * sizeCoefficient) + xBias, (float) (y + 5 * sizeCoefficient), (float) (z + 5.1 * sizeCoefficient) + zBias); // Position window at the front
     }
 
+    /**
+     * Disposes of the resources used by the house.
+     */
     public void dispose() {
         wallInstance.model.dispose();
         roofInstance.model.dispose();
         doorInstance.model.dispose();
         windowInstance.model.dispose();
-        //baseInstance.model.dispose();
     }
 }

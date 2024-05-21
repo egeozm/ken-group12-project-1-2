@@ -11,12 +11,20 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 
+/**
+ * The Tree class represents a tree in the game, consisting of a trunk and leaves.
+ * It handles the creation, positioning, and rendering of the tree.
+ */
 public class Tree {
-    private ModelInstance trunkInstance;
-    private ModelInstance leavesInstance;
-    private float xbias = 0f;
-    private float zbias = 0f;
+    private final ModelInstance trunkInstance;
+    private final ModelInstance leavesInstance;
 
+    /**
+     * Constructs a Tree object with the specified textures for the trunk and leaves.
+     *
+     * @param trunkTexturePath  the file path to the trunk texture
+     * @param leavesTexturePath the file path to the leave texture
+     */
     public Tree(String trunkTexturePath, String leavesTexturePath) {
         // Load textures
         Texture trunkTexture = new Texture(Gdx.files.internal(trunkTexturePath));
@@ -56,6 +64,14 @@ public class Tree {
         leavesInstance.transform.setToTranslation(0, trunkHeight, 0); // Adjust height to sit on top of the trunk
     }
 
+    /**
+     * Creates a trunk segment with the specified dimensions and vertical offset.
+     *
+     * @param builder the MeshPartBuilder used to construct the trunk segment
+     * @param width   the width of the trunk segment
+     * @param height  the height of the trunk segment
+     * @param yOffset the vertical offset of the trunk segment
+     */
     private void createTrunkSegment(MeshPartBuilder builder, float width, float height, float yOffset) {
         // Vertices
         float[] p1 = {-width / 2, yOffset, -width / 2};
@@ -87,6 +103,18 @@ public class Tree {
         addDoubleSidedQuad(builder, p1, p2, p6, p5, 0, -1, 0);
     }
 
+    /**
+     * Adds a double-sided quad to the builder.
+     *
+     * @param builder the MeshPartBuilder used to construct the quad
+     * @param v1      the first vertex of the quad
+     * @param v2      the second vertex of the quad
+     * @param v3      the third vertex of the quad
+     * @param v4      the fourth vertex of the quad
+     * @param nx      the normal x-component
+     * @param ny      the normal y-component
+     * @param nz      the normal z-component
+     */
     private void addDoubleSidedQuad(MeshPartBuilder builder, float[] v1, float[] v2, float[] v3, float[] v4, float nx, float ny, float nz) {
         // Front face (normal facing outwards)
         builder.vertex(v1[0], v1[1], v1[2], nx, ny, nz, 0, 0);
@@ -117,19 +145,42 @@ public class Tree {
         builder.triangle(i5, i7, i8);
     }
 
+    /**
+     * Gets the ModelInstance representing the trunk.
+     *
+     * @return the trunk ModelInstance
+     */
     public ModelInstance getTrunkInstance() {
         return trunkInstance;
     }
 
+    /**
+     * Gets the ModelInstance representing the leaves.
+     *
+     * @return the leaves ModelInstance
+     */
     public ModelInstance getLeavesInstance() {
         return leavesInstance;
     }
 
+    /**
+     * Sets the position of the tree in the game world.
+     *
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     * @param z the z-coordinate
+     */
     public void setPosition(float x, float y, float z) {
-        trunkInstance.transform.setToTranslation(x+xbias, y, z+zbias);
-        leavesInstance.transform.setToTranslation(x+xbias, y + 8f, z+zbias); // Adjust height to sit on top of the trunk
+        float xBias = 0f;
+        float zBias = 0f;
+        trunkInstance.transform.setToTranslation(x + xBias, y, z + zBias);
+        leavesInstance.transform.setToTranslation(x + xBias, y + 8f, z + zBias); // Adjust height
+        // to sit on top of the trunk
     }
 
+    /**
+     * Disposes of the tree model resources.
+     */
     public void dispose() {
         trunkInstance.model.dispose();
         leavesInstance.model.dispose();

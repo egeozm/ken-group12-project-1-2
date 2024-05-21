@@ -2,18 +2,36 @@ package com.example;
 
 import java.util.*;
 
+/**
+ * A utility class for parsing and evaluating mathematical functions with variables.
+ * This class supports basic arithmetic operations, trigonometric functions (sin, cos),
+ * and variables.
+ */
 public class FunctionParser2 {
 
     private static final String OPERATORS = "+-*/^";
     private static final Set<String> FUNCTIONS = new HashSet<>(Arrays.asList("sin", "cos"));
     private static final String DIGITS = "0123456789.";
 
+    /**
+     * Evaluates a mathematical function given as a string with specified variable values.
+     *
+     * @param functionStr The mathematical function as a string.
+     * @param variables   A map of variable names to their values.
+     * @return The result of evaluating the function.
+     */
     public static double eval(String functionStr, Map<String, Double> variables) {
         List<String> tokens = tokenize(functionStr);
         List<String> rpn = shuntingYard(tokens);
         return evaluateRPN(rpn, variables);
     }
 
+    /**
+     * Tokenizes a mathematical function string into a list of tokens.
+     *
+     * @param functionStr The mathematical function as a string.
+     * @return A list of tokens.
+     */
     private static List<String> tokenize(String functionStr) {
         List<String> tokens = new ArrayList<>();
         int i = 0;
@@ -45,6 +63,12 @@ public class FunctionParser2 {
         return tokens;
     }
 
+    /**
+     * Converts a list of tokens from infix notation to Reverse Polish Notation (RPN) using the shunting yard algorithm.
+     *
+     * @param tokens A list of tokens in infix notation.
+     * @return A list of tokens in RPN.
+     */
     private static List<String> shuntingYard(List<String> tokens) {
         List<String> output = new ArrayList<>();
         Deque<String> operators = new ArrayDeque<>();
@@ -87,6 +111,13 @@ public class FunctionParser2 {
         return output;
     }
 
+    /**
+     * Evaluates an expression given in Reverse Polish Notation (RPN).
+     *
+     * @param rpn       A list of tokens in RPN.
+     * @param variables A map of variable names to their values.
+     * @return The result of evaluating the expression.
+     */
     private static double evaluateRPN(List<String> rpn, Map<String, Double> variables) {
         Deque<Double> stack = new ArrayDeque<>();
 
@@ -144,6 +175,12 @@ public class FunctionParser2 {
         return stack.pop();
     }
 
+    /**
+     * Checks if a token is a number.
+     *
+     * @param token The token to check.
+     * @return true if the token is a number, false otherwise.
+     */
     private static boolean isNumber(String token) {
         try {
             Double.parseDouble(token);
@@ -153,10 +190,22 @@ public class FunctionParser2 {
         }
     }
 
+    /**
+     * Checks if a token is a variable.
+     *
+     * @param token The token to check.
+     * @return true if the token is a variable, false otherwise.
+     */
     private static boolean isVariable(String token) {
         return token.matches("[a-zA-Z]+") && !FUNCTIONS.contains(token);
     }
 
+    /**
+     * Returns the precedence of an operator.
+     *
+     * @param operator The operator whose precedence is to be determined.
+     * @return The precedence of the operator.
+     */
     private static int precedence(String operator) {
         switch (operator) {
             case "+":
@@ -172,6 +221,11 @@ public class FunctionParser2 {
         }
     }
 
+    /**
+     * Main method for testing the function parser.
+     *
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
         String functionStr = "15*cos(x + y)*cos(y^2)*((2.8)^sin(x-y))/(12+x^2+y^2)";
         Map<String, Double> variables = new HashMap<>();

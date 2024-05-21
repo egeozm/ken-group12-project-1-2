@@ -13,13 +13,21 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 
+/**
+ * The Trajectory class represents the trajectory of a golf ball in the game.
+ * It handles the visualization and updating of the trajectory line based on user input and kicking power.
+ */
 public class Trajectory {
     private ModelInstance trajectoryInstance;
-    private Vector3 direction;
+    private final Vector3 direction;
     private boolean kickingMode;
-    private ModelBuilder modelBuilder;
-    private double kickingPower = 0;
+    private double kickingPower;
 
+    /**
+     * Constructs a Trajectory object with the specified initial kicking power.
+     *
+     * @param kickingPower the initial kicking power
+     */
     public Trajectory(double kickingPower) {
         direction = new Vector3(1, 0, 0);  // Initial direction
         kickingMode = false;
@@ -27,26 +35,39 @@ public class Trajectory {
         createTrajectoryModel();
     }
 
+    /**
+     * Creates the trajectory model based on the current direction and kicking power.
+     */
     private void createTrajectoryModel() {
-        //System.out.println(kickingPower);
-        modelBuilder = new ModelBuilder();
+        ModelBuilder modelBuilder = new ModelBuilder();
         modelBuilder.begin();
         Material material = new Material(ColorAttribute.createDiffuse(Color.RED));
         MeshPartBuilder builder = modelBuilder.part("trajectory", GL20.GL_LINES, Usage.Position | Usage.ColorPacked, material);
         builder.setColor(Color.RED);
-        builder.line(0, 0, 0, direction.x * (float) kickingPower, direction.y * (float) kickingPower, direction.z * (float) kickingPower);  // Line length is 10 units
+        builder.line(0, 0, 0, direction.x * (float) kickingPower, direction.y * (float) kickingPower, direction.z * (float) kickingPower);
         Model trajectoryModel = modelBuilder.end();
         trajectoryInstance = new ModelInstance(trajectoryModel);
     }
-    public void setKickingPower(double kickingPower){
+
+    /**
+     * Sets the kicking power.
+     *
+     * @param kickingPower the new kicking power
+     */
+    public void setKickingPower(double kickingPower) {
         this.kickingPower = kickingPower;
     }
+
+    /**
+     * Updates the trajectory model and direction based on the ball's position and user input.
+     *
+     * @param ballPosition the current position of the ball
+     */
     public void update(Vector3 ballPosition) {
-        // Update the trajectory line
         createTrajectoryModel();  // Recreate the trajectory model with the new direction
         trajectoryInstance.transform.setToTranslation(ballPosition);
         if (kickingMode) {
-            // Update direction based on input
+            // Update a direction based on input
             if (Gdx.input.isKeyPressed(Input.Keys.W)) {
                 direction.z -= 0.1f;
             }
@@ -62,21 +83,39 @@ public class Trajectory {
 
             // Normalize direction
             direction.nor();
-
         }
     }
+
+    /**
+     * Toggles the kicking mode on or off.
+     */
     public void toggleKickingMode() {
         kickingMode = !kickingMode;
     }
 
+    /**
+     * Checks if the kicking mode is enabled.
+     *
+     * @return true if kicking mode is enabled, false otherwise
+     */
     public boolean isKickingMode() {
         return kickingMode;
     }
 
+    /**
+     * Gets the current direction of the trajectory.
+     *
+     * @return the direction vector
+     */
     public Vector3 getDirection() {
         return direction;
     }
 
+    /**
+     * Gets the ModelInstance representing the trajectory.
+     *
+     * @return the trajectory ModelInstance
+     */
     public ModelInstance getInstance() {
         return trajectoryInstance;
     }

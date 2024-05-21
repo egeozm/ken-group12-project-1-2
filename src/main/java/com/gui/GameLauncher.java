@@ -8,13 +8,19 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.Pixmap;
 
 import java.util.HashMap;
-import java.util.Set;
 
+/**
+ * The GameLauncher class is the entry point for the 3D Golf Game.
+ * It sets up the application configuration, loads resources, and initializes the main menu.
+ */
 public class GameLauncher extends Game {
     private Music mainMenuMusic;
     private Music settingsMusic;
     private Music gameMusic;
 
+    /**
+     * Initializes the game, loads resources, and sets the initial screen.
+     */
     @Override
     public void create() {
         Pixmap pixmap = new Pixmap(Gdx.files.internal("assets/skin/cursor.png"));
@@ -32,30 +38,45 @@ public class GameLauncher extends Game {
         // Set the initial screen
         setScreen(new MainMenu(this, mainMenuMusic, settingsMusic, gameMusic, parameters));
     }
-    public HashMap<String, Double> initHashMap(){
-            HashMap<String, Double> a = new HashMap<String, Double>();
-            a.put("width", 25.0);
-            a.put("height", 25.0);
-            a.put("xBall", Double.NaN);
-            a.put("zBall", Double.NaN);
-            a.put("xHole", Double.NaN);
-            a.put("zHole", Double.NaN);
-            a.put("treeSpawnRate", 0.003);
-            a.put("housesSpawnRate", 0.001);
-            a.put("heightCoef", 1.0);
-            a.put("yBias", 0.0);
-            a.put("functionStep", 0.1);
-            return a;
+
+    /**
+     * Initializes and returns a HashMap with default parameters for the game.
+     *
+     * @return A HashMap containing default game parameters.
+     */
+    public HashMap<String, Double> initHashMap() {
+        HashMap<String, Double> a = new HashMap<>();
+        a.put("width", 25.0);
+        a.put("height", 25.0);
+        a.put("xBall", Double.NaN);
+        a.put("zBall", Double.NaN);
+        a.put("xHole", Double.NaN);
+        a.put("zHole", Double.NaN);
+        a.put("treeSpawnRate", 0.003);
+        a.put("housesSpawnRate", 0.001);
+        a.put("heightCoefficient", 1.0);
+        a.put("yBias", 0.0);
+        a.put("functionStep", 0.1);
+        return a;
     }
+
+    /**
+     * Disposes of resources when the game is closed.
+     */
     @Override
     public void dispose() {
-        // Dispose the music
+        // Dispose of the music
         mainMenuMusic.dispose();
         settingsMusic.dispose();
         gameMusic.dispose();
         super.dispose();
     }
 
+    /**
+     * The main method to launch the game.
+     *
+     * @param args Command-line arguments.
+     */
     public static void main(String[] args) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setTitle("3D Golf Game");

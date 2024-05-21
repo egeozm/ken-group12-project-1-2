@@ -12,34 +12,32 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.HashMap;
 
+/**
+ * SettingsMenu class represents the settings menu screen of the game.
+ */
 public class SettingsMenu implements Screen {
-    private Stage stage;
-    private Slider volumeSlider;
-    private TextButton backButton;
-    private TextButton terrainSettings;
-    private TextButton gameLogicsSettings;
-    private GameLauncher game;
-    private Skin skin;
-    private Image backgroundImage;
-    private TextField textField1;
-    private TextField textField2;
-    private Music mainMenuMusic;
-    private Music settingsMusic;
-    private Music gameMusic;
-    private HashMap<String, Double> parameters;
+    private final Stage stage;
+    private final Slider volumeSlider;
+    private final Skin skin;
+    private final Music settingsMusic;
 
+    /**
+     * Constructor to initialize the settings menu screen.
+     *
+     * @param game            The game launcher instance.
+     * @param mainMenuMusic   The music to be played on the main menu screen.
+     * @param settingsMusic   The music to be played on the settings menu screen.
+     * @param gameMusic       The music to be played during the game.
+     * @param parameters      The parameters for the game settings.
+     */
     public SettingsMenu(GameLauncher game, Music mainMenuMusic, Music settingsMusic, Music gameMusic, HashMap<String, Double> parameters) {
-        this.game = game;
-        this.mainMenuMusic = mainMenuMusic;
         this.settingsMusic = settingsMusic;
-        this.gameMusic = gameMusic;
         stage = new Stage(new ScreenViewport());
-        this.parameters = parameters;
+
         // Create a new skin
         skin = new Skin();
 
@@ -83,7 +81,7 @@ public class SettingsMenu implements Screen {
         skin.add("default-horizontal", sliderStyle);
 
         // Set up the background image
-        backgroundImage = new Image(new TextureRegionDrawable(new TextureRegion(backgroundTexture)));
+        Image backgroundImage = new Image(new TextureRegionDrawable(new TextureRegion(backgroundTexture)));
         backgroundImage.setFillParent(true);
         stage.addActor(backgroundImage);
 
@@ -106,22 +104,7 @@ public class SettingsMenu implements Screen {
         table.add(volumeSlider).width(1400).center().pad(10);
         table.row();
 
-
-        // Add a label for the button
-
-        // Create a table for the buttons and add the buttons to it
-        /*Table buttonTable = new Table();
-        TextButton button1 = new TextButton("Morning", skin);
-        TextButton button2 = new TextButton("Day", skin);
-        TextButton button3 = new TextButton("Night", skin);
-        buttonTable.add(button1).pad(10);
-        buttonTable.add(button2).pad(10);
-        buttonTable.add(button3).pad(10);
-
-        // Add the button table to the main table
-        table.add(buttonTable).colspan(2).center().pad(10);
-        table.row();*/
-        terrainSettings = new TextButton("Terrain Settings", skin);
+        TextButton terrainSettings = new TextButton("Terrain Settings", skin);
         terrainSettings.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -130,7 +113,7 @@ public class SettingsMenu implements Screen {
         });
         table.add(terrainSettings).colspan(2).center().pad(10);
         table.row();
-        gameLogicsSettings = new TextButton("Game Logics", skin);
+        TextButton gameLogicsSettings = new TextButton("Game Logics", skin);
         gameLogicsSettings.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -139,7 +122,7 @@ public class SettingsMenu implements Screen {
         });
         table.add(gameLogicsSettings).colspan(2).center().pad(10);
         table.row();
-        backButton = new TextButton("Back to Menu", skin);
+        TextButton backButton = new TextButton("Back to Menu", skin);
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -175,10 +158,12 @@ public class SettingsMenu implements Screen {
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+    }
 
     @Override
     public void hide() {

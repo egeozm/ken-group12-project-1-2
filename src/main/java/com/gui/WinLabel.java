@@ -7,12 +7,20 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
+/**
+ * The WinLabel class represents a label displayed when the player wins the game.
+ * It handles the rendering and visibility of the "YOU WIN!" message.
+ */
 public class WinLabel {
-    private SpriteBatch spriteBatch;
-    private BitmapFont font;
-    private OrthographicCamera camera;
+    private final SpriteBatch spriteBatch;
+    private final BitmapFont font;
+    private final OrthographicCamera camera;
     private boolean visible;
 
+    /**
+     * Constructs a WinLabel.
+     * Initializes the font, camera, and sets the label to be initially invisible.
+     */
     public WinLabel() {
         spriteBatch = new SpriteBatch();
 
@@ -32,19 +40,29 @@ public class WinLabel {
         visible = false;
     }
 
+    /**
+     * Makes the "YOU WIN!" label visible.
+     */
     public void show() {
         visible = true;
     }
 
+    /**
+     * Renders the "YOU WIN!" label on the screen if it is visible.
+     */
     public void render() {
         if (!visible) return;
 
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
-        font.draw(spriteBatch, "YOU WIN!", Gdx.graphics.getWidth() / 2 - 150, Gdx.graphics.getHeight() / 2 + 30);
+        font.draw(spriteBatch, "YOU WIN!", (float) Gdx.graphics.getWidth() / 2 - 150, (float) Gdx.graphics.getHeight() / 2 + 30);
         spriteBatch.end();
     }
 
+    /**
+     * Disposes of the resources used by the WinLabel.
+     * This should be called when the WinLabel is no longer needed to free up resources.
+     */
     public void dispose() {
         spriteBatch.dispose();
         font.dispose();

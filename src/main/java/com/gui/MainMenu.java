@@ -17,26 +17,26 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.HashMap;
 
+/**
+ * MainMenu class represents the main menu screen of the game.
+ */
 public class MainMenu implements Screen {
-    private Stage stage;
-    private TextField textField;
-    private TextButton startButton;
-    private TextButton settingsButton;
-    private TextButton quitButton;
-    private GameLauncher game;
-    private Skin skin;
-    private Image backgroundImage;
-    private Music mainMenuMusic;
-    private Music settingsMusic;
-    private Music gameMusic;
-    private HashMap<String, Double> parameters;
+    private final Stage stage;
+    private final TextField textField;
+    private final Skin skin;
+    private final Music mainMenuMusic;
 
+    /**
+     * Constructor to initialize the main menu screen.
+     *
+     * @param game            The game launcher instance.
+     * @param mainMenuMusic   The music to be played on the main menu screen.
+     * @param settingsMusic   The music to be played on the settings menu screen.
+     * @param gameMusic       The music to be played during the game.
+     * @param parameters      The parameters for the game settings.
+     */
     public MainMenu(GameLauncher game, Music mainMenuMusic, Music settingsMusic, Music gameMusic, HashMap<String, Double> parameters) {
-        this.parameters = parameters;
-        this.game = game;
         this.mainMenuMusic = mainMenuMusic;
-        this.settingsMusic = settingsMusic;
-        this.gameMusic = gameMusic;
         stage = new Stage(new ScreenViewport());
 
         // Create a new skin
@@ -76,7 +76,7 @@ public class MainMenu implements Screen {
         skin.add("default", textButtonStyle);
 
         // Set up the background image
-        backgroundImage = new Image(new TextureRegionDrawable(new TextureRegion(backgroundTexture)));
+        Image backgroundImage = new Image(new TextureRegionDrawable(new TextureRegion(backgroundTexture)));
         backgroundImage.setFillParent(true);
         stage.addActor(backgroundImage);
 
@@ -90,7 +90,7 @@ public class MainMenu implements Screen {
         table.add(textField).width(800).pad(10);
         table.row();
 
-        startButton = new TextButton("Start Game", skin);
+        TextButton startButton = new TextButton("Start Game", skin);
         startButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -99,13 +99,13 @@ public class MainMenu implements Screen {
                     gameMusic.setLooping(true);
                     gameMusic.play();
                 }
-                game.setScreen(new Golf3D(game, gameMusic, textField.getText(), parameters)); // Pass the game instance and music
+                game.setScreen(new Golf3D(gameMusic, textField.getText(), parameters)); // Pass the game instance and music
             }
         });
         table.add(startButton).width(800).pad(10);
         table.row();
 
-        settingsButton = new TextButton("Settings", skin);
+        TextButton settingsButton = new TextButton("Settings", skin);
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -120,7 +120,7 @@ public class MainMenu implements Screen {
         table.add(settingsButton).width(800).pad(10);
         table.row();
 
-        quitButton = new TextButton("Quit", skin);
+        TextButton quitButton = new TextButton("Quit", skin);
         quitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -151,10 +151,12 @@ public class MainMenu implements Screen {
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+    }
 
     @Override
     public void hide() {
