@@ -23,6 +23,7 @@ public class GolfBall {
     private Vector3 velocity;
     private boolean isMoving;
     private float speed = 1f;
+    private float phisicsStep = 1f;
     private float interpolationAlpha;
     private int startIdx = -1;
     private boolean wasKicked = false;
@@ -57,6 +58,8 @@ public class GolfBall {
         isMoving = false;
         interpolationAlpha = 0.0f;
         velocity = new Vector3();
+        if(terrain.getWidth()*terrain.getHeight() > 4000)
+            phisicsStep = terrain.getWidth()*terrain.getHeight()/2000;
     }
 
     public ModelInstance getInstance() {
@@ -87,7 +90,7 @@ public class GolfBall {
         kickBall();
     }
     public void kickBall() {
-        //System.out.println(startIdx);
+        System.out.println(startIdx);
         if(startIdx >= trajectoryVec.length-1) {
             isMoving = false;
             initialPosition = startPosition;
@@ -125,7 +128,7 @@ public class GolfBall {
             //}
         }
         // Check if the ball was kicked and has reached the target position
-        if (new Vector3(currentPosition.x, 0, currentPosition.z).dst(new Vector3(targetPosition.x, 0, targetPosition.z)) < 0.1f) {
+        if (new Vector3(currentPosition.x, 0, currentPosition.z).dst(new Vector3(targetPosition.x, 0, targetPosition.z)) < 0.1f*phisicsStep*velocity.len()) {
             currentPosition = targetPosition;
             ballInstance.transform.setToTranslation(new Vector3(currentPosition.x, (float) terrain.getHeight(currentPosition.x, currentPosition.z) + 0.5f, currentPosition.z));
             //velocity.set(0, 0, 0);

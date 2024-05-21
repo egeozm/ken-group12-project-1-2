@@ -4,11 +4,11 @@ import com.gui.GolfBall;
 import com.gui.Terrain;
 
 public class BasicBot {
-    private Ball ball;
+    /*private Ball ball;
     private GolfBall golfBall;
     private double timeStep;
     private double maxVelocity;
-    private GameLogics gameLogics;
+    //private GameLogics gameLogics;
     private Terrain terrain;
 
     public BasicBot(Ball ball, GolfBall golfBall, double timeStep, double maxVelocity, GameLogics gameLogics, Terrain terrain) {
@@ -178,5 +178,5 @@ public class BasicBot {
                 break;
             }
         }
-    }
+    }*/
 }
