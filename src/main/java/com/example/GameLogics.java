@@ -63,9 +63,7 @@ public class GameLogics {
 
         int botX = 5; // Starting position for the bot
         int botY = 5; // Starting position
-        BasicBot bot = new BasicBot(terrainn, botX, botY);
-        int[] botDecision = bot.decideNextMove();
-        System.out.println("Bot decision: " + Arrays.toString(botDecision));
+
     }
 
 
