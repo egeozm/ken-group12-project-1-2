@@ -13,7 +13,7 @@ repositories {
 }
 
 def lwjglVersion = "3.3.1"
-def lwjglNatives = "natives-macos"
+def lwjglNatives = System.getProperty("os.arch").contains("aarch64") ? "natives-macos-arm64" : "natives-macos"
 
 dependencies {
     // LibGDX dependencies
@@ -23,7 +23,7 @@ dependencies {
     implementation "com.badlogicgames.gdx:gdx-freetype:1.10.0"
     implementation "com.badlogicgames.gdx:gdx-freetype-platform:1.10.0:natives-desktop"
 
-    // LWJGL dependencies
+    // LWJGL dependencies for macOS ARM or x64
     implementation "org.lwjgl:lwjgl:${lwjglVersion}"
     implementation "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
     implementation "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
@@ -58,8 +58,9 @@ tasks.withType(JavaExec) {
     }
 }
 
+// Task to copy LWJGL natives to the build directory
 task copyNatives(type: Copy) {
-    from configurations.runtimeClasspath.filter { it.name.endsWith('natives-macos.jar') }.collect { zipTree(it) }
+    from configurations.runtimeClasspath.filter { it.name.endsWith("${lwjglNatives}.jar") }.collect { zipTree(it) }
     into "${buildDir}/natives"
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

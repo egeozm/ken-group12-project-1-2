@@ -95,63 +95,63 @@ public class TerrainSettings implements Screen {
         sizeField.add(new Label("Map size", new Label.LabelStyle(font, com.badlogic.gdx.graphics.Color.WHITE))).pad(10);
         mapHeightTextField = new TextField("25", skin);
         mapHeightTextField.setAlignment(Align.center);
-        sizeField.add(mapHeightTextField).width(400).center().pad(10);
+        sizeField.add(mapHeightTextField).width(400).center().pad(5);
         mapWidthTextField = new TextField("25", skin);
         mapWidthTextField.setAlignment(Align.center);
-        sizeField.add(mapWidthTextField).width(400).center().pad(10);
+        sizeField.add(mapWidthTextField).width(400).center().pad(5);
         // Add the button table to the main table
-        table.add(sizeField).colspan(2).center().pad(10);
+        table.add(sizeField).colspan(2).center().pad(5);
         table.row();
 
         Table ballField = new Table();
         ballField.add(new Label("Ball position", new Label.LabelStyle(font, com.badlogic.gdx.graphics.Color.WHITE))).pad(10);
         TextField ballX = new TextField("Random", skin);
         ballX.setAlignment(Align.center);
-        ballField.add(ballX).width(400).center().pad(10);
+        ballField.add(ballX).width(400).center().pad(5);
         TextField ballZ = new TextField("Random", skin);
         ballZ.setAlignment(Align.center);
-        ballField.add(ballZ).width(400).center().pad(10);
+        ballField.add(ballZ).width(400).center().pad(5);
         // Add the button table to the main table
-        table.add(ballField).colspan(2).center().pad(10);
+        table.add(ballField).colspan(2).center().pad(5);
         table.row();
 
         Table golfHoleField = new Table();
         golfHoleField.add(new Label("Golf hole position", new Label.LabelStyle(font, com.badlogic.gdx.graphics.Color.WHITE))).pad(10);
         TextField holeX = new TextField("Random", skin);
         holeX.setAlignment(Align.center);
-        golfHoleField.add(holeX).width(400).center().pad(10);
+        golfHoleField.add(holeX).width(400).center().pad(5);
         TextField holeZ = new TextField("Random", skin);
         holeZ.setAlignment(Align.center);
-        golfHoleField.add(holeZ).width(400).center().pad(10);
+        golfHoleField.add(holeZ).width(400).center().pad(5);
         // Add the button table to the main table
-        table.add(golfHoleField).colspan(2).center().pad(10);
+        table.add(golfHoleField).colspan(2).center().pad(5);
         table.row();
 
         Table spawnField = new Table();
         spawnField.add(new Label("Spawn Rate", new Label.LabelStyle(font, com.badlogic.gdx.graphics.Color.WHITE))).pad(10);
         TextField treeRate = new TextField("0.003", skin);
         treeRate.setAlignment(Align.center);
-        spawnField.add(treeRate).width(400).center().pad(10);
+        spawnField.add(treeRate).width(400).center().pad(5);
         TextField houseRate = new TextField("0.001", skin);
         houseRate.setAlignment(Align.center);
-        spawnField.add(houseRate).width(400).center().pad(10);
+        spawnField.add(houseRate).width(400).center().pad(5);
         // Add the button table to the main table
-        table.add(spawnField).colspan(2).center().pad(10);
+        table.add(spawnField).colspan(2).center().pad(5);
         table.row();
 
         Table functionProperties = new Table();
         functionProperties.add(new Label("Spawn Rate", new Label.LabelStyle(font, com.badlogic.gdx.graphics.Color.WHITE))).pad(10);
         TextField heightCoef = new TextField("1", skin);
         heightCoef.setAlignment(Align.center);
-        functionProperties.add(heightCoef).width(400).center().pad(10);
+        functionProperties.add(heightCoef).width(400).center().pad(5);
         TextField yBias = new TextField("0", skin);
         yBias.setAlignment(Align.center);
-        functionProperties.add(yBias).width(400).center().pad(10);
+        functionProperties.add(yBias).width(400).center().pad(5);
         TextField functionStep = new TextField("0.1", skin);
         functionStep.setAlignment(Align.center);
-        functionProperties.add(functionStep).width(400).center().pad(10);
+        functionProperties.add(functionStep).width(400).center().pad(5);
         // Add the button table to the main table
-        table.add(functionProperties).colspan(2).center().pad(10);
+        table.add(functionProperties).colspan(2).center().pad(5);
         table.row();
 
         backButton = new TextButton("Back to Menu", skin);
@@ -172,7 +172,7 @@ public class TerrainSettings implements Screen {
                 game.setScreen(new SettingsMenu(game, mainMenuMusic, settingsMusic, gameMusic, parameters)); // Pass the game instance and music
             }
         });
-        table.add(backButton).colspan(2).center().pad(10);
+        table.add(backButton).colspan(2).center().pad(5);
     }
     public Double parseString(String s){
         if(s.equals("Random"))
