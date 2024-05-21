@@ -317,7 +317,7 @@ public class Golf3D implements Screen {
 
         if (kickingMode) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
-                System.out.println("aboba");
+                //System.out.println("aboba");
                 kickPower = Math.min(kickPower + 1, 100);
                 trajectory.setKickingPower(kickPower);
                 bottomLeftLabel.setText("Power: " + kickPower);
@@ -347,7 +347,7 @@ public class Golf3D implements Screen {
                 kickingMode = false;
                 trajectory.toggleKickingMode();
                 resetCamera();
-                System.out.println("dawdwadawdawda");
+                //System.out.println("dawdwadawdawda");
                 // Kick the ball using getTrajectoryArray
                 Ball ball = new Ball(terrain);
                 double[][] trajectory1 = ball.getTrajectoryArray(0.1, golfBall.getPosition().x, golfBall.getPosition().z, trajectory.getDirection().x*kickPower, trajectory.getDirection().z*kickPower, 30);// Example power and angle

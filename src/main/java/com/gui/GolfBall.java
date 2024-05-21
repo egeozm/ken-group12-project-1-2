@@ -87,7 +87,7 @@ public class GolfBall {
         kickBall();
     }
     public void kickBall() {
-        System.out.println(startIdx);
+        //System.out.println(startIdx);
         if(startIdx >= trajectoryVec.length-1) {
             isMoving = false;
             initialPosition = startPosition;
@@ -150,7 +150,7 @@ public class GolfBall {
                 }
             }
         }
-        System.out.println(smallestDistance);
+        //System.out.println(smallestDistance);
         return smallestDistance;
     }
     private double checkNearestHole(double x, double z){
@@ -163,7 +163,7 @@ public class GolfBall {
                 }
             }
         }
-        System.out.println(smallestDistance);
+        //System.out.println(smallestDistance);
         return smallestDistance;
     }
     private static double calculateDifference(Vector3 a, Vector3 b){
