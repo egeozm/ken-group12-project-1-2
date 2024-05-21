@@ -7,6 +7,6 @@ Specification-Vendor: lwjgl.org
 Implementation-Title: lwjgl-glfw
 Implementation-Version: build 7
 Implementation-Vendor: lwjgl.org
-LWJGL-Platform: macos/arm64
+LWJGL-Platform: macos/x64
 Multi-Release: true
 
