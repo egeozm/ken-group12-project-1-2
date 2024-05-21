@@ -15,7 +15,42 @@ public class BasicBot {
         this.terrain = terrain;
     }
 
-    public BasicBot(Terrain terrainn, int botX, int botY) {
+    private double calculateDistance(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
+
+    private double calculateXSlope(double x1, double y1, double x2, double y2) {
+        double stepsize = 0.5;
+        double x = x1;
+        double y = y1;
+        int count = 0;
+        double xslope = 0;
+        double dist = calculateDistance(x1, y1, x2, y2) / stepsize;
+        for (double i = 0; i < dist; i++) {
+            xslope = +terrain.getSlope(x, y)[0];
+            x = dist * (x2 - x1);
+            y = dist * (y2 - y1);
+            count++;
+        }
+
+        return xslope / count;
+    }
+
+    private double calculateYSlope(double x1, double y1, double x2, double y2) {
+        double stepsize = 0.5;
+        double x = x1;
+        double y = y1;
+        int count = 0;
+        double yslope = 0;
+        double dist = calculateDistance(x1, y1, x2, y2) / stepsize;
+        for (double i = 0; i < dist; i++) {
+            yslope = +terrain.getSlope(x, y)[0];
+            x = dist * (x2 - x1);
+            y = dist * (y2 - y1);
+            count++;
+        }
+
+        return yslope / count;
     }
 
     // Calculate the next move for the bot
@@ -32,17 +67,19 @@ public class BasicBot {
         double targetY = gameLogics.getGoalPositionY();
 
         // Calculate the distance and direction to the target
-        double deltaX = targetX - currentX;
-        double deltaY = targetY - currentY;
-        double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        double deltaX = Math.abs(targetX - currentX);
+        double deltaY = Math.abs(targetY - currentY);
+
+        double distance = calculateDistance(currentX, currentY, targetX, targetY);
         double requiredVx = (deltaX / distance) * maxVelocity;
         double requiredVy = (deltaY / distance) * maxVelocity;
 
         // Adjust velocity based on terrain slope and friction
-        double[] slope = terrain.getSlope(currentX, currentY);
+        double Xslope = calculateXSlope(currentX, currentY, targetX, targetY);
+        double Yslope = calculateYSlope(currentX, currentY, targetX, targetY);
         double friction = terrain.getKineticFriction(currentX, currentY);
-        requiredVx -= slope[0] * friction * timeStep;
-        requiredVy -= slope[1] * friction * timeStep;
+        requiredVx -= Xslope * friction * timeStep;
+        requiredVy -= Yslope * friction * timeStep;
 
         // Ensure velocity does not exceed maximum allowed velocity
         double speed = Math.sqrt(requiredVx * requiredVx + requiredVy * requiredVy);
@@ -95,9 +132,5 @@ public class BasicBot {
                 break;
             }
         }
-    }
-
-    public int[] decideNextMove() {
-        return new int[1];
     }
 }
