@@ -172,4 +172,5 @@ public class GolfBall {
     private static double calculateDifference(Vector3 a, Vector3 b){
         return a.x + a.z - b.x - b.z;
     }
+    //awdawdaw
 }
