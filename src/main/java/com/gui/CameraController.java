@@ -6,22 +6,26 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector3;
 
+/**
+ * The CameraController class is responsible for handling keyboard and mouse inputs to control a Camera in a 3D space.
+ * It supports movement in all directions as well as looking around using the mouse.
+ */
 public class CameraController extends InputAdapter {
-    private Camera camera;
-    private Vector3 direction = new Vector3();
-    private Vector3 right = new Vector3();
-    private float speed = 20f;
-    private float sensitivity = 0.2f;
+    private final Camera camera;
+    private final Vector3 direction = new Vector3();
+    private final Vector3 right = new Vector3();
     private boolean forward, backward, left, rightMove, up, down;
-    private boolean enabled = true;
+    private final boolean enabled = true;
 
+    /**
+     * Constructs a CameraController for the given camera.
+     *
+     * @param camera The camera to be controlled.
+     */
     public CameraController(Camera camera) {
         this.camera = camera;
         Gdx.input.setInputProcessor(this);
         Gdx.input.setCursorCatched(true);
-    }
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     @Override
@@ -79,6 +83,7 @@ public class CameraController extends InputAdapter {
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
         if (!enabled) return false;
+        float sensitivity = 0.2f;
         float deltaX = -Gdx.input.getDeltaX() * sensitivity;
         float deltaY = -Gdx.input.getDeltaY() * sensitivity;
 
@@ -89,8 +94,14 @@ public class CameraController extends InputAdapter {
         return true;
     }
 
+    /**
+     * Updates the camera's position and direction based on the current input state.
+     *
+     * @param deltaTime The time elapsed since the last update, in seconds.
+     */
     public void update(float deltaTime) {
         if (!enabled) return;
+        float speed = 20f;
         direction.set(camera.direction).nor().scl(speed * deltaTime);
         right.set(camera.direction).crs(camera.up).nor().scl(speed * deltaTime);
 

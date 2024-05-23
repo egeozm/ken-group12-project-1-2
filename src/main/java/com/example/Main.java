@@ -1,9 +1,7 @@
 package com.example;
 
-import java.util.HashMap;
-
 public class Main {
-    public static void main(String arg[]) throws Exception {
+    public static void main(String[] arg) {
 
     }
 }

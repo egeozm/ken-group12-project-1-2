@@ -6,12 +6,21 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+/**
+ * The UILabel class represents a user interface label for displaying text on the screen.
+ * It handles the rendering and updating of the label text.
+ */
 public class UILabel {
-    private SpriteBatch spriteBatch;
-    private BitmapFont font;
+    private final SpriteBatch spriteBatch;
+    private final BitmapFont font;
     private String text;
-    private OrthographicCamera camera;
+    private final OrthographicCamera camera;
 
+    /**
+     * Constructs a UILabel with the specified initial text.
+     *
+     * @param text the initial text to be displayed on the label
+     */
     public UILabel(String text) {
         this.text = text;
         spriteBatch = new SpriteBatch();
@@ -22,10 +31,18 @@ public class UILabel {
         camera.update();
     }
 
+    /**
+     * Sets the text to be displayed on the label.
+     *
+     * @param text the new text to be displayed
+     */
     public void setText(String text) {
         this.text = text;
     }
 
+    /**
+     * Renders the label on the screen.
+     */
     public void render() {
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
@@ -33,6 +50,10 @@ public class UILabel {
         spriteBatch.end();
     }
 
+    /**
+     * Disposes of the resources used by the UILabel.
+     * This should be called when the UILabel is no longer needed to free up resources.
+     */
     public void dispose() {
         spriteBatch.dispose();
         font.dispose();

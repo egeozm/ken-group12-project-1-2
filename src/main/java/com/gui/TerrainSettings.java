@@ -13,31 +13,35 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.HashMap;
 
+/**
+ * The TerrainSettings class provides a screen for configuring the terrain settings in the game.
+ */
 public class TerrainSettings implements Screen {
-    private Stage stage;
-    private TextButton backButton;
-    private GameLauncher game;
-    private Image backgroundImage;
-    private Music mainMenuMusic;
-    private Skin skin;
-    private Music settingsMusic;
-    private Music gameMusic;
+    private final Stage stage;
+    private final Skin skin;
+    private final Music settingsMusic;
     private HashMap<String, Double> parameters;
-    private TextField mapHeightTextField;
-    private TextField mapWidthTextField;
+    private final TextField mapHeightTextField;
+    private final TextField mapWidthTextField;
 
+    /**
+     * Constructs a TerrainSettings screen.
+     *
+     * @param game         the GameLauncher instance
+     * @param gameMusic    the music to play during the game
+     * @param mainMenuMusic the music to play in the main menu
+     * @param settingsMusic the music to play in the settings menu
+     * @param parameters   the terrain parameters
+     */
     public TerrainSettings(GameLauncher game, Music gameMusic, Music mainMenuMusic, Music settingsMusic, HashMap<String, Double> parameters) {
-        this.game = game;
         this.settingsMusic = settingsMusic;
-        this.mainMenuMusic = mainMenuMusic;
-        this.gameMusic = gameMusic;
         stage = new Stage(new ScreenViewport());
-        initHashMap(parameters, this.parameters);
+        initHashMap(this.parameters);
+
         // Create a new skin
         skin = new Skin();
 
@@ -81,7 +85,7 @@ public class TerrainSettings implements Screen {
         skin.add("default-horizontal", sliderStyle);
 
         // Set up the background image
-        backgroundImage = new Image(new TextureRegionDrawable(new TextureRegion(backgroundTexture)));
+        Image backgroundImage = new Image(new TextureRegionDrawable(new TextureRegion(backgroundTexture)));
         backgroundImage.setFillParent(true);
         stage.addActor(backgroundImage);
 
@@ -99,7 +103,6 @@ public class TerrainSettings implements Screen {
         mapWidthTextField = new TextField("25", skin);
         mapWidthTextField.setAlignment(Align.center);
         sizeField.add(mapWidthTextField).width(400).center().pad(5);
-        // Add the button table to the main table
         table.add(sizeField).colspan(2).center().pad(5);
         table.row();
 
@@ -111,7 +114,6 @@ public class TerrainSettings implements Screen {
         TextField ballZ = new TextField("Random", skin);
         ballZ.setAlignment(Align.center);
         ballField.add(ballZ).width(400).center().pad(5);
-        // Add the button table to the main table
         table.add(ballField).colspan(2).center().pad(5);
         table.row();
 
@@ -123,7 +125,6 @@ public class TerrainSettings implements Screen {
         TextField holeZ = new TextField("Random", skin);
         holeZ.setAlignment(Align.center);
         golfHoleField.add(holeZ).width(400).center().pad(5);
-        // Add the button table to the main table
         table.add(golfHoleField).colspan(2).center().pad(5);
         table.row();
 
@@ -135,26 +136,24 @@ public class TerrainSettings implements Screen {
         TextField houseRate = new TextField("0.001", skin);
         houseRate.setAlignment(Align.center);
         spawnField.add(houseRate).width(400).center().pad(5);
-        // Add the button table to the main table
         table.add(spawnField).colspan(2).center().pad(5);
         table.row();
 
         Table functionProperties = new Table();
         functionProperties.add(new Label("Spawn Rate", new Label.LabelStyle(font, com.badlogic.gdx.graphics.Color.WHITE))).pad(10);
-        TextField heightCoef = new TextField("1", skin);
-        heightCoef.setAlignment(Align.center);
-        functionProperties.add(heightCoef).width(400).center().pad(5);
+        TextField heightCoefficient = new TextField("1", skin);
+        heightCoefficient.setAlignment(Align.center);
+        functionProperties.add(heightCoefficient).width(400).center().pad(5);
         TextField yBias = new TextField("0", skin);
         yBias.setAlignment(Align.center);
         functionProperties.add(yBias).width(400).center().pad(5);
         TextField functionStep = new TextField("0.1", skin);
         functionStep.setAlignment(Align.center);
         functionProperties.add(functionStep).width(400).center().pad(5);
-        // Add the button table to the main table
         table.add(functionProperties).colspan(2).center().pad(5);
         table.row();
 
-        backButton = new TextButton("Back to Menu", skin);
+        TextButton backButton = new TextButton("Back to Menu", skin);
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -166,21 +165,34 @@ public class TerrainSettings implements Screen {
                 parameters.put("zHole", parseString(holeZ.getText()));
                 parameters.put("treeSpawnRate", parseString(treeRate.getText()));
                 parameters.put("housesSpawnRate", parseString(houseRate.getText()));
-                parameters.put("heightCoef", parseString(heightCoef.getText()));
+                parameters.put("heightCoefficient", parseString(heightCoefficient.getText()));
                 parameters.put("yBias", parseString(yBias.getText()));
                 parameters.put("functionStep", parseString(functionStep.getText()));
-                game.setScreen(new SettingsMenu(game, mainMenuMusic, settingsMusic, gameMusic, parameters)); // Pass the game instance and music
+                game.setScreen(new SettingsMenu(game, mainMenuMusic, settingsMusic, gameMusic, parameters));
             }
         });
         table.add(backButton).colspan(2).center().pad(5);
     }
-    public Double parseString(String s){
-        if(s.equals("Random"))
+
+    /**
+     * Parses a string to a Double value.
+     *
+     * @param s the string to parse
+     * @return the parsed Double value, or Double.NaN if the string is "Random"
+     */
+    public Double parseString(String s) {
+        if (s.equals("Random"))
             return Double.NaN;
         return Double.parseDouble(s);
     }
-    public void initHashMap(HashMap<String, Double> initial, HashMap<String, Double> a){
-        if(a == null || a.isEmpty()) {
+
+    /**
+     * Initializes the parameters HashMap with default values if it is null or empty.
+     *
+     * @param a the HashMap to initialize
+     */
+    public void initHashMap(HashMap<String, Double> a) {
+        if (a == null || a.isEmpty()) {
             a = new HashMap<>();
             a.put("width", Double.NaN);
             a.put("height", Double.NaN);
@@ -190,14 +202,12 @@ public class TerrainSettings implements Screen {
             a.put("zHole", Double.NaN);
             a.put("treeSpawnRate", Double.NaN);
             a.put("housesSpawnRate", Double.NaN);
-            a.put("heightCoef", Double.NaN);
+            a.put("heightCoefficient", Double.NaN);
             a.put("yBias", Double.NaN);
             a.put("functionStep", Double.NaN);
-            initial = a;
         }
-        else
-            initial = a;
     }
+
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
@@ -219,10 +229,12 @@ public class TerrainSettings implements Screen {
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+    }
 
     @Override
     public void hide() {

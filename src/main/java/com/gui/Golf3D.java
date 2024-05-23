@@ -2,10 +2,7 @@ package com.gui;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -22,8 +19,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+/**
+ * The Golf3D class represents the 3D game screen for the golf game.
+ * It handles the rendering of the game world, input processing, and game logic.
+ */
 public class Golf3D implements Screen {
-    private GameLauncher game;
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
     private ModelInstance[] terrainInstances;
@@ -32,13 +32,11 @@ public class Golf3D implements Screen {
     private HashMap<String, Texture> textures;
     private SkySphere skySphere;
     private GolfBall golfBall;
-    private Sun sun;
-    private Music gameMusic;
-    private String function;
-    private int width;
-    private int height;
+    private final Music gameMusic;
+    private final String function;
+    private final int width;
+    private final int height;
     private Terrain terrain;
-    private Tree tree;
     private House house;
     private ArrayList<Tree> trees;
     private ArrayList<House> houses;
@@ -47,27 +45,34 @@ public class Golf3D implements Screen {
     private String[][] obstacles;
     private boolean kickingMode;
     private Vector3 kickDirection;
-    private Debugger3D debugger;
+    private final Debugger3D debugger;
     private UILabel bottomLeftLabel;
     private double kickPower;
     private WinLabel winLabel;
-    HashMap<String, Double> parameters;
+    private final HashMap<String, Double> parameters;
 
-    public Golf3D(GameLauncher game, Music gameMusic, String function, HashMap<String, Double> parameters) {
-        width = (int)(double)parameters.get("width");
-        height = (int)(double)parameters.get("height");
+    /**
+     * Constructs a new Golf3D screen.
+     *
+     * @param gameMusic The background music for the game.
+     * @param function The height function expression for the terrain.
+     * @param parameters The parameters for the terrain generation.
+     */
+    public Golf3D(Music gameMusic, String function, HashMap<String, Double> parameters) {
+        width = (int) (double) parameters.get("width");
+        height = (int) (double) parameters.get("height");
         this.parameters = parameters;
-        this.game = game;
         this.gameMusic = gameMusic;
         this.function = function;
-        this.width = width;
-        this.height = height;
         this.kickingMode = false;
         this.kickDirection = new Vector3();
         this.debugger = new Debugger3D();
         kickPower = 1;
     }
 
+    /**
+     * Initializes the game screen, sets up the camera, loads assets, and generates the terrain.
+     */
     @Override
     public void show() {
         modelBatch = new ModelBatch();
@@ -94,13 +99,13 @@ public class Golf3D implements Screen {
         heightMap = terrain.getHeightCoordinates();
         Material[][] materials = terrain.getMaterialCoordinates();
         obstacles = terrain.getObstaclesCoordinates();
-        trees = new ArrayList<Tree>();
-        houses = new ArrayList<House>();
+        trees = new ArrayList<>();
+        houses = new ArrayList<>();
         int mapWidth = heightMap.length;
         int mapHeight = heightMap[0].length;
 
         // Create the terrain model
-        int chunkSize = 50;  // Adjust chunk size to fit within vertex limit
+        int chunkSize = 50;  // Adjust chunk size to fit within the vertex limit
         ModelBuilder modelBuilder = new ModelBuilder();
 
         int numChunksX = (mapWidth + chunkSize - 1) / chunkSize;
@@ -108,7 +113,6 @@ public class Golf3D implements Screen {
         terrainInstances = new ModelInstance[numChunksX * numChunksY];
 
         int index = 0;
-        float platformHeight = -10f;  // Height to which boundary vertices extend downwards
 
         for (int cx = 0; cx < numChunksX; cx++) {
             for (int cy = 0; cy < numChunksY; cy++) {
@@ -145,17 +149,16 @@ public class Golf3D implements Screen {
 
                         // Extend boundary vertices downwards to create volume
                         if (x == 0 || y == 0 || x == mapWidth - 2 || y == mapHeight - 2) {
-                            createBoundaryFaces(builder, modelBuilder, p1, p2, p3, p4, platformHeight, textures.get("side"));
+                            createBoundaryFaces(modelBuilder, p1, p2, p3, p4, textures.get("side"));
                         }
 
-                        if(obstacles[x][y].equals("tree")){
-                            tree = new Tree("assets/log.jpeg", "assets/leaves.jpg");
-                            tree.setPosition(x- width, (float) heightMap[x][y]-3f, y - height);
+                        if (obstacles[x][y].equals("tree")) {
+                            Tree tree = new Tree("assets/log.jpeg", "assets/leaves.jpg");
+                            tree.setPosition(x - width, (float) heightMap[x][y] - 3f, y - height);
                             trees.add(tree);
-                        }
-                        else if(obstacles[x][y].equals("house")){
+                        } else if (obstacles[x][y].equals("house")) {
                             house = new House("assets/base.png", "assets/planks.png", "assets/door.png", "assets/glass.png", "assets/log.jpeg", 0.3f);
-                            house.setPosition(x- width, (float) heightMap[x][y], y - height);
+                            house.setPosition(x - width, (float) heightMap[x][y], y - height);
                             houses.add(house);
                         }
                     }
@@ -180,54 +183,69 @@ public class Golf3D implements Screen {
         setRandomBallPosition();
         bottomLeftLabel = new UILabel("Power: " + kickPower);
     }
+
+    /**
+     * Sets a random position for the golf ball, ensuring it does not overlap with obstacles.
+     */
     private void setRandomBallPosition() {
         Random random = new Random();
-        double ballX = 0;
+        double ballX;
         double ballZ = 0;
-        if(parameters.get("xBall").equals(Double.NaN)) {
-            ballX = random.nextInt(width * 2 - 1);
-            while (!obstacles[(int) ballX][(int) ballZ].equals("0")) {
+        if (parameters.get("xBall").equals(Double.NaN)) {
+            do {
                 ballX = random.nextInt(width * 2 - 1);
-            }
+            } while (!obstacles[(int) ballX][(int) ballZ].equals("0"));
+        } else {
+            ballX = parameters.get("xBall") + width;
         }
-        else {
-            ballX = (double)parameters.get("xBall")+width;
-        }
-        if(parameters.get("zBall").equals(Double.NaN)){
-            ballZ = random.nextInt(height * 2 - 1);
-            while (!obstacles[(int) ballX][(int) ballZ].equals("0")) {
+        if (parameters.get("zBall").equals(Double.NaN)) {
+            do {
                 ballZ = random.nextInt(height * 2 - 1);
-            }
+            } while (!obstacles[(int) ballX][(int) ballZ].equals("0"));
+        } else {
+            ballZ = (int) (double) parameters.get("zBall") + height;
         }
-        else {
-            ballZ = (int)(double)parameters.get("zBall")+height;
-        }
-        float ballY = (float) heightMap[(int) ballX][(int)ballZ]; // No offset to perfectly align with the terrain
+        float ballY = (float) heightMap[(int) ballX][(int) ballZ]; // No offset to perfectly align with the terrain
         golfBall.setPosition((float) (ballX - width), ballY + 0.5f, (float) (ballZ - height));
     }
 
-    public void setBallPosition(float x, float z) {
-        float ballY = (float) (double) terrain.getHeight((int)x, (int) z); // No offset to perfectly align with the terrain
-        golfBall.setPosition(x - width, ballY, z - height);
-    }
-    private void createBoundaryFaces(MeshPartBuilder builder, ModelBuilder modelBuilder, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, float platformHeight, Texture sideTexture) {
+    /**
+     * Creates the boundary faces for the terrain, extending downwards to give volume.
+     *
+     * @param modelBuilder The model builder.
+     * @param p1 The first vertex of the top face.
+     * @param p2 The second vertex of the top face.
+     * @param p3 The third vertex of the top face.
+     * @param p4 The fourth vertex of the top face.
+     * @param sideTexture The texture to use for the sides.
+     */
+    private void createBoundaryFaces(ModelBuilder modelBuilder, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, Texture sideTexture) {
         float extendHeight = 10f;  // Extend vertices downwards by 10 units
 
         Material sideMaterial = new Material(TextureAttribute.createDiffuse(sideTexture));
-        builder = modelBuilder.part("terrain" + p1.x + "_" + p1.z, GL20.GL_TRIANGLES, Usage.Position | Usage.Normal | Usage.TextureCoordinates, sideMaterial);
+        MeshPartBuilder builder = modelBuilder.part("terrain" + p1.x + "_" + p1.z, GL20.GL_TRIANGLES, Usage.Position | Usage.Normal | Usage.TextureCoordinates, sideMaterial);
         Vector3 p1Bottom = new Vector3(p1.x, p1.y - extendHeight, p1.z);
         Vector3 p2Bottom = new Vector3(p2.x, p2.y - extendHeight, p2.z);
         Vector3 p3Bottom = new Vector3(p3.x, p3.y - extendHeight, p3.z);
         Vector3 p4Bottom = new Vector3(p4.x, p4.y - extendHeight, p4.z);
 
         // Create vertical faces to form the sides of the terrain
-        createVerticalFace(builder, p1, p2, p2Bottom, p1Bottom, sideMaterial);  // Front face
-        createVerticalFace(builder, p2, p3, p3Bottom, p2Bottom, sideMaterial);  // Right face
-        createVerticalFace(builder, p3, p4, p4Bottom, p3Bottom, sideMaterial);  // Back face
-        createVerticalFace(builder, p4, p1, p1Bottom, p4Bottom, sideMaterial);  // Left face
+        createVerticalFace(builder, p1, p2, p2Bottom, p1Bottom);  // Front face
+        createVerticalFace(builder, p2, p3, p3Bottom, p2Bottom);  // Right face
+        createVerticalFace(builder, p3, p4, p4Bottom, p3Bottom);  // Back face
+        createVerticalFace(builder, p4, p1, p1Bottom, p4Bottom);  // Left face
     }
 
-    private void createVerticalFace(MeshPartBuilder builder, Vector3 top1, Vector3 top2, Vector3 bottom2, Vector3 bottom1, Material sideMaterial) {
+    /**
+     * Creates a vertical face between two top vertices and their corresponding bottom vertices.
+     *
+     * @param builder The mesh part builder.
+     * @param top1 The first top vertex.
+     * @param top2 The second top vertex.
+     * @param bottom2 The second bottom vertex.
+     * @param bottom1 The first bottom vertex.
+     */
+    private void createVerticalFace(MeshPartBuilder builder, Vector3 top1, Vector3 top2, Vector3 bottom2, Vector3 bottom1) {
         builder.setColor(Color.WHITE);
 
         builder.ensureVertices(4);
@@ -241,7 +259,11 @@ public class Golf3D implements Screen {
         builder.triangle((short) i1, (short) i2, (short) i3);
         builder.triangle((short) i1, (short) i3, (short) i4);
     }
-    private void resetCamera(){
+
+    /**
+     * Resets the camera to its initial position, looking at the golf ball.
+     */
+    private void resetCamera() {
         Vector3 previousPosition = camera.position;
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(previousPosition.x, previousPosition.y, previousPosition.z);
@@ -254,6 +276,12 @@ public class Golf3D implements Screen {
         // Set up the camera controller
         cameraController = new CameraController(camera);
     }
+
+    /**
+     * Renders the game world, handles input, and updates game logic.
+     *
+     * @param delta The time in seconds since the last render.
+     */
     @Override
     public void render(float delta) {
         cameraController.update(Gdx.graphics.getDeltaTime());
@@ -284,7 +312,7 @@ public class Golf3D implements Screen {
             modelBatch.render(tree.getTrunkInstance(), environment);
             modelBatch.render(tree.getLeavesInstance(), environment);
         }
-        for(House house : houses){
+        for (House house : houses) {
             modelBatch.render(house.getWallInstance(), environment);
             modelBatch.render(house.getRoofInstance(), environment);
             modelBatch.render(house.getDoorInstance(), environment);
@@ -304,6 +332,10 @@ public class Golf3D implements Screen {
 
         handleInput();
     }
+
+    /**
+     * Handles input from the user, including camera movement, kicking mode, and debugging.
+     */
     private void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
             kickingMode = !kickingMode;
@@ -339,7 +371,7 @@ public class Golf3D implements Screen {
             if (Gdx.input.isKeyPressed(Input.Keys.D)) {
                 kickDirection.x += 0.1f;
             }
-            // Ensure camera stays orthogonal to the trajectory
+            // Ensure the camera stays orthogonal to the trajectory
             camera.lookAt(golfBall.getInstance().transform.getTranslation(new Vector3()).add(kickDirection));
             camera.update();
 
@@ -350,7 +382,7 @@ public class Golf3D implements Screen {
                 //System.out.println("dawdwadawdawda");
                 // Kick the ball using getTrajectoryArray
                 Ball ball = new Ball(terrain);
-                double[][] trajectory1 = ball.getTrajectoryArray(0.1, golfBall.getPosition().x, golfBall.getPosition().z, trajectory.getDirection().x*kickPower, trajectory.getDirection().z*kickPower, 30);// Example power and angle
+                double[][] trajectory1 = ball.getTrajectoryArray(0.1, golfBall.getPosition().x, golfBall.getPosition().z, trajectory.getDirection().x * kickPower, trajectory.getDirection().z * kickPower, 30);// Example power and angle
                 System.out.println(trajectory.getDirection().x + " " + trajectory.getDirection().z);
                 Debugger.printMatrix(trajectory1);
                 //Debugger.printArray(trajectoryVec3);
@@ -366,6 +398,13 @@ public class Golf3D implements Screen {
         }
         debugger.handleInput(camera, heightMap);
     }
+
+    /**
+     * Resizes the screen.
+     *
+     * @param width The new width of the screen.
+     * @param height The new height of the screen.
+     */
     @Override
     public void resize(int width, int height) {
         camera.viewportWidth = width;
@@ -381,11 +420,17 @@ public class Golf3D implements Screen {
     public void resume() {
     }
 
+    /**
+     * Hides the game screen and stops the game music.
+     */
     @Override
     public void hide() {
         gameMusic.stop();
     }
 
+    /**
+     * Disposes of resources when the screen is no longer needed.
+     */
     @Override
     public void dispose() {
         modelBatch.dispose();
