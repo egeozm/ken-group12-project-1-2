@@ -165,11 +165,11 @@ public class Terrain {
     }
     public void generateMaterialMap(int x, int y, double height){
         Material material = materials.get("grass");
-        /*if(height < -0.5*divisionCoef)
+        if(height < 0*divisionCoef)
             material = materials.get("water");
-        else*/ if(height < 0*divisionCoef)
-            material = materials.get("water");
-        else if(height < 0.4*divisionCoef)
+        /*else if(height < 0*divisionCoef)
+            material = materials.get("sand");*/
+        else /*if(height < 0.4*divisionCoef)*/
             material = materials.get("grass");
         /*else if(height < 0.8*divisionCoef)
             material = materials.get("rock");
