@@ -31,6 +31,25 @@ public class Terrain {
     private double houseRate = 0.001f;
     private int width;
     private int height;
+    private int holeX;
+
+    public int getHoleX() {
+        return holeX;
+    }
+
+    public void setHoleX(int holeX) {
+        this.holeX = holeX;
+    }
+
+    public int getHoleZ() {
+        return holeZ;
+    }
+
+    public void setHoleY(int holeY) {
+        this.holeZ = holeY;
+    }
+
+    private int holeZ;
 
     /**
      * Main method for testing the Terrain class.
@@ -198,6 +217,8 @@ public class Terrain {
         }
         obstaclesCoordinates[holeX][holeZ] = "hole";
         materialCoordinates[holeX][holeZ] = materials.get("hole");
+        this.holeX = holeX-width;
+        this.holeZ = holeZ-height;
     }
 
     /**

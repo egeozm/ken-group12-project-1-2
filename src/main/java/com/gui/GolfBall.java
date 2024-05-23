@@ -27,7 +27,7 @@ public class GolfBall {
     private final WinLabel winLabel;
 
     private double[][] trajectoryVec;
-    private double phisicsStep;
+    private double phisicsStep = 1f;
     private double coefPhisicsStep = 1;
 
     /**
@@ -122,6 +122,7 @@ public class GolfBall {
         startIdx++;
         velocity = new Vector3((float) trajectoryVec[startIdx][2], 0, (float) trajectoryVec[startIdx][3]);
         targetPosition = new Vector3((float) trajectoryVec[startIdx][0], 0, (float) trajectoryVec[startIdx][1]);
+        System.out.println(startPosition.x + " " + startPosition.z + " " + startPosition.x + " " + targetPosition.x + " " + targetPosition.y + " " + targetPosition.z);
         isMoving = true;
     }
 
@@ -185,7 +186,7 @@ public class GolfBall {
                 }
             }
         }
-        System.out.println(smallestDistance);
+        //System.out.println(smallestDistance);
         return smallestDistance;
     }
 
@@ -206,7 +207,7 @@ public class GolfBall {
                 }
             }
         }
-        System.out.println(smallestDistance);
+        //System.out.println(smallestDistance);
         return smallestDistance;
     }
 

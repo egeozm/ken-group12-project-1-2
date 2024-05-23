@@ -25,7 +25,58 @@ public class AI_Player {
         this.initialBallX = ball.getX();
         this.initialBallY = ball.getY();
     }
+    public AI_Player(Ball ball, double targetX, double targetY, PhysicsCoefficients coefficients, double initialBallX, double initialBallY) {
+        this.ball = ball;
+        this.targetX = targetX;
+        this.targetY = targetY;
+        this.coefficients = coefficients;
+        this.initialBallX = initialBallX;
+        this.initialBallY = initialBallY;
+    }
+    public double[] getBestVxVy() {
+        double bestVx = 1.0;
+        double bestVy = 1.0;
+        double bestDistance = Double.MAX_VALUE;
+        double deltaV = INITIAL_DELTA_V;
 
+        for (int i = 0; i < 1000; i++) {
+            double[] result = simulateShot(bestVx, bestVy);
+            double distanceToTargetX = targetX - result[0];
+            double distanceToTargetY = targetY - result[1];
+            double distanceToTarget = distance(result[0], result[1], targetX, targetY);
+
+            System.out.println("Iteration " + i + ": velocities vx = " + bestVx + ", vy = " + bestVy);
+            System.out.println("End position: (" + result[0] + ", " + result[1] + ")");
+            System.out.println("Distance to hole x: " + distanceToTargetX + ", y: " + distanceToTargetY);
+
+            if (distanceToTarget < bestDistance) {
+                bestDistance = distanceToTarget;
+
+                if (bestDistance <= coefficients.getTargetRadius()) {
+                    System.out.println("Hole in one");
+                    break;
+                }
+
+                deltaV = INITIAL_DELTA_V;
+            } else {
+                deltaV = Math.min(MAX_SPEED, deltaV * 1.1);
+            }
+
+            double[] newVxVy = adjustVelocities(bestVx, bestVy, deltaV, distanceToTarget);
+
+            if (newVxVy[2] < bestDistance) {
+                bestVx = newVxVy[0];
+                bestVy = newVxVy[1];
+            } else {
+                deltaV = Math.max(MIN_DELTA_V, deltaV * 0.5);
+            }
+
+            if (deltaV < IMPROVEMENT_THRESHOLD) {
+                break;
+            }
+        }
+        return new double[]{bestVx, bestVy};
+    }
     public void findHoleInOne() {
         double bestVx = 1.0;
         double bestVy = 1.0;
@@ -106,7 +157,7 @@ public class AI_Player {
     private double[] simulateShot(double vx, double vy) {
         ball.setState(initialBallX, initialBallY, 0, 0);
         ball.setVelocity(vx, vy);
-        double[][] trajectory = ball.getTrajectoryArray(0.1, ball.getX(), ball.getY(), vx, vy, 1000);
+        double[][] trajectory = ball.getTrajectoryArray(0.1, ball.getX(), ball.getY(), vx, vy, 30);
 
         if (trajectory.length == 0) {
             return new double[]{ball.getX(), ball.getY()};

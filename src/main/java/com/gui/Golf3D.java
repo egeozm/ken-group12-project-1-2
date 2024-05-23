@@ -12,7 +12,9 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.example.AI_Player;
 import com.example.Ball;
+import com.example.PhysicsCoefficients;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +34,7 @@ public class Golf3D implements Screen {
     private HashMap<String, Texture> textures;
     private SkySphere skySphere;
     private GolfBall golfBall;
+    private GolfBall advancedAI;
     private final Music gameMusic;
     private final String function;
     private final int width;
@@ -49,7 +52,9 @@ public class Golf3D implements Screen {
     private UILabel bottomLeftLabel;
     private double kickPower;
     private WinLabel winLabel;
+    private WinLabel winLabelAI;
     private final HashMap<String, Double> parameters;
+    private PhysicsCoefficients phisicsCoefficients = new PhysicsCoefficients(0.08, 0.15, 0.2, 0.25, 0.15);
 
     /**
      * Constructs a new Golf3D screen.
@@ -173,21 +178,24 @@ public class Golf3D implements Screen {
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
-        winLabel = new WinLabel();
+        winLabel = new WinLabel("You Win");
+        winLabelAI = new WinLabel("Advanced Bot Wins");
         // Initialize the golf ball
         golfBall = new GolfBall("assets/golfball.jpeg", terrain, winLabel);
+        advancedAI = new GolfBall("assets/golfball.jpeg", terrain, winLabelAI);
         trajectory = new Trajectory(1);
         kickingMode = false;
         kickDirection = new Vector3(1, 0, 0); // Initial kick direction
         // Set the golf ball position randomly or allow player to select position
-        setRandomBallPosition();
+        setRandomBallPosition(golfBall);
+        setRandomBallPosition(advancedAI);
         bottomLeftLabel = new UILabel("Power: " + kickPower);
     }
 
     /**
      * Sets a random position for the golf ball, ensuring it does not overlap with obstacles.
      */
-    private void setRandomBallPosition() {
+    private void setRandomBallPosition(GolfBall x) {
         Random random = new Random();
         double ballX;
         double ballZ = 0;
@@ -206,7 +214,7 @@ public class Golf3D implements Screen {
             ballZ = (int) (double) parameters.get("zBall") + height;
         }
         float ballY = (float) heightMap[(int) ballX][(int) ballZ]; // No offset to perfectly align with the terrain
-        golfBall.setPosition((float) (ballX - width), ballY + 0.5f, (float) (ballZ - height));
+        x.setPosition((float) (ballX - width), ballY + 0.5f, (float) (ballZ - height));
     }
 
     /**
@@ -301,6 +309,7 @@ public class Golf3D implements Screen {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         golfBall.update(delta);
+        advancedAI.update(delta);
         modelBatch.begin(camera);
         skySphere.render(modelBatch, environment);
         trajectory.update(golfBall.getInstance().transform.getTranslation(new Vector3()));
@@ -320,6 +329,7 @@ public class Golf3D implements Screen {
             //modelBatch.render(house.getBaseInstance(), environment);
         }
         modelBatch.render(golfBall.getInstance(), environment);
+        modelBatch.render(advancedAI.getInstance(), environment);
         modelBatch.end();
         if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
             trajectory.toggleKickingMode();
@@ -329,6 +339,7 @@ public class Golf3D implements Screen {
         }
         bottomLeftLabel.render();
         winLabel.render();
+        winLabelAI.render();
 
         handleInput();
     }
@@ -345,6 +356,16 @@ public class Golf3D implements Screen {
                 camera.lookAt(golfBall.getInstance().transform.getTranslation(new Vector3()));
                 camera.update();
             }
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
+            Ball ball = new Ball(terrain);
+            AI_Player player2 = new AI_Player(ball, terrain.getHoleX(), terrain.getHoleZ(), phisicsCoefficients, advancedAI.getPosition().x, advancedAI.getPosition().z);
+            double[][] trajectory1 = ball.getTrajectoryArray(0.1, advancedAI.getPosition().x, advancedAI.getPosition().z, player2.getBestVxVy()[0], player2.getBestVxVy()[1], 30);// Example power and angle
+            Debugger.printMatrix(trajectory1);
+            System.out.println(terrain.getHoleX() + " " + terrain.getHoleZ());
+            //Debugger.printArray(trajectoryVec3);
+            advancedAI.setTrajectoryVec3(trajectory1);
+            advancedAI.kickingTurn();
         }
 
         if (kickingMode) {
@@ -448,5 +469,6 @@ public class Golf3D implements Screen {
         debugger.dispose();
         bottomLeftLabel.dispose();
         winLabel.dispose();
+        winLabelAI.dispose();
     }
 }
