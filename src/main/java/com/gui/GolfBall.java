@@ -27,6 +27,8 @@ public class GolfBall {
     private final WinLabel winLabel;
 
     private double[][] trajectoryVec;
+    private double phisicsStep;
+    private double coefPhisicsStep = 1;
 
     /**
      * Constructs a GolfBall instance.
@@ -52,6 +54,8 @@ public class GolfBall {
         currentPosition = new Vector3();
         isMoving = false;
         velocity = new Vector3();
+        if(terrain.getHeight()*terrain.getWidth() > 4000)
+            phisicsStep = terrain.getHeight()*terrain.getWidth()/2000*coefPhisicsStep;
     }
 
     /**
@@ -145,7 +149,7 @@ public class GolfBall {
             }
         }
         // Check if the ball was kicked and has reached the target position
-        if (new Vector3(currentPosition.x, 0, currentPosition.z).dst(new Vector3(targetPosition.x, 0, targetPosition.z)) < 0.1f) {
+        if (new Vector3(currentPosition.x, 0, currentPosition.z).dst(new Vector3(targetPosition.x, 0, targetPosition.z)) < 0.1f*phisicsStep*velocity.len()) {
             currentPosition = targetPosition;
             ballInstance.transform.setToTranslation(new Vector3(currentPosition.x, (float) terrain.getHeight(currentPosition.x, currentPosition.z) + 0.5f, currentPosition.z));
             kickBall();
