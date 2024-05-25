@@ -1,5 +1,6 @@
 package com.example;
 
+import com.gui.GolfBall;
 import com.gui.Terrain;
 import java.util.function.BiFunction;
 
@@ -10,12 +11,14 @@ public class AI_Player {
     private static final double MIN_DELTA_V = 0.001;
     private static final double IMPROVEMENT_THRESHOLD = 0.0001;
 
+    private GolfBall golfBall;
     private Ball ball;
     private double targetX;
     private double targetY;
     private PhysicsCoefficients coefficients;
     private double initialBallX;
     private double initialBallY;
+    private boolean obstacleFound;
 
     public AI_Player(Ball ball, double targetX, double targetY, PhysicsCoefficients coefficients) {
         this.ball = ball;
@@ -162,6 +165,30 @@ public class AI_Player {
         if (trajectory.length == 0) {
             return new double[]{ball.getX(), ball.getY()};
         }
+//mbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+        obstacleFound = false; // Reset obstacleFound before checking the trajectory
+
+        for (double[] point : trajectory) {
+            double x = point[0];
+            double y = point[1];
+            try {
+                if (golfBall != null) {
+                    double distance = golfBall.checkNearestObstacles(x, y);
+
+                    if (distance < 0.5f) {
+                        obstacleFound = true;
+                        break; // Stop further checking if an obstacle is found
+                    }
+                } else {
+                    System.err.println("golfBall is null");
+                }
+            } catch (Exception e) {
+                System.err.println("Exception during obstacle check: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+//mbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
         double[] finalState = trajectory[trajectory.length - 1];
         return new double[]{finalState[0], finalState[1]};
