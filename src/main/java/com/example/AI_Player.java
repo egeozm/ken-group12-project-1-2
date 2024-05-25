@@ -44,6 +44,9 @@ public class AI_Player {
 
         for (int i = 0; i < 1000; i++) {
             double[] result = simulateShot(bestVx, bestVy);
+            if (obstacleFound) {
+                continue;
+            }
             double distanceToTargetX = targetX - result[0];
             double distanceToTargetY = targetY - result[1];
             double distanceToTarget = distance(result[0], result[1], targetX, targetY);
@@ -88,6 +91,9 @@ public class AI_Player {
 
         for (int i = 0; i < 1000; i++) {
             double[] result = simulateShot(bestVx, bestVy);
+            if (obstacleFound) {
+                continue;
+            }
             double distanceToTargetX = targetX - result[0];
             double distanceToTargetY = targetY - result[1];
             double distanceToTarget = distance(result[0], result[1], targetX, targetY);
@@ -167,18 +173,18 @@ public class AI_Player {
         }
 //mbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
-        obstacleFound = false; // Reset obstacleFound before checking the trajectory
+        obstacleFound = false;
 
         for (double[] point : trajectory) {
             double x = point[0];
             double y = point[1];
             try {
                 if (golfBall != null) {
-                    double distance = golfBall.checkNearestObstacles(x, y);
+                    double obstacleDistance = golfBall.checkNearestObstacles(x, y);
 
-                    if (distance < 0.5f) {
+                    if (obstacleDistance < 0.5f) {
                         obstacleFound = true;
-                        break; // Stop further checking if an obstacle is found
+                        break;
                     }
                 } else {
                     System.err.println("golfBall is null");
