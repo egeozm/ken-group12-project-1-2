@@ -67,7 +67,7 @@ public class BasicBot {
             y = y1 + (y2 - y1) * (i / dist);
         }
 
-        return xSlope / dist;
+        return xSlope *dist;
     }
 
     /**
@@ -92,7 +92,7 @@ public class BasicBot {
             y = y1 + (y2 - y1) * (i / dist);
         }
 
-        return ySlope / dist;
+        return ySlope*dist;
     }
 
     /**
@@ -112,8 +112,8 @@ public class BasicBot {
         double y = startY;
 
         for (int i = 0; i < steps; i++) {
-            x += (endX - startX) / steps;
-            y += (endY - startY) / steps;
+            x = (endX - startX) / steps;
+            y = (endY - startY) / steps;
             if (golfBall.checkNearestObstacles(x, y) < 1f) {
                 return false; // Return false if an obstacle is found
             }
@@ -175,14 +175,8 @@ public class BasicBot {
     /**
      * Calculates the next move for the bot.
      */
-    public void calculateNextMove() {
-        double[] currentState = ball.getCurrentState();
-        double currentX = currentState[0];
-        double currentY = currentState[1];
+    public double[] calculateNextMove(double currentX,double currentY, double targetX,double targetY) {
 
-        Vector3 targetPosition = golfBall.getTargetPosition();
-        double targetX = targetPosition.x;
-        double targetY = targetPosition.z;
 
         while (!isPathClear(currentX, currentY, targetX, targetY)) {
             double[] nextPosition = findNextPosition(currentX, currentY, targetX, targetY);
@@ -194,14 +188,14 @@ public class BasicBot {
         double deltaY = targetY - currentY;
 
         double distance = calculateDistance(currentX, currentY, targetX, targetY);
-        double requiredVx = (deltaX / distance) * maxVelocity;
-        double requiredVy = (deltaY / distance) * maxVelocity;
+        double requiredVx = (deltaX / distance) * maxVelocity/2;
+        double requiredVy = (deltaY / distance) * maxVelocity/2;
 
         double xSlope = calculateXSlope(currentX, currentY, targetX, targetY);
         double ySlope = calculateYSlope(currentX, currentY, targetX, targetY);
         double friction = terrain.getKineticFriction(currentX, currentY);
-        requiredVx -= xSlope * friction * timeStep;
-        requiredVy -= ySlope * friction * timeStep;
+        requiredVx += (distance*distance)*0.001*(xSlope *  friction*timeStep);
+        requiredVy += (distance*distance)*0.001*(ySlope * friction*timeStep);
 
         double speed = Math.sqrt(requiredVx * requiredVx + requiredVy * requiredVy);
         if (speed > maxVelocity) {
@@ -210,7 +204,7 @@ public class BasicBot {
             requiredVy *= scalingFactor;
         }
 
-        ball.setVelocity(requiredVx, requiredVy);
+    return  new double []{requiredVx, requiredVy};
     }
 
     /**
@@ -246,7 +240,7 @@ public class BasicBot {
      */
     public void playUntilTarget() {
         while (true) {
-            calculateNextMove();
+            //calculateNextMove();
             ball.updateBallStateRungeKutta(timeStep);
             String status = checkStatus();
             if ("Reached Target".equals(status)) {

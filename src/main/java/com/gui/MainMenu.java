@@ -85,7 +85,7 @@ public class MainMenu implements Screen {
         table.setFillParent(true);
         stage.addActor(table);
 
-        textField = new TextField("", skin);
+        textField = new TextField("x", skin);
         textField.setAlignment(Align.center);
         table.add(textField).width(800).pad(10);
         table.row();
@@ -128,6 +128,8 @@ public class MainMenu implements Screen {
             }
         });
         table.add(quitButton).width(800).pad(10);
+
+
     }
 
     @Override

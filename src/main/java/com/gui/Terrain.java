@@ -25,7 +25,7 @@ public class Terrain {
     private static final HashMap<String, Material> materials = new HashMap<>();
     private double[][] heightCoordinates;
     private HashMap<String, Double> parameters;
-    private String[][] obstaclesCoordinates;
+    public String[][] obstaclesCoordinates;
     private Material[][] materialCoordinates;
     private double treeRate = 0.003f;
     private double houseRate = 0.001f;
