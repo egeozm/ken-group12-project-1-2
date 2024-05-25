@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.example.AI_Player;
 import com.example.Ball;
+import com.example.BasicBot;
 import com.example.PhysicsCoefficients;
 
 import java.util.ArrayList;
@@ -40,6 +41,8 @@ public class Golf3D implements Screen {
     private final int width;
     private final int height;
     private Terrain terrain;
+
+    private double timestep=0.1;
     private House house;
     private ArrayList<Tree> trees;
     private ArrayList<House> houses;
@@ -76,6 +79,30 @@ public class Golf3D implements Screen {
         this.kickDirection = new Vector3();
         this.debugger = new Debugger3D();
         kickPower = 1;
+
+    }
+    private double[] goalxz(){
+        int goalx=0;
+        int goalz=0;
+        for(int i=0;i<terrain.obstaclesCoordinates.length;i++){
+            for(int j=0;j<terrain.obstaclesCoordinates[1].length;j++){
+
+                if(terrain.obstaclesCoordinates[i][j].equals("hole")){
+
+                    System.out.println("found");
+                    System.out.println("hole coordinates: "+i+"  "+j+"   ");
+                    goalx=i;
+                    goalz=j;
+                    System.out.println("ball coordinates: "+golfBall.getPosition().x+"   " +golfBall.getPosition().z);
+
+
+                }
+
+            }}
+        double vx=goalx-terrain.getWidth();
+        double vz=goalz-terrain.getHeight();
+        double[] goal=new double[]{vx,vz};
+        return goal;
     }
 
     /**
@@ -368,7 +395,7 @@ public class Golf3D implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
             Ball ball = new Ball(terrain);
             AI_Player player2 = new AI_Player(ball, terrain.getHoleX(), terrain.getHoleZ(), phisicsCoefficients, advancedAI.getPosition().x, advancedAI.getPosition().z);
-            double[][] trajectory1 = ball.getTrajectoryArray(0.1, advancedAI.getPosition().x, advancedAI.getPosition().z, player2.getBestVxVy()[0], player2.getBestVxVy()[1], 30);// Example power and angle
+            double[][] trajectory1 = ball.getTrajectoryArray(timestep, advancedAI.getPosition().x, advancedAI.getPosition().z, player2.getBestVxVy()[0], player2.getBestVxVy()[1], 30);// Example power and angle
             Debugger.printMatrix(trajectory1);
             System.out.println(terrain.getHoleX() + " " + terrain.getHoleZ());
             //Debugger.printArray(trajectoryVec3);
@@ -413,7 +440,7 @@ public class Golf3D implements Screen {
                 //System.out.println("dawdwadawdawda");
                 // Kick the ball using getTrajectoryArray
                 Ball ball = new Ball(terrain);
-                double[][] trajectory1 = ball.getTrajectoryArray(0.1, golfBall.getPosition().x, golfBall.getPosition().z, trajectory.getDirection().x * kickPower, trajectory.getDirection().z * kickPower, 30);// Example power and angle
+                double[][] trajectory1 = ball.getTrajectoryArray(timestep, golfBall.getPosition().x, golfBall.getPosition().z, trajectory.getDirection().x * kickPower, trajectory.getDirection().z * kickPower, 30);// Example power and angle
                 System.out.println(trajectory.getDirection().x + " " + trajectory.getDirection().z);
                 Debugger.printMatrix(trajectory1);
                 //Debugger.printArray(trajectoryVec3);
@@ -423,6 +450,34 @@ public class Golf3D implements Screen {
                 trajectory.setKickingPower(kickPower);
                 bottomLeftLabel.setText("Power: " + kickPower);
             }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.T)) {
+                kickingMode = false;
+                trajectory.toggleKickingMode();
+                resetCamera();
+                System.out.println("dawdwadawdawda");
+                // Kick the ball using getTrajectoryArray
+     double vx=goalxz()[0];
+double vz=goalxz()[1];
+
+                Ball ball = new Ball(terrain);
+                BasicBot bot=new BasicBot( ball, golfBall,  timestep,  10, terrain);
+                 vx=bot.calculateNextMove(golfBall.getPosition().x, golfBall.getPosition().z, vx,vz)[0];
+                vz=bot.calculateNextMove(golfBall.getPosition().x, golfBall.getPosition().z, vx,vz)[1];
+System.out.println("velocity"+vx);
+
+
+
+                double[][] trajectory1 = ball.getTrajectoryArray(timestep, golfBall.getPosition().x, golfBall.getPosition().z, vx,vz, 30);// Example power and angle
+                System.out.println("direction: "+trajectory.getDirection().x + " " + trajectory.getDirection().z);
+                Debugger.printMatrix(trajectory1);
+                //Debugger.printArray(trajectoryVec3);
+                golfBall.setTrajectoryVec3(trajectory1);
+                golfBall.kickingTurn();
+                kickPower = 1f;
+                trajectory.setKickingPower(kickPower);
+                bottomLeftLabel.setText("Power: " + kickPower);
+            }
+
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
             debugger.toggleDebugger();
