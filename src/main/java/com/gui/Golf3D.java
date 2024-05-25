@@ -50,10 +50,13 @@ public class Golf3D implements Screen {
     private Vector3 kickDirection;
     private final Debugger3D debugger;
     private UILabel bottomLeftLabel;
+    private UILabel coordinatesLabel;
+    private UILabel shotsLabel;
     private double kickPower;
     private WinLabel winLabel;
     private WinLabel winLabelAI;
     private final HashMap<String, Double> parameters;
+    private int numberOfShots = 0;
     private PhysicsCoefficients phisicsCoefficients = new PhysicsCoefficients(0.08, 0.15, 0.2, 0.25, 0.15);
 
     /**
@@ -189,7 +192,9 @@ public class Golf3D implements Screen {
         // Set the golf ball position randomly or allow player to select position
         setRandomBallPosition(golfBall);
         setRandomBallPosition(advancedAI);
-        bottomLeftLabel = new UILabel("Power: " + kickPower);
+        coordinatesLabel = new UILabel("X: " + golfBall.getPosition().x + "\n" + "Y: " + (float) terrain.getHeight(golfBall.getPosition().x, golfBall.getPosition().z) + "\n" + "Z: " + golfBall.getPosition().z + "\n", new Vector3(camera.viewportWidth / 2, -camera.viewportHeight / 2.2f, 0));
+        shotsLabel = new UILabel("Shots done: " + numberOfShots, new Vector3(camera.viewportWidth/2f-100f, camera.viewportHeight / 2f, 0));
+        bottomLeftLabel = new UILabel("Power: " + kickPower, new Vector3(camera.viewportWidth / 2, camera.viewportHeight / 2, 0));
     }
 
     /**
@@ -309,6 +314,7 @@ public class Golf3D implements Screen {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         golfBall.update(delta);
+        coordinatesLabel.setText("X: " + golfBall.getPosition().x + "\n" + "Y: " + terrain.getHeight(golfBall.getPosition().x, golfBall.getPosition().z) + "\n" + "Z: " + golfBall.getPosition().z + "\n");
         advancedAI.update(delta);
         modelBatch.begin(camera);
         skySphere.render(modelBatch, environment);
@@ -338,6 +344,8 @@ public class Golf3D implements Screen {
             debugger.render(modelBatch, environment);
         }
         bottomLeftLabel.render();
+        shotsLabel.render();
+        coordinatesLabel.render();
         winLabel.render();
         winLabelAI.render();
 
@@ -397,6 +405,8 @@ public class Golf3D implements Screen {
             camera.update();
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                numberOfShots += 1;
+                shotsLabel.setText("Shots done: " + numberOfShots);
                 kickingMode = false;
                 trajectory.toggleKickingMode();
                 resetCamera();
@@ -468,6 +478,8 @@ public class Golf3D implements Screen {
         house.dispose();
         debugger.dispose();
         bottomLeftLabel.dispose();
+        shotsLabel.dispose();
+        coordinatesLabel.dispose();
         winLabel.dispose();
         winLabelAI.dispose();
     }

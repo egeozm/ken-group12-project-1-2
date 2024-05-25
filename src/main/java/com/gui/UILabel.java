@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
 
 /**
  * The UILabel class represents a user interface label for displaying text on the screen.
@@ -21,13 +22,13 @@ public class UILabel {
      *
      * @param text the initial text to be displayed on the label
      */
-    public UILabel(String text) {
+    public UILabel(String text, Vector3 position) {
         this.text = text;
         spriteBatch = new SpriteBatch();
         font = new BitmapFont();
         font.setColor(Color.WHITE);
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
+        camera.position.set(/*camera.viewportWidth / 2, camera.viewportHeight / 2, 0*/ position);
         camera.update();
     }
 
