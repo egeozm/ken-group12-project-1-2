@@ -113,7 +113,7 @@ public class GolfBall {
      * Kicks the ball along the trajectory.
      */
     public void kickBall() {
-        //System.out.println(startIdx);
+        System.out.println(startIdx);
         if (startIdx >= trajectoryVec.length - 1) {
             isMoving = false;
             initialPosition = startPosition;
