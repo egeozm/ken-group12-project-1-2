@@ -40,6 +40,19 @@ public class ODESolversAccuracyTest {
                 return derivatives;
             }
         });
+
+        // Example 3: 2*x^2 + 3*x Equation
+        System.out.println("2*x^2 + 3*x Equation:");
+        testEquation(new DifferentialEquation() {
+            @Override
+            public double[] computeDerivatives(double t, double[] state) {
+                double[] derivatives = new double[state.length];
+                for (int i = 0; i < state.length; i++) {
+                    derivatives[i] = 2 * t * t + 3 * t;
+                }
+                return derivatives;
+            }
+        });
     }
 
     /**
@@ -114,11 +127,9 @@ public class ODESolversAccuracyTest {
         int n = (int) ((tEnd - t0) / dt);
         double[][] results = new double[n + 1][y0.length];
         results[0] = y0.clone();
-        double t = t0;
 
         for (int i = 1; i <= n; i++) {
             results[i] = DifferentialEquation.RK4Method.solve(eq, results[i - 1], dt);
-            t += dt;
         }
 
         return results;
