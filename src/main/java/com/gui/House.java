@@ -348,7 +348,7 @@ public class House {
      */
     public void setPosition(float x, float y, float z) {
         float xBias = -0.5f;
-        float zBias = -0.5f;
+        float zBias = 0.5f;
         wallInstance.transform.setToTranslation(x + xBias, y - 7, z + zBias);
         roofInstance.transform.setToTranslation(x + xBias, (float) (y + 10 * sizeCoefficient), z + zBias);
         doorInstance.transform.setToTranslation((float) (x - 4 * sizeCoefficient) + xBias, y, (float) (z + 5.1 * sizeCoefficient) + zBias); // Position a door at the front

@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.utils.Null;
 
 import java.util.HashMap;
 
@@ -30,6 +31,9 @@ public class GameLauncher extends Game {
         mainMenuMusic = Gdx.audio.newMusic(Gdx.files.internal("assets/skin/background-music.mp3"));
         settingsMusic = Gdx.audio.newMusic(Gdx.files.internal("assets/skin/settings-music.mp3"));
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("assets/skin/game-music.mp3"));
+        mainMenuMusic.setVolume(0f);
+        settingsMusic.setVolume(0f);
+        gameMusic.setVolume(0f);
 
         // Start playing the main menu music
         mainMenuMusic.setLooping(true);

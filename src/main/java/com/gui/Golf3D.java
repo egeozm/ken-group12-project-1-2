@@ -456,14 +456,14 @@ public class Golf3D implements Screen {
                 resetCamera();
                 System.out.println("dawdwadawdawda");
                 // Kick the ball using getTrajectoryArray
-     double vx=goalxz()[0];
-double vz=goalxz()[1];
+                double vx=goalxz()[0];
+                double vz=goalxz()[1];
 
                 Ball ball = new Ball(terrain);
                 BasicBot bot=new BasicBot( ball, golfBall,  timestep,  10, terrain);
-                 vx=bot.calculateNextMove(golfBall.getPosition().x, golfBall.getPosition().z, vx,vz)[0];
+                vx=bot.calculateNextMove(golfBall.getPosition().x, golfBall.getPosition().z, vx,vz)[0];
                 vz=bot.calculateNextMove(golfBall.getPosition().x, golfBall.getPosition().z, vx,vz)[1];
-System.out.println("velocity"+vx);
+                System.out.println("velocity"+vx);
 
 
 

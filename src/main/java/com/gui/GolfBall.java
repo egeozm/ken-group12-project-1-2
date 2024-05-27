@@ -113,7 +113,7 @@ public class GolfBall {
      * Kicks the ball along the trajectory.
      */
     public void kickBall() {
-        System.out.println(startIdx);
+        //System.out.println(startIdx);
         if (startIdx >= trajectoryVec.length - 1) {
             isMoving = false;
             initialPosition = startPosition;
@@ -122,7 +122,7 @@ public class GolfBall {
         startIdx++;
         velocity = new Vector3((float) trajectoryVec[startIdx][2], 0, (float) trajectoryVec[startIdx][3]);
         targetPosition = new Vector3((float) trajectoryVec[startIdx][0], 0, (float) trajectoryVec[startIdx][1]);
-        System.out.println(startPosition.x + " " + startPosition.z + " " + startPosition.x + " " + targetPosition.x + " " + targetPosition.y + " " + targetPosition.z);
+        //System.out.println(startPosition.x + " " + startPosition.z + " " + startPosition.x + " " + targetPosition.x + " " + targetPosition.y + " " + targetPosition.z);
         isMoving = true;
     }
 
