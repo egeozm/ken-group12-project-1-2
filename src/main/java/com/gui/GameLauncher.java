@@ -56,8 +56,8 @@ public class GameLauncher extends Game {
         a.put("zBall", Double.NaN);
         a.put("xHole", Double.NaN);
         a.put("zHole", Double.NaN);
-        a.put("treeSpawnRate", 0.00);
-        a.put("housesSpawnRate", 0.00);
+        a.put("treeSpawnRate", 0.003);
+        a.put("housesSpawnRate", 0.001);
         a.put("heightCoefficient", 1.0);
         a.put("yBias", 0.0);
         a.put("functionStep", 0.1);

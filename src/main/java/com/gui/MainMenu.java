@@ -85,7 +85,7 @@ public class MainMenu implements Screen {
         table.setFillParent(true);
         stage.addActor(table);
 
-        textField = new TextField("x", skin);
+        textField = new TextField("0.4*(0.9-2.72^((x^2+y^2)/8*(-1)))", skin);
         textField.setAlignment(Align.center);
         table.add(textField).width(800).pad(10);
         table.row();
