@@ -175,27 +175,26 @@ public class BasicBot {
     /**
      * Calculates the next move for the bot.
      */
-    public double[] calculateNextMove(double currentX,double currentY, double targetX,double targetY) {
-
-
-        while (!isPathClear(currentX, currentY, targetX, targetY)) {
-            double[] nextPosition = findNextPosition(currentX, currentY, targetX, targetY);
-            targetX = nextPosition[0];
-            targetY = nextPosition[1];
-        }
-
+    public double[] calculateNextMove(double currentX, double currentY, double targetX, double targetY) {
         double deltaX = targetX - currentX;
         double deltaY = targetY - currentY;
-
         double distance = calculateDistance(currentX, currentY, targetX, targetY);
-        double requiredVx = (deltaX / distance) * maxVelocity/2;
-        double requiredVy = (deltaY / distance) * maxVelocity/2;
+
+        // If the distance is very small, set a minimum velocity
+        if (distance < 0.1) {
+            double minVelocity = 0.01; // Minimum velocity threshold to overcome static friction
+            return new double[]{minVelocity * Math.signum(deltaX), minVelocity * Math.signum(deltaY)};
+        }
+
+        double requiredVx = (deltaX / distance) * maxVelocity / 2;
+        double requiredVy = (deltaY / distance) * maxVelocity / 2;
 
         double xSlope = calculateXSlope(currentX, currentY, targetX, targetY);
         double ySlope = calculateYSlope(currentX, currentY, targetX, targetY);
         double friction = terrain.getKineticFriction(currentX, currentY);
-        requiredVx += (distance*distance)*0.001*(xSlope *  friction*timeStep);
-        requiredVy += (distance*distance)*0.001*(ySlope * friction*timeStep);
+
+        requiredVx += (distance * distance) * 0.001 * (xSlope * friction * timeStep);
+        requiredVy += (distance * distance) * 0.001 * (ySlope * friction * timeStep);
 
         double speed = Math.sqrt(requiredVx * requiredVx + requiredVy * requiredVy);
         if (speed > maxVelocity) {
@@ -204,8 +203,9 @@ public class BasicBot {
             requiredVy *= scalingFactor;
         }
 
-    return  new double []{requiredVx, requiredVy};
+        return new double[]{requiredVx, requiredVy};
     }
+
 
     /**
      * Checks the current status of the bot.
