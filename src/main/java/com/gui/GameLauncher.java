@@ -50,14 +50,14 @@ public class GameLauncher extends Game {
      */
     public HashMap<String, Double> initHashMap() {
         HashMap<String, Double> a = new HashMap<>();
-        a.put("width", 25.0);
-        a.put("height", 25.0);
+        a.put("width", 50.0);
+        a.put("height", 50.0);
         a.put("xBall", Double.NaN);
         a.put("zBall", Double.NaN);
         a.put("xHole", Double.NaN);
         a.put("zHole", Double.NaN);
-        a.put("treeSpawnRate", 0.003);
-        a.put("housesSpawnRate", 0.001);
+        a.put("treeSpawnRate", 0.00);
+        a.put("housesSpawnRate", 0.00);
         a.put("heightCoefficient", 1.0);
         a.put("yBias", 0.0);
         a.put("functionStep", 0.1);

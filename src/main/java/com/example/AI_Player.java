@@ -2,14 +2,24 @@ package com.example;
 
 import com.gui.GolfBall;
 import com.gui.Terrain;
+
+import java.util.concurrent.*;
 import java.util.function.BiFunction;
+import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 public class AI_Player {
 
     private static final double MAX_SPEED = 5.0;
-    private static final double INITIAL_DELTA_V = 0.5;
-    private static final double MIN_DELTA_V = 0.001;
-    private static final double IMPROVEMENT_THRESHOLD = 0.0001;
+    private static final int SWARM_SIZE = 10; // Reduced swarm size
+    private static final int MAX_ITERATIONS = 100; // Reduced iterations
+    private static final double W = 0.5;  // Inertia weight
+    private static final double C1 = 1.0; // Cognitive coefficient
+    private static final double C2 = 1.5; // Social coefficient
+    private static final double CHECK_INTERVAL = 5; // Check obstacles every 5th point
 
     private GolfBall golfBall;
     private Ball ball;
@@ -19,6 +29,8 @@ public class AI_Player {
     private double initialBallX;
     private double initialBallY;
     private boolean obstacleFound;
+    private ExecutorService executorService;
+    private Map<String, Boolean> obstacleCache;
 
     public AI_Player(Ball ball, double targetX, double targetY, PhysicsCoefficients coefficients) {
         this.ball = ball;
@@ -27,181 +39,165 @@ public class AI_Player {
         this.coefficients = coefficients;
         this.initialBallX = ball.getX();
         this.initialBallY = ball.getY();
+        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        this.obstacleCache = new HashMap<>();
     }
-    public AI_Player(Ball ball, double targetX, double targetY, PhysicsCoefficients coefficients, double initialBallX, double initialBallY) {
-        this.ball = ball;
+
+    public AI_Player(GolfBall golfBall, double targetX, double targetY, PhysicsCoefficients coefficients) {
+        this.golfBall = golfBall;
         this.targetX = targetX;
         this.targetY = targetY;
         this.coefficients = coefficients;
-        this.initialBallX = initialBallX;
-        this.initialBallY = initialBallY;
+        this.initialBallX = golfBall.getPosition().x;
+        this.initialBallY = golfBall.getPosition().z;
+        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        this.obstacleCache = new HashMap<>();
     }
-    public double[] getBestVxVy() {
-        double bestVx = 1.0;
-        double bestVy = 1.0;
-        double bestDistance = Double.MAX_VALUE;
-        double deltaV = INITIAL_DELTA_V;
 
-        for (int i = 0; i < 1000; i++) {
-            double[] result = simulateShot(bestVx, bestVy);
-            if (obstacleFound) {
-                continue;
+    public double[] getBestVxVy() throws InterruptedException, ExecutionException {
+        Particle[] swarm = new Particle[SWARM_SIZE];
+        final double[][] globalBestPosition = {new double[2]};
+        final double[] globalBestDistance = {Double.MAX_VALUE};
+
+        Random rand = new Random();
+
+        // Initialize the swarm
+        for (int i = 0; i < SWARM_SIZE; i++) {
+            swarm[i] = new Particle();
+            swarm[i].position[0] = rand.nextDouble() * MAX_SPEED - MAX_SPEED / 2;
+            swarm[i].position[1] = rand.nextDouble() * MAX_SPEED - MAX_SPEED / 2;
+            swarm[i].velocity[0] = rand.nextDouble() - 0.5;
+            swarm[i].velocity[1] = rand.nextDouble() - 0.5;
+            swarm[i].bestPosition = swarm[i].position.clone();
+            swarm[i].bestDistance = Double.MAX_VALUE;
+        }
+
+        for (int iter = 0; iter < MAX_ITERATIONS; iter++) {
+            List<Future<Particle>> futures = new ArrayList<>();
+            for (Particle particle : swarm) {
+                futures.add(executorService.submit(() -> {
+                    double[] result = simulateShot(particle.position[0], particle.position[1]);
+                    if (obstacleFound) {
+                        return particle;
+                    }
+                    double distanceToTarget = distance(result[0], result[1], targetX, targetY);
+
+                    if (distanceToTarget < particle.bestDistance) {
+                        particle.bestDistance = distanceToTarget;
+                        particle.bestPosition = particle.position.clone();
+                    }
+
+                    if (distanceToTarget < globalBestDistance[0]) {
+                        synchronized (globalBestPosition) {
+                            if (distanceToTarget < globalBestDistance[0]) {
+                                globalBestDistance[0] = distanceToTarget;
+                                globalBestPosition[0] = particle.position.clone();
+                            }
+                        }
+                    }
+
+                    // Update velocity
+                    for (int d = 0; d < 2; d++) {
+                        double r1 = rand.nextDouble();
+                        double r2 = rand.nextDouble();
+                        particle.velocity[d] = W * particle.velocity[d] + C1 * r1 * (particle.bestPosition[d] - particle.position[d])
+                                + C2 * r2 * (globalBestPosition[0][d] - particle.position[d]);
+                        particle.position[d] += particle.velocity[d];
+                    }
+                    return particle;
+                }));
             }
-            double distanceToTargetX = targetX - result[0];
-            double distanceToTargetY = targetY - result[1];
-            double distanceToTarget = distance(result[0], result[1], targetX, targetY);
 
-            System.out.println("Iteration " + i + ": velocities vx = " + bestVx + ", vy = " + bestVy);
-            System.out.println("End position: (" + result[0] + ", " + result[1] + ")");
-            System.out.println("Distance to hole x: " + distanceToTargetX + ", y: " + distanceToTargetY);
-
-            if (distanceToTarget < bestDistance) {
-                bestDistance = distanceToTarget;
-
-                if (bestDistance <= coefficients.getTargetRadius()) {
-                    System.out.println("Hole in one");
-                    break;
-                }
-
-                deltaV = INITIAL_DELTA_V;
-            } else {
-                deltaV = Math.min(MAX_SPEED, deltaV * 1.1);
+            for (Future<Particle> future : futures) {
+                future.get();
             }
 
-            double[] newVxVy = adjustVelocities(bestVx, bestVy, deltaV, distanceToTarget);
-
-            if (newVxVy[2] < bestDistance) {
-                bestVx = newVxVy[0];
-                bestVy = newVxVy[1];
-            } else {
-                deltaV = Math.max(MIN_DELTA_V, deltaV * 0.5);
-            }
-
-            if (deltaV < IMPROVEMENT_THRESHOLD) {
+            if (globalBestDistance[0] <= coefficients.getTargetRadius()) {
+                System.out.println("Hole in one");
                 break;
             }
         }
-        return new double[]{bestVx, bestVy};
+
+        executorService.shutdown();
+        return globalBestPosition[0];
     }
+
     public void findHoleInOne() {
-        double bestVx = 1.0;
-        double bestVy = 1.0;
-        double bestDistance = Double.MAX_VALUE;
-        double deltaV = INITIAL_DELTA_V;
-
-        for (int i = 0; i < 1000; i++) {
-            double[] result = simulateShot(bestVx, bestVy);
-            if (obstacleFound) {
-                continue;
-            }
-            double distanceToTargetX = targetX - result[0];
-            double distanceToTargetY = targetY - result[1];
-            double distanceToTarget = distance(result[0], result[1], targetX, targetY);
-
-            System.out.println("Iteration " + i + ": velocities vx = " + bestVx + ", vy = " + bestVy);
-            System.out.println("End position: (" + result[0] + ", " + result[1] + ")");
-            System.out.println("Distance to hole x: " + distanceToTargetX + ", y: " + distanceToTargetY);
-
-            if (distanceToTarget < bestDistance) {
-                bestDistance = distanceToTarget;
-
-                if (bestDistance <= coefficients.getTargetRadius()) {
-                    System.out.println("Hole in one");
-                    break;
-                }
-
-                deltaV = INITIAL_DELTA_V;
-            } else {
-                deltaV = Math.min(MAX_SPEED, deltaV * 1.1);
-            }
-
-            double[] newVxVy = adjustVelocities(bestVx, bestVy, deltaV, distanceToTarget);
-
-            if (newVxVy[2] < bestDistance) {
-                bestVx = newVxVy[0];
-                bestVy = newVxVy[1];
-            } else {
-                deltaV = Math.max(MIN_DELTA_V, deltaV * 0.5);
-            }
-
-            if (deltaV < IMPROVEMENT_THRESHOLD) {
-                break;
-            }
+        try {
+            double[] bestVxVy = getBestVxVy();
+            System.out.println("Best initial velocity: vx = " + bestVxVy[0] + ", vy = " + bestVxVy[1]);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         }
-
-        System.out.println("Best initial velocity: vx = " + bestVx + ", vy = " + bestVy);
-    }
-
-    private double[] adjustVelocities(double vx, double vy, double deltaV, double currentBestDistance) {
-        double bestNewDistance = currentBestDistance;
-
-        double[] bestVelocities = {vx, vy, currentBestDistance};
-
-        double[][] tests = {
-                {vx + deltaV, vy},
-                {vx - deltaV, vy},
-                {vx, vy + deltaV},
-                {vx, vy - deltaV},
-                {vx + deltaV, vy + deltaV},
-                {vx - deltaV, vy - deltaV},
-                {vx + deltaV, vy - deltaV},
-                {vx - deltaV, vy + deltaV}
-        };
-
-        for (double[] test : tests) {
-            double[] result = simulateShot(test[0], test[1]);
-            double distanceToTarget = distance(result[0], result[1], targetX, targetY);
-
-            if (distanceToTarget < bestNewDistance) {
-                bestNewDistance = distanceToTarget;
-                bestVelocities[0] = test[0];
-                bestVelocities[1] = test[1];
-                bestVelocities[2] = bestNewDistance;
-            }
-        }
-
-        return bestVelocities;
     }
 
     private double[] simulateShot(double vx, double vy) {
-        ball.setState(initialBallX, initialBallY, 0, 0);
-        ball.setVelocity(vx, vy);
-        double[][] trajectory = ball.getTrajectoryArray(0.1, ball.getX(), ball.getY(), vx, vy, 30);
+        ball = new Ball(golfBall.getTerrain());
+        double[][] trajectory = ball.getTrajectoryArray(0.1, golfBall.getPosition().x, golfBall.getPosition().z, vx, vy, 30);
 
         if (trajectory.length == 0) {
-            return new double[]{ball.getX(), ball.getY()};
+            return new double[]{golfBall.getPosition().x, golfBall.getPosition().z};
         }
-//mbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
         obstacleFound = false;
 
-        for (double[] point : trajectory) {
-            double x = point[0];
-            double y = point[1];
-            try {
-                if (golfBall != null) {
-                    double obstacleDistance = golfBall.checkNearestObstacles(x, y);
+        for (int i = 0; i < trajectory.length - 1; i++) {
+            double x1 = trajectory[i][0];
+            double y1 = trajectory[i][1];
+            double x2 = trajectory[i + 1][0];
+            double y2 = trajectory[i + 1][1];
 
-                    if (obstacleDistance < 0.5f) {
-                        obstacleFound = true;
-                        break;
-                    }
-                } else {
-                    System.err.println("golfBall is null");
-                }
-            } catch (Exception e) {
-                System.err.println("Exception during obstacle check: " + e.getMessage());
-                e.printStackTrace();
+            if (checkObstaclesBetweenPoints(x1, y1, x2, y2)) {
+                obstacleFound = true;
+                break;
             }
         }
-//mbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
         double[] finalState = trajectory[trajectory.length - 1];
         return new double[]{finalState[0], finalState[1]};
     }
 
+    private boolean checkObstaclesBetweenPoints(double x1, double y1, double x2, double y2) {
+        int steps = 5; // Reduced number of steps for interpolation
+        for (int i = 0; i <= steps; i++) {
+            double t = (double) i / steps;
+            double xt = x1 + t * (x2 - x1);
+            double yt = y1 + t * (y2 - y1);
+            String key = xt + "," + yt;
+
+            Boolean cachedResult = obstacleCache.get(key);
+            if (cachedResult != null) {
+                if (cachedResult) {
+                    return true;
+                }
+                continue;
+            }
+
+            if (golfBall != null) {
+                double obstacleDistance = golfBall.checkNearestObstacles(xt, yt);
+
+                if (obstacleDistance < 5f) { // Adjusted obstacle distance threshold
+                    obstacleCache.put(key, true);
+                    return true;
+                } else {
+                    obstacleCache.put(key, false);
+                }
+            } else {
+                System.err.println("golfBall is null");
+            }
+        }
+        return false;
+    }
+
     private double distance(double x1, double y1, double x2, double y2) {
         return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+    }
+
+    private class Particle {
+        double[] position = new double[2];
+        double[] velocity = new double[2];
+        double[] bestPosition = new double[2];
+        double bestDistance;
     }
 
     public static void main(String[] args) {
