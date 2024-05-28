@@ -37,16 +37,8 @@ public class Terrain {
         return holeX;
     }
 
-    public void setHoleX(int holeX) {
-        this.holeX = holeX;
-    }
-
     public int getHoleZ() {
         return holeZ;
-    }
-
-    public void setHoleY(int holeY) {
-        this.holeZ = holeY;
     }
 
     private int holeZ;

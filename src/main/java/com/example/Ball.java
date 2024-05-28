@@ -10,8 +10,6 @@ import java.util.function.BiFunction;
  * Represents a ball that can move over a terrain, influenced by physical forces such as friction and slopes.
  */
 public class Ball {
-    private double initialX;
-    private double initialY;
     private double x;
     private double y;
     private double vx;
@@ -103,8 +101,6 @@ public class Ball {
      */
     public double[][] getTrajectoryArray(double timeStep, double x, double y, double vx, double vy, int maxSteps) {
         setState(x, y, vx, vy);
-        initialX = x;
-        initialY = y;
         int initialStep = 0;
         List<double[]> trajectory = new ArrayList<>();
         double epsilon = 1e-6;
@@ -118,44 +114,6 @@ public class Ball {
         }
 
         return trajectory.toArray(new double[trajectory.size()][4]);
-    }
-
-    /**
-     * Computes the trajectory of the ball until it comes to rest.
-     *
-     * @param timeStep The time step for each update.
-     * @param x        The initial x position.
-     * @param y        The initial y position.
-     * @param vx       The initial x velocity.
-     * @param vy       The initial y velocity.
-     * @return A 2D array representing the trajectory of the ball.
-     */
-    public double[][] getTrajectoryArray(double timeStep, double x, double y, double vx, double vy) {
-        setState(x, y, vx, vy);
-        initialX = x;
-        initialY = y;
-
-        List<double[]> trajectory = new ArrayList<>();
-        double epsilon = 1e-6;
-
-        while (Math.abs(vx) > epsilon || Math.abs(vy) > epsilon) {
-            updateBallStateRungeKutta(timeStep);
-            trajectory.add(new double[]{getX(), getY(), getVx(), getVy()});
-            vx = getVx();
-            vy = getVy();
-        }
-
-        return trajectory.toArray(new double[trajectory.size()][4]);
-    }
-
-    /**
-     * Resets the ball to its initial state.
-     */
-    public void resetToInitialState() {
-        x = initialX;
-        y = initialY;
-        vx = 0;
-        vy = 0;
     }
 
     /**
@@ -209,51 +167,10 @@ public class Ball {
         this.vy = vy;
     }
 
-    /**
-     * Gets the current state of the ball.
-     *
-     * @return An array containing the current x position, y position, x velocity, and y velocity.
-     */
-    public double[] getCurrentState() {
-        return new double[]{this.x, this.y, this.vx, this.vy};
-    }
-
-    /**
-     * Sets the velocity of the ball.
-     *
-     * @param vx The x velocity.
-     * @param vy The y velocity.
-     */
-    public void setVelocity(double vx, double vy) {
-        this.vx = vx;
-        this.vy = vy;
-    }
-
-    public void updatePosition(double deltaTime) {
-        // Not implemented
-    }
-
-    public void setCurrentTerrain(String currentTerrain) {
-        // Not implemented
-    }
 
     public double[] getPosition() {
         return new double[1];
     }
 
-    public void setPosition(double previousX, double previousY, double previousZ) {
-        // Not implemented
-    }
 
-    public double getPreviousZ() {
-        return 0;
-    }
-
-    public double getPreviousY() {
-        return 0;
-    }
-
-    public double getPreviousX() {
-        return 0;
-    }
 }

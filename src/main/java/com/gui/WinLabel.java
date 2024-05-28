@@ -16,7 +16,7 @@ public class WinLabel {
     private final BitmapFont font;
     private final OrthographicCamera camera;
     private boolean visible;
-    private String text;
+    private final String text;
 
     /**
      * Constructs a WinLabel.

@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
+/**
+ * AI_Player class represents an artificial intelligence player for golf ball simulation.
+ * It uses Particle Swarm Optimization (PSO) to find the best initial velocities for a golf ball
+ * to reach a target position.
+ */
 public class AI_Player {
 
     private static final double MAX_SPEED = 5.0;
@@ -19,41 +24,58 @@ public class AI_Player {
     private static final double W = 0.5;  // Inertia weight
     private static final double C1 = 1.0; // Cognitive coefficient
     private static final double C2 = 1.5; // Social coefficient
-    private static final double CHECK_INTERVAL = 5; // Check obstacles every 5th point
+    // Check obstacles every 5th point
 
     private GolfBall golfBall;
     private Ball ball;
-    private double targetX;
-    private double targetY;
-    private PhysicsCoefficients coefficients;
-    private double initialBallX;
-    private double initialBallY;
+    private final double targetX;
+    private final double targetY;
+    private final PhysicsCoefficients coefficients;
     private boolean obstacleFound;
-    private ExecutorService executorService;
-    private Map<String, Boolean> obstacleCache;
+    private final ExecutorService executorService;
+    private final Map<String, Boolean> obstacleCache;
 
+    /**
+     * Constructor for AI_Player using a Ball object.
+     *
+     * @param ball         Ball object representing the golf ball.
+     * @param targetX      Target X-coordinate to reach.
+     * @param targetY      Target Y-coordinate to reach.
+     * @param coefficients Physics coefficients for the simulation.
+     */
     public AI_Player(Ball ball, double targetX, double targetY, PhysicsCoefficients coefficients) {
         this.ball = ball;
         this.targetX = targetX;
         this.targetY = targetY;
         this.coefficients = coefficients;
-        this.initialBallX = ball.getX();
-        this.initialBallY = ball.getY();
         this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         this.obstacleCache = new HashMap<>();
     }
 
+    /**
+     * Constructor for AI_Player using a GolfBall object.
+     *
+     * @param golfBall     GolfBall object representing the golf ball.
+     * @param targetX      Target X-coordinate to reach.
+     * @param targetY      Target Y-coordinate to reach.
+     * @param coefficients Physics coefficients for the simulation.
+     */
     public AI_Player(GolfBall golfBall, double targetX, double targetY, PhysicsCoefficients coefficients) {
         this.golfBall = golfBall;
         this.targetX = targetX;
         this.targetY = targetY;
         this.coefficients = coefficients;
-        this.initialBallX = golfBall.getPosition().x;
-        this.initialBallY = golfBall.getPosition().z;
         this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         this.obstacleCache = new HashMap<>();
     }
 
+    /**
+     * Finds the best initial velocities (vx, vy) for the golf ball to reach the target.
+     *
+     * @return Array containing the best initial velocities [vx, vy].
+     * @throws InterruptedException If the thread executing the task is interrupted.
+     * @throws ExecutionException   If the computation threw an exception.
+     */
     public double[] getBestVxVy() throws InterruptedException, ExecutionException {
         Particle[] swarm = new Particle[SWARM_SIZE];
         final double[][] globalBestPosition = {new double[2]};
@@ -122,6 +144,9 @@ public class AI_Player {
         return globalBestPosition[0];
     }
 
+    /**
+     * Initiates the process to find the best initial velocities and prints the result.
+     */
     public void findHoleInOne() {
         try {
             double[] bestVxVy = getBestVxVy();
@@ -131,6 +156,13 @@ public class AI_Player {
         }
     }
 
+    /**
+     * Simulates a shot with given initial velocities (vx, vy) and checks for obstacles.
+     *
+     * @param vx Initial velocity in the x-direction.
+     * @param vy Initial velocity in the y-direction.
+     * @return Array containing the final position [x, y] after the shot.
+     */
     private double[] simulateShot(double vx, double vy) {
         ball = new Ball(golfBall.getTerrain());
         double[][] trajectory = ball.getTrajectoryArray(0.1, golfBall.getPosition().x, golfBall.getPosition().z, vx, vy, 30);
@@ -157,6 +189,15 @@ public class AI_Player {
         return new double[]{finalState[0], finalState[1]};
     }
 
+    /**
+     * Checks for obstacles between two points on the trajectory.
+     *
+     * @param x1 Start x-coordinate.
+     * @param y1 Start y-coordinate.
+     * @param x2 End x-coordinate.
+     * @param y2 End y-coordinate.
+     * @return True if an obstacle is found, false otherwise.
+     */
     private boolean checkObstaclesBetweenPoints(double x1, double y1, double x2, double y2) {
         int steps = 5; // Reduced number of steps for interpolation
         for (int i = 0; i <= steps; i++) {
@@ -189,17 +230,34 @@ public class AI_Player {
         return false;
     }
 
+    /**
+     * Calculates the distance between two points.
+     *
+     * @param x1 First point x-coordinate.
+     * @param y1 First point y-coordinate.
+     * @param x2 Second point x-coordinate.
+     * @param y2 Second point y-coordinate.
+     * @return Distance between the points.
+     */
     private double distance(double x1, double y1, double x2, double y2) {
         return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     }
 
-    private class Particle {
+    /**
+     * Inner class representing a particle in the Particle Swarm Optimization (PSO) algorithm.
+     */
+    private static class Particle {
         double[] position = new double[2];
         double[] velocity = new double[2];
         double[] bestPosition = new double[2];
         double bestDistance;
     }
 
+    /**
+     * Main method for testing the AI_Player.
+     *
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
         // test the bot
         BiFunction<Double, Double, Double> heightFunction = (x, y) -> 0.4 * (0.9 - Math.exp(-(x * x + y * y) / 8));

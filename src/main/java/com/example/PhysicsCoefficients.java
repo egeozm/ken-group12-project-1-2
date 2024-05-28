@@ -4,22 +4,11 @@ public class PhysicsCoefficients {
 
     public static final double GRAVITATIONAL_CONSTANT = 9.81;
 
-    public static final double MASS_OF_GOLF_BALL = 0.0459;
-
     // range: 0.05 - 0.1
     private double kineticFrictionGrass;
 
-    // range: 0.1 - 0.2
-    private double staticFrictionGrass;
-
     // should be higher than grass kinetic friction
     private double kineticFrictionSand;
-
-    // should be higher than grass static friction
-    private double staticFrictionSand;
-
-    // maximum speed of ball in m/s
-    public static final double MAXIMUM_SPEED = 5.0;
 
     // range: 0.05m - 0.15m
     private double targetRadius;
@@ -56,15 +45,6 @@ public class PhysicsCoefficients {
     }
 
     /**
-     * Gets the static friction coefficient for grass.
-     *
-     * @return The static friction coefficient for grass.
-     */
-    public double getStaticFrictionGrass() {
-        return staticFrictionGrass;
-    }
-
-    /**
      * Sets the static friction coefficient for grass.
      *
      * @param staticFrictionGrass The static friction coefficient for grass must be between 0.1 and 0.2.
@@ -74,7 +54,7 @@ public class PhysicsCoefficients {
         if (staticFrictionGrass < 0.1 || staticFrictionGrass > 0.2) {
             throw new IllegalArgumentException("Static friction on grass must be between 0.1 and 0.2");
         }
-        this.staticFrictionGrass = staticFrictionGrass;
+        // range: 0.1 - 0.2
     }
 
     /**
@@ -100,15 +80,6 @@ public class PhysicsCoefficients {
     }
 
     /**
-     * Gets the static friction coefficient for sand.
-     *
-     * @return The static friction coefficient for sand.
-     */
-    public double getStaticFrictionSand() {
-        return staticFrictionSand;
-    }
-
-    /**
      * Sets the static friction coefficient for sand.
      *
      * @param staticFrictionSand The static friction coefficient for sand must be higher than kinetic friction for sand and less than 1.
@@ -118,7 +89,7 @@ public class PhysicsCoefficients {
         if (staticFrictionSand <= kineticFrictionSand || staticFrictionSand >= 1) {
             throw new IllegalArgumentException("Static friction in sand must be higher than kinetic friction in sand and less than 1");
         }
-        this.staticFrictionSand = staticFrictionSand;
+
     }
 
     /**

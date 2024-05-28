@@ -43,7 +43,6 @@ public class Golf3D implements Screen {
     private final int height;
     private Terrain terrain;
 
-    private double timestep=0.1;
     private House house;
     private ArrayList<Tree> trees;
     private ArrayList<House> houses;
@@ -62,13 +61,13 @@ public class Golf3D implements Screen {
     private WinLabel winLabelAI;
     private final HashMap<String, Double> parameters;
     private int numberOfShots = 0;
-    private PhysicsCoefficients phisicsCoefficients = new PhysicsCoefficients(0.08, 0.15, 0.2, 0.25, 0.15);
+    private final PhysicsCoefficients physicsCoefficients = new PhysicsCoefficients(0.08, 0.15, 0.2, 0.25, 0.15);
 
     /**
      * Constructs a new Golf3D screen.
      *
-     * @param gameMusic The background music for the game.
-     * @param function The height function expression for the terrain.
+     * @param gameMusic  The background music for the game.
+     * @param function   The height function expression for the terrain.
      * @param parameters The parameters for the terrain generation.
      */
     public Golf3D(Music gameMusic, String function, HashMap<String, Double> parameters) {
@@ -83,28 +82,29 @@ public class Golf3D implements Screen {
         kickPower = 1;
 
     }
-    private double[] goalxz(){
-        int goalx=0;
-        int goalz=0;
-        for(int i=0;i<terrain.obstaclesCoordinates.length;i++){
-            for(int j=0;j<terrain.obstaclesCoordinates[1].length;j++){
 
-                if(terrain.obstaclesCoordinates[i][j].equals("hole")){
+    private double[] goalxz() {
+        int goalx = 0;
+        int goalz = 0;
+        for (int i = 0; i < terrain.obstaclesCoordinates.length; i++) {
+            for (int j = 0; j < terrain.obstaclesCoordinates[1].length; j++) {
+
+                if (terrain.obstaclesCoordinates[i][j].equals("hole")) {
 
                     System.out.println("found");
-                    System.out.println("hole coordinates: "+i+"  "+j+"   ");
-                    goalx=i;
-                    goalz=j;
-                    System.out.println("ball coordinates: "+golfBall.getPosition().x+"   " +golfBall.getPosition().z);
+                    System.out.println("hole coordinates: " + i + "  " + j + "   ");
+                    goalx = i;
+                    goalz = j;
+                    System.out.println("ball coordinates: " + golfBall.getPosition().x + "   " + golfBall.getPosition().z);
 
 
                 }
 
-            }}
-        double vx=goalx-terrain.getWidth();
-        double vz=goalz-terrain.getHeight();
-        double[] goal=new double[]{vx,vz};
-        return goal;
+            }
+        }
+        double vx = goalx - terrain.getWidth();
+        double vz = goalz - terrain.getHeight();
+        return new double[]{vx, vz};
     }
 
     /**
@@ -223,7 +223,7 @@ public class Golf3D implements Screen {
         setRandomBallPosition(advancedAI);
         coordinatesLabel = new UILabel("Player Coordinates:" + "\n" + "X: " + golfBall.getPosition().x + "\n" + "Y: " + (float) terrain.getHeight(golfBall.getPosition().x, golfBall.getPosition().z) + "\n" + "Z: " + golfBall.getPosition().z + "\n", new Vector3(camera.viewportWidth / 2, -camera.viewportHeight / 2.2f, 0));
         coordinatesAILabel = new UILabel("AI Coordinates:" + "\n" + "X: " + advancedAI.getPosition().x + "\n" + "Y: " + (float) terrain.getHeight(advancedAI.getPosition().x, advancedAI.getPosition().z) + "\n" + "Z: " + advancedAI.getPosition().z + "\n", new Vector3(camera.viewportWidth / 3, -camera.viewportHeight / 2.2f, 0));
-        shotsLabel = new UILabel("Shots done: " + numberOfShots, new Vector3(camera.viewportWidth/2f-100f, camera.viewportHeight / 2f, 0));
+        shotsLabel = new UILabel("Shots done: " + numberOfShots, new Vector3(camera.viewportWidth / 2f - 100f, camera.viewportHeight / 2f, 0));
         bottomLeftLabel = new UILabel("Power: " + kickPower, new Vector3(camera.viewportWidth / 2, camera.viewportHeight / 2, 0));
     }
 
@@ -256,11 +256,11 @@ public class Golf3D implements Screen {
      * Creates the boundary faces for the terrain, extending downwards to give volume.
      *
      * @param modelBuilder The model builder.
-     * @param p1 The first vertex of the top face.
-     * @param p2 The second vertex of the top face.
-     * @param p3 The third vertex of the top face.
-     * @param p4 The fourth vertex of the top face.
-     * @param sideTexture The texture to use for the sides.
+     * @param p1           The first vertex of the top face.
+     * @param p2           The second vertex of the top face.
+     * @param p3           The third vertex of the top face.
+     * @param p4           The fourth vertex of the top face.
+     * @param sideTexture  The texture to use for the sides.
      */
     private void createBoundaryFaces(ModelBuilder modelBuilder, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, Texture sideTexture) {
         float extendHeight = 10f;  // Extend vertices downwards by 10 units
@@ -283,8 +283,8 @@ public class Golf3D implements Screen {
      * Creates a vertical face between two top vertices and their corresponding bottom vertices.
      *
      * @param builder The mesh part builder.
-     * @param top1 The first top vertex.
-     * @param top2 The second top vertex.
+     * @param top1    The first top vertex.
+     * @param top2    The second top vertex.
      * @param bottom2 The second bottom vertex.
      * @param bottom1 The first bottom vertex.
      */
@@ -383,9 +383,7 @@ public class Golf3D implements Screen {
 
         try {
             handleInput();
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -403,11 +401,12 @@ public class Golf3D implements Screen {
                 camera.update();
             }
         }
+        double timeStep = 0.1;
         if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
             Ball ball = new Ball(terrain);
-            AI_Player player2 = new AI_Player(advancedAI, terrain.getHoleX(), terrain.getHoleZ(), phisicsCoefficients);
+            AI_Player player2 = new AI_Player(advancedAI, terrain.getHoleX(), terrain.getHoleZ(), physicsCoefficients);
             double[] bestV = player2.getBestVxVy();
-            double[][] trajectory1 = ball.getTrajectoryArray(timestep, advancedAI.getPosition().x, advancedAI.getPosition().z, bestV[0], bestV[1], 30);// Example power and angle
+            double[][] trajectory1 = ball.getTrajectoryArray(timeStep, advancedAI.getPosition().x, advancedAI.getPosition().z, bestV[0], bestV[1], 30);// Example power and angle
             Debugger.printMatrix(trajectory1);
             System.out.println(advancedAI.getPosition().x + " " + advancedAI.getPosition().z);
             //Debugger.printArray(trajectoryVec3);
@@ -417,7 +416,6 @@ public class Golf3D implements Screen {
 
         if (kickingMode) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
-                //System.out.println("aboba");
                 kickPower = Math.min(kickPower + 1, 100);
                 trajectory.setKickingPower(kickPower);
                 bottomLeftLabel.setText("Power: " + kickPower);
@@ -449,10 +447,10 @@ public class Golf3D implements Screen {
                 kickingMode = false;
                 trajectory.toggleKickingMode();
                 resetCamera();
-                //System.out.println("dawdwadawdawda");
+
                 // Kick the ball using getTrajectoryArray
                 Ball ball = new Ball(terrain);
-                double[][] trajectory1 = ball.getTrajectoryArray(timestep, golfBall.getPosition().x, golfBall.getPosition().z, trajectory.getDirection().x * kickPower, trajectory.getDirection().z * kickPower, 30);// Example power and angle
+                double[][] trajectory1 = ball.getTrajectoryArray(timeStep, golfBall.getPosition().x, golfBall.getPosition().z, trajectory.getDirection().x * kickPower, trajectory.getDirection().z * kickPower, 30);// Example power and angle
                 System.out.println(golfBall.getPosition().x + " " + golfBall.getPosition().z);
                 Debugger.printMatrix(trajectory1);
                 //Debugger.printArray(trajectoryVec3);
@@ -466,21 +464,20 @@ public class Golf3D implements Screen {
                 kickingMode = false;
                 trajectory.toggleKickingMode();
                 resetCamera();
-                System.out.println("dawdwadawdawda");
+
                 // Kick the ball using getTrajectoryArray
-                double vx=goalxz()[0];
-                double vz=goalxz()[1];
+                double vx = goalxz()[0];
+                double vz = goalxz()[1];
 
                 Ball ball = new Ball(terrain);
-                BasicBot bot=new BasicBot( ball, golfBall,  timestep,  10, terrain);
-                vx=bot.calculateNextMove(golfBall.getPosition().x, golfBall.getPosition().z, vx,vz)[0];
-                vz=bot.calculateNextMove(golfBall.getPosition().x, golfBall.getPosition().z, vx,vz)[1];
-                System.out.println("velocity"+vx);
+                BasicBot bot = new BasicBot(timeStep, 10, terrain);
+                vx = bot.calculateNextMove(golfBall.getPosition().x, golfBall.getPosition().z, vx, vz)[0];
+                vz = bot.calculateNextMove(golfBall.getPosition().x, golfBall.getPosition().z, vx, vz)[1];
+                System.out.println("velocity" + vx);
 
 
-
-                double[][] trajectory1 = ball.getTrajectoryArray(timestep, golfBall.getPosition().x, golfBall.getPosition().z, vx,vz, 30);// Example power and angle
-                System.out.println("direction: "+trajectory.getDirection().x + " " + trajectory.getDirection().z);
+                double[][] trajectory1 = ball.getTrajectoryArray(timeStep, golfBall.getPosition().x, golfBall.getPosition().z, vx, vz, 30);// Example power and angle
+                System.out.println("direction: " + trajectory.getDirection().x + " " + trajectory.getDirection().z);
                 Debugger.printMatrix(trajectory1);
                 //Debugger.printArray(trajectoryVec3);
                 golfBall.setTrajectoryVec3(trajectory1);
@@ -500,7 +497,7 @@ public class Golf3D implements Screen {
     /**
      * Resizes the screen.
      *
-     * @param width The new width of the screen.
+     * @param width  The new width of the screen.
      * @param height The new height of the screen.
      */
     @Override

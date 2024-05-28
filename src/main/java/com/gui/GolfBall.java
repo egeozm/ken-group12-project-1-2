@@ -25,12 +25,10 @@ public class GolfBall {
     private int startIdx = -1;
     private final Terrain terrain;
     private final WinLabel winLabel;
-    private double speed = 3f;
 
     private double[][] trajectoryVec;
-    private double phisicsStep = 1f;
-    private double coefPhisicsStep = 1;
-    private double stepBias = 1;
+    private double physicsStep = 1f;
+    private final double stepBias;
 
     /**
      * Constructs a GolfBall instance.
@@ -56,8 +54,9 @@ public class GolfBall {
         currentPosition = new Vector3();
         isMoving = false;
         velocity = new Vector3();
+        double confPhysicsStep = 1;
         if(terrain.getHeight()*terrain.getWidth() > 4000)
-            phisicsStep = terrain.getHeight()*terrain.getWidth()/2000*coefPhisicsStep;
+            physicsStep = (double) (terrain.getHeight() * terrain.getWidth()) /2000* confPhysicsStep;
         this.stepBias = stepBias;
     }
 
@@ -157,7 +156,7 @@ public class GolfBall {
             }
         }
         // Check if the ball was kicked and has reached the target position
-        if (new Vector3(currentPosition.x, 0, currentPosition.z).dst(new Vector3(targetPosition.x, 0, targetPosition.z)) < 0.1f*phisicsStep*velocity.len()*stepBias) {
+        if (new Vector3(currentPosition.x, 0, currentPosition.z).dst(new Vector3(targetPosition.x, 0, targetPosition.z)) < 0.1f* physicsStep *velocity.len()*stepBias) {
             currentPosition = targetPosition;
             ballInstance.transform.setToTranslation(new Vector3(currentPosition.x, (float) terrain.getHeight(currentPosition.x, currentPosition.z) + 0.5f, currentPosition.z));
             kickBall();
@@ -171,6 +170,7 @@ public class GolfBall {
 
             // Normalize the direction to the target and scale by the speed (velocity magnitude)
             Vector3 direction = new Vector3(toTarget).nor();
+            double speed = 3f;
             Vector3 velocity = new Vector3(direction).scl((float) speed);
 
             // Calculate the displacement based on the velocity and delta time
@@ -197,7 +197,7 @@ public class GolfBall {
                 hideBall();
             }
             // Check if the ball has reached the target position
-            if (distanceToTarget < 0.1f * phisicsStep * velocity.len()) {
+            if (distanceToTarget < 0.1f * physicsStep * velocity.len()) {
                 currentPosition.set(targetPosition);
                 ballInstance.transform.setToTranslation(new Vector3(currentPosition.x, (float) terrain.getHeight(currentPosition.x, currentPosition.z) + 0.5f, currentPosition.z));
                 kickBall();
@@ -271,13 +271,5 @@ public class GolfBall {
         this.trajectoryVec = trajectoryVec;
     }
 
-    /**
-     * Gets the target position of the golf ball.
-     *
-     * @return The target position of the golf ball.
-     */
-    public Vector3 getTargetPosition() {
-        return targetPosition;
-    }
-    //awdawdaw
+
 }

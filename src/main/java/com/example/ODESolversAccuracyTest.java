@@ -16,42 +16,33 @@ public class ODESolversAccuracyTest {
     public static void main(String[] args) {
         // Example 1: Exponential Decay Equation
         System.out.println("Exponential Decay Equation:");
-        testEquation(new DifferentialEquation() {
-            @Override
-            public double[] computeDerivatives(double t, double[] state) {
-                double k = 1.0;
-                double[] derivatives = new double[state.length];
-                for (int i = 0; i < state.length; i++) {
-                    derivatives[i] = -k * state[i];
-                }
-                return derivatives;
+        testEquation((t, state) -> {
+            double k = 1.0;
+            double[] derivatives = new double[state.length];
+            for (int i = 0; i < state.length; i++) {
+                derivatives[i] = -k * state[i];
             }
+            return derivatives;
         });
 
         // Example 2: Harmonic Oscillator Equation
         System.out.println("Harmonic Oscillator Equation:");
-        testEquation(new DifferentialEquation() {
-            @Override
-            public double[] computeDerivatives(double t, double[] state) {
-                double omega = 1.0;
-                double[] derivatives = new double[2];
-                derivatives[0] = state[1];               // dy/dt = v
-                derivatives[1] = -omega * omega * state[0]; // dv/dt = -omega^2 * y
-                return derivatives;
-            }
+        testEquation((t, state) -> {
+            double omega = 1.0;
+            double[] derivatives = new double[2];
+            derivatives[0] = state[1];               // dy/dt = v
+            derivatives[1] = -omega * omega * state[0]; // dv/dt = -omega^2 * y
+            return derivatives;
         });
 
         // Example 3: 2*x^2 + 3*x Equation
         System.out.println("2*x^2 + 3*x Equation:");
-        testEquation(new DifferentialEquation() {
-            @Override
-            public double[] computeDerivatives(double t, double[] state) {
-                double[] derivatives = new double[state.length];
-                for (int i = 0; i < state.length; i++) {
-                    derivatives[i] = 2 * t * t + 3 * t;
-                }
-                return derivatives;
+        testEquation((t, state) -> {
+            double[] derivatives = new double[state.length];
+            for (int i = 0; i < state.length; i++) {
+                derivatives[i] = 2 * t * t + 3 * t;
             }
+            return derivatives;
         });
     }
 
@@ -103,11 +94,9 @@ public class ODESolversAccuracyTest {
         int n = (int) ((tEnd - t0) / dt);
         double[][] results = new double[n + 1][y0.length];
         results[0] = y0.clone();
-        double t = t0;
 
         for (int i = 1; i <= n; i++) {
             results[i] = DifferentialEquation.EulerMethod.solve(eq, results[i - 1], dt);
-            t += dt;
         }
 
         return results;
