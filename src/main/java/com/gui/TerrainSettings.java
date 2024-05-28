@@ -140,7 +140,7 @@ public class TerrainSettings implements Screen {
         table.row();
 
         Table functionProperties = new Table();
-        functionProperties.add(new Label("Spawn Rate", new Label.LabelStyle(font, com.badlogic.gdx.graphics.Color.WHITE))).pad(10);
+        functionProperties.add(new Label("Terrain Settings", new Label.LabelStyle(font, com.badlogic.gdx.graphics.Color.WHITE))).pad(10);
         TextField heightCoefficient = new TextField("1", skin);
         heightCoefficient.setAlignment(Align.center);
         functionProperties.add(heightCoefficient).width(400).center().pad(5);
