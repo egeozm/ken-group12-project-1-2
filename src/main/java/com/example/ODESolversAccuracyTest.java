@@ -25,25 +25,26 @@ public class ODESolversAccuracyTest {
             return derivatives;
         });
 
-        // Example 2: Harmonic Oscillator Equation
-        System.out.println("Harmonic Oscillator Equation:");
-        testEquation((t, state) -> {
-            double omega = 1.0;
-            double[] derivatives = new double[2];
-            derivatives[0] = state[1];               // dy/dt = v
-            derivatives[1] = -omega * omega * state[0]; // dv/dt = -omega^2 * y
-            return derivatives;
-        });
+//        // Example 2: Harmonic Oscillator Equation
+//        System.out.println("Harmonic Oscillator Equation:");
+//        testEquation((t, state) -> {
+//            double omega = 1.0;
+//            double[] derivatives = new double[2];
+//            derivatives[0] = state[1];               // dy/dt = v
+//            derivatives[1] = -omega * omega * state[0]; // dv/dt = -omega^2 * y
+//            return derivatives;
+//        });
 
-        // Example 3: 2*x^2 + 3*x Equation
-        System.out.println("2*x^2 + 3*x Equation:");
-        testEquation((t, state) -> {
-            double[] derivatives = new double[state.length];
-            for (int i = 0; i < state.length; i++) {
-                derivatives[i] = 2 * t * t + 3 * t;
-            }
-            return derivatives;
-        });
+        //  Change this if you want another differential equation
+//        // Example 3: 2*x^2 + 3*x Equation
+//        System.out.println("2*x^2 + 3*x Equation:");
+//        testEquation((t, state) -> {
+//            double[] derivatives = new double[state.length];
+//            for (int i = 0; i < state.length; i++) {
+//                derivatives[i] = 2 * t * t + 3 * t;
+//            }
+//            return derivatives;
+//        });
     }
 
     /**
