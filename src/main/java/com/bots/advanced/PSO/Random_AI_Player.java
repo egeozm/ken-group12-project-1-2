@@ -1,20 +1,20 @@
 package com.bots.advanced.PSO;
 
-
-import com.example.Random_Generator;
-import com.gui.objects.GolfBall;
-import com.gui.terrain.Terrain;
+import com.badlogic.gdx.math.Vector3;
 import com.ode.Ball;
 import com.ode.PhysicsCoefficients;
+import com.gui.objects.GolfBall;
+import com.gui.terrain.Terrain;
 
 import java.util.concurrent.*;
 import java.util.function.BiFunction;
+import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
-
+import static com.gui.terrain.Terrain.getInstance;
 
 /**
  * AI_Player class represents an artificial intelligence player for golf ball simulation.
@@ -23,20 +23,23 @@ import java.util.HashMap;
  */
 public class Random_AI_Player {
 
-    private static final double MAX_SPEED = 5.0;
+    private static final double MAX_SPEED = 15.0;
     private static final int SWARM_SIZE = 10; // Reduced swarm size
     private static final int MAX_ITERATIONS = 100; // Reduced iterations
     private static final double W = 0.5;  // Inertia weight
     private static final double C1 = 1.0; // Cognitive coefficient
     private static final double C2 = 1.5; // Social coefficient
+    private static final double POSITION_ERROR = 0.1; // Error margin for position
+    private static final double VELOCITY_ERROR = 0.1; // Error margin for velocity
 
     private GolfBall golfBall;
     private Ball ball;
     private final double targetX;
     private final double targetY;
+    private final PhysicsCoefficients coefficients;
+    private boolean obstacleFound;
     private final ExecutorService executorService;
     private final Map<String, Boolean> obstacleCache;
-    private final Random_Generator randomGenerator; // Add the Random_Generator
 
     /**
      * Constructor for AI_Player using a Ball object.
@@ -50,95 +53,142 @@ public class Random_AI_Player {
         this.ball = ball;
         this.targetX = targetX;
         this.targetY = targetY;
+        this.coefficients = coefficients;
         this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         this.obstacleCache = new HashMap<>();
-        this.randomGenerator = new Random_Generator(); // Initialize the Random_Generator
+        introduceRandomError(golfBall);
     }
 
     /**
-     * Function to find the best initial velocities to reach the target using PSO.
+     * Constructor for AI_Player using a GolfBall object.
+     *
+     * @param golfBall     GolfBall object representing the golf ball.
+     * @param targetX      Target X-coordinate to reach.
+     * @param targetY      Target Y-coordinate to reach.
+     * @param coefficients Physics coefficients for the simulation.
      */
-    public void findHoleInOne() {
-        // Initialize swarm
-        List<Particle> swarm = new ArrayList<>();
-        for (int i = 0; i < SWARM_SIZE; i++) {
-            Particle particle = new Particle();
-            particle.position[0] = randomGenerator.create_random_velocity(MAX_SPEED, 1); // Use random velocity
-            particle.position[1] = randomGenerator.create_random_velocity(MAX_SPEED, 1); // Use random velocity
-            particle.velocity[0] = randomGenerator.create_random_velocity(MAX_SPEED, 1); // Use random velocity
-            particle.velocity[1] = randomGenerator.create_random_velocity(MAX_SPEED, 1); // Use random velocity
-            particle.bestPosition[0] = particle.position[0];
-            particle.bestPosition[1] = particle.position[1];
-            particle.bestDistance = distance(particle.position[0], particle.position[1], targetX, targetY);
-            swarm.add(particle);
-        }
+    public Random_AI_Player(GolfBall golfBall, double targetX, double targetY, PhysicsCoefficients coefficients) {
+        this.golfBall = golfBall;
+        this.targetX = targetX;
+        this.targetY = targetY;
+        this.coefficients = coefficients;
+        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        this.obstacleCache = new HashMap<>();
+        introduceRandomError(golfBall);
+    }
 
-        // PSO loop
-        Particle globalBest = new Particle();
-        globalBest.bestDistance = Double.MAX_VALUE;
+    /**
+     * Introduces a small random error in the initial position and velocity of the golf ball.
+     *
+     * @param golfBall GolfBall object to introduce error to.
+     */
+    private void introduceRandomError(GolfBall golfBall) {
+        Random rand = new Random();
+        float positionErrorX = (float) (POSITION_ERROR * (rand.nextFloat() - 0.5));
+        float positionErrorY = (float) (POSITION_ERROR * (rand.nextFloat() - 0.5));
+        float velocityErrorX = (float) (VELOCITY_ERROR * (rand.nextFloat() - 0.5));
+        float velocityErrorY = (float) (VELOCITY_ERROR * (rand.nextFloat() - 0.5));
+
+        golfBall.setPosition(golfBall.getPosition().x + positionErrorX, golfBall.getPosition().y, golfBall.getPosition().z + positionErrorY);
+        Vector3 newVelocity = new Vector3(golfBall.getVelocity().x + velocityErrorX, golfBall.getVelocity().y, golfBall.getVelocity().z + velocityErrorY);
+        golfBall.setVelocity(newVelocity);
+    }
+
+    /**
+     * Finds the best initial velocities (vx, vy) for the golf ball to reach the target.
+     *
+     * @return Array containing the best initial velocities [vx, vy].
+     * @throws InterruptedException If the thread executing the task is interrupted.
+     * @throws ExecutionException   If the computation threw an exception.
+     */
+    public double[] getBestVxVy() throws InterruptedException, ExecutionException {
+        Particle[] swarm = new Particle[SWARM_SIZE];
+        final double[][] globalBestPosition = {new double[2]};
+        final double[] globalBestDistance = {Double.MAX_VALUE};
+
+        Random rand = new Random();
+
+        // Initialize the swarm
+        for (int i = 0; i < SWARM_SIZE; i++) {
+            swarm[i] = new Particle();
+            swarm[i].position[0] = rand.nextDouble() * MAX_SPEED - MAX_SPEED / 2;
+            swarm[i].position[1] = rand.nextDouble() * MAX_SPEED - MAX_SPEED / 2;
+            swarm[i].velocity[0] = rand.nextDouble() - 0.5;
+            swarm[i].velocity[1] = rand.nextDouble() - 0.5;
+            swarm[i].bestPosition = swarm[i].position.clone();
+            swarm[i].bestDistance = Double.MAX_VALUE;
+        }
 
         for (int iter = 0; iter < MAX_ITERATIONS; iter++) {
+            List<Future<Particle>> futures = new ArrayList<>();
             for (Particle particle : swarm) {
-                // Update velocity
-                for (int j = 0; j < 2; j++) {
-                    particle.velocity[j] = W * particle.velocity[j]
-                            + C1 * randomGenerator.create_random(1) * (particle.bestPosition[j] - particle.position[j])
-                            + C2 * randomGenerator.create_random(1) * (globalBest.bestPosition[j] - particle.position[j]);
-                    // Update position
-                    particle.position[j] += particle.velocity[j];
-                }
+                futures.add(executorService.submit(() -> {
+                    double[] result = simulateShot(particle.position[0], particle.position[1]);
+                    if (obstacleFound) {
+                        return particle;
+                    }
+                    double distanceToTarget = distance(result[0], result[1], targetX, targetY);
 
-                // Update the best position
-                double currentDistance = distance(particle.position[0], particle.position[1], targetX, targetY);
-                if (currentDistance < particle.bestDistance) {
-                    particle.bestDistance = currentDistance;
-                    particle.bestPosition[0] = particle.position[0];
-                    particle.bestPosition[1] = particle.position[1];
-                }
+                    if (distanceToTarget < particle.bestDistance) {
+                        particle.bestDistance = distanceToTarget;
+                        particle.bestPosition = particle.position.clone();
+                    }
 
-                // Update global best
-                if (currentDistance < globalBest.bestDistance) {
-                    globalBest.bestDistance = currentDistance;
-                    globalBest.bestPosition[0] = particle.position[0];
-                    globalBest.bestPosition[1] = particle.position[1];
-                }
+                    if (distanceToTarget < globalBestDistance[0]) {
+                        synchronized (globalBestPosition) {
+                            if (distanceToTarget < globalBestDistance[0]) {
+                                globalBestDistance[0] = distanceToTarget;
+                                globalBestPosition[0] = particle.position.clone();
+                            }
+                        }
+                    }
+
+                    // Update velocity
+                    for (int d = 0; d < 2; d++) {
+                        double r1 = rand.nextDouble();
+                        double r2 = rand.nextDouble();
+                        particle.velocity[d] = W * particle.velocity[d] + C1 * r1 * (particle.bestPosition[d] - particle.position[d])
+                                + C2 * r2 * (globalBestPosition[0][d] - particle.position[d]);
+                        particle.position[d] += particle.velocity[d];
+                    }
+                    return particle;
+                }));
+            }
+
+            for (Future<Particle> future : futures) {
+                future.get();
+            }
+
+            if (globalBestDistance[0] <= coefficients.getTargetRadius()) {
+                System.out.println("Hole in one");
+                break;
             }
         }
 
-        System.out.println("Best position: " + globalBest.bestPosition[0] + ", " + globalBest.bestPosition[1]);
-        System.out.println("Best distance: " + globalBest.bestDistance);
+        executorService.shutdown();
+        return globalBestPosition[0];
     }
 
     /**
-     * Method to get the best initial velocities to reach the target.
+     * Initiates the process to find the best initial velocities and prints the result.
      */
-    public double[] getBestVxVy() {
-        findHoleInOne();
-        Particle globalBest = new Particle();
-        globalBest.bestDistance = Double.MAX_VALUE;
-
-        // Initialize swarm and find global best
-        for (int i = 0; i < SWARM_SIZE; i++) {
-            Particle particle = new Particle();
-            particle.position[0] = randomGenerator.create_random_velocity(MAX_SPEED, 1); // Use random velocity
-            particle.position[1] = randomGenerator.create_random_velocity(MAX_SPEED, 1); // Use random velocity
-            particle.velocity[0] = randomGenerator.create_random_velocity(MAX_SPEED, 1); // Use random velocity
-            particle.velocity[1] = randomGenerator.create_random_velocity(MAX_SPEED, 1); // Use random velocity
-            particle.bestPosition[0] = particle.position[0];
-            particle.bestPosition[1] = particle.position[1];
-            particle.bestDistance = distance(particle.position[0], particle.position[1], targetX, targetY);
-            if (particle.bestDistance < globalBest.bestDistance) {
-                globalBest = particle;
-            }
+    public void findHoleInOne() {
+        try {
+            double[] bestVxVy = getBestVxVy();
+            System.out.println("Best initial velocity: vx = " + bestVxVy[0] + ", vy = " + bestVxVy[1]);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         }
-
-        return new double[]{globalBest.bestPosition[0], globalBest.bestPosition[1]};
     }
 
     /**
-     * Simulate the shot for a given velocity and returns the distance to the target.
+     * Simulates a shot with given initial velocities (vx, vy) and checks for obstacles.
+     *
+     * @param vx Initial velocity in the x-direction.
+     * @param vy Initial velocity in the y-direction.
+     * @return Array containing the final position [x, y] after the shot.
      */
-    public double[] simulateShot(double vx, double vy) {
+    private double[] simulateShot(double vx, double vy) {
         ball = new Ball(golfBall.getTerrain());
         double[][] trajectory = ball.getTrajectoryArray(0.1, golfBall.getPosition().x, golfBall.getPosition().z, vx, vy, 30);
 
@@ -146,7 +196,7 @@ public class Random_AI_Player {
             return new double[]{golfBall.getPosition().x, golfBall.getPosition().z};
         }
 
-        boolean obstacleFound = false;
+        obstacleFound = false;
 
         for (int i = 0; i < trajectory.length - 1; i++) {
             double x1 = trajectory[i][0];
@@ -165,9 +215,15 @@ public class Random_AI_Player {
     }
 
     /**
-     * Check for obstacles between two points.
+     * Checks for obstacles between two points on the trajectory.
+     *
+     * @param x1 Start x-coordinate.
+     * @param y1 Start y-coordinate.
+     * @param x2 End x-coordinate.
+     * @param y2 End y-coordinate.
+     * @return True if an obstacle is found, false otherwise.
      */
-    public boolean checkObstaclesBetweenPoints(double x1, double y1, double x2, double y2) {
+    private boolean checkObstaclesBetweenPoints(double x1, double y1, double x2, double y2) {
         int steps = 5; // Reduced number of steps for interpolation
         for (int i = 0; i <= steps; i++) {
             double t = (double) i / steps;
@@ -200,7 +256,7 @@ public class Random_AI_Player {
     }
 
     /**
-     * Calculate the Euclidean distance between two points.
+     * Calculates the distance between two points.
      *
      * @param x1 First point x-coordinate.
      * @param y1 First point y-coordinate.
@@ -233,7 +289,7 @@ public class Random_AI_Player {
 
         PhysicsCoefficients coefficients = new PhysicsCoefficients(0.08, 0.15, 0.2, 0.25, 0.15);
 
-        Terrain terrain = Terrain.getInstance();
+        Terrain terrain = getInstance(heightFunction, coefficients.getKineticFrictionGrass(), coefficients.getKineticFrictionSand());
 
         Ball ball = new Ball(terrain);
         ball.setState(-5, 0, 0, 0);
@@ -241,7 +297,7 @@ public class Random_AI_Player {
         double targetX = -8.0;
         double targetY = 1.0;
 
-        Random_AI_Player bot = new Random_AI_Player(ball, targetX, targetY, coefficients);
+        AI_Player bot = new AI_Player(ball, targetX, targetY, coefficients);
         bot.findHoleInOne();
     }
 }

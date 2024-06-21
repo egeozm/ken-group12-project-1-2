@@ -1,4 +1,4 @@
-package com.example;
+package com.bots.advanced.PSO;
 
 import java.util.Random;
 
