@@ -25,6 +25,15 @@ public class GolfBall {
     private Vector3 initialPosition;
     private Vector3 targetPosition;
     private Vector3 currentPosition;
+
+    public Vector3 getVelocity() {
+        return velocity;
+    }
+
+    public void setVelocity(Vector3 velocity) {
+        this.velocity = velocity;
+    }
+
     private Vector3 velocity;
 
     public boolean isMoving() {

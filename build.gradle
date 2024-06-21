@@ -36,6 +36,10 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-openal:${lwjglVersion}:${lwjglNatives}"
     runtimeOnly "org.lwjgl:lwjgl-stb:${lwjglVersion}:${lwjglNatives}"
 
+    // JavaFX dependencies
+    implementation "org.openjfx:javafx-controls:17"
+    implementation "org.openjfx:javafx-fxml:17"
+
     // Test dependencies
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.1'

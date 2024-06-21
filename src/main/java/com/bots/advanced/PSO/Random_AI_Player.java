@@ -1,7 +1,11 @@
-package com.example;
+package com.bots.advanced.PSO;
 
-import com.gui.GolfBall;
-import com.gui.Terrain;
+
+import com.example.Random_Generator;
+import com.gui.objects.GolfBall;
+import com.gui.terrain.Terrain;
+import com.ode.Ball;
+import com.ode.PhysicsCoefficients;
 
 import java.util.concurrent.*;
 import java.util.function.BiFunction;
@@ -229,7 +233,7 @@ public class Random_AI_Player {
 
         PhysicsCoefficients coefficients = new PhysicsCoefficients(0.08, 0.15, 0.2, 0.25, 0.15);
 
-        Terrain terrain = new Terrain(heightFunction, coefficients.getKineticFrictionGrass(), coefficients.getKineticFrictionSand());
+        Terrain terrain = Terrain.getInstance();
 
         Ball ball = new Ball(terrain);
         ball.setState(-5, 0, 0, 0);
