@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.bots.advanced.PSO.AI_Player;
+import com.bots.advanced.PSO.Random_AI_Player;
 import com.bots.advanced.graph.GraphPSO.AdvancedPSO;
 import com.ode.Ball;
 import com.bots.basic.BasicBot;
@@ -67,6 +68,9 @@ public class InputHandler {
         if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
             executeBasicPSOMove();
         }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
+            executeRandomMove();
+        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
             executeAdvancedPSOMove();
         }
@@ -94,6 +98,16 @@ public class InputHandler {
     private static void executeBasicPSOMove() throws ExecutionException, InterruptedException {
         Ball ball = new Ball(terrain);
         AI_Player player2 = new AI_Player(advancedAI, terrain.getHoleX(), terrain.getHoleZ(), physicsCoefficients);
+        double[] bestV = player2.getBestVxVy();
+        double[][] trajectoryData = ball.getTrajectoryArray(0.1, advancedAI.getPosition().x, advancedAI.getPosition().z, bestV[0], bestV[1], 30);
+        Debugger.printMatrix(trajectoryData);
+        advancedAI.setTrajectoryVec3(trajectoryData);
+        advancedAI.kickingTurn();
+    }
+
+    private static void executeRandomMove() throws ExecutionException, InterruptedException {
+        Ball ball = new Ball(terrain);
+        Random_AI_Player player2 = new Random_AI_Player(advancedAI, terrain.getHoleX(), terrain.getHoleZ(), physicsCoefficients);
         double[] bestV = player2.getBestVxVy();
         double[][] trajectoryData = ball.getTrajectoryArray(0.1, advancedAI.getPosition().x, advancedAI.getPosition().z, bestV[0], bestV[1], 30);
         Debugger.printMatrix(trajectoryData);
