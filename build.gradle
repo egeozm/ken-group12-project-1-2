@@ -55,10 +55,11 @@ test {
 
 tasks.withType(JavaExec) {
     def osName = System.getProperty("os.name").toLowerCase()
+    def javafxLibs = configurations.runtimeClasspath.findAll { it.name.contains('javafx') }.collect { it }
     if (osName.contains("mac")) {
-        jvmArgs = ["-Djava.library.path=${buildDir}/natives", "-XstartOnFirstThread"]
+        jvmArgs = ["--module-path", javafxLibs.join(File.pathSeparator), "--add-modules", "javafx.controls,javafx.fxml", "-Djava.library.path=${buildDir}/natives", "-XstartOnFirstThread"]
     } else {
-        jvmArgs = ["-Djava.library.path=${buildDir}/natives"]
+        jvmArgs = ["--module-path", javafxLibs.join(File.pathSeparator), "--add-modules", "javafx.controls,javafx.fxml", "-Djava.library.path=${buildDir}/natives"]
     }
 }
 
