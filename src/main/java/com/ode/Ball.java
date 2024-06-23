@@ -1,6 +1,7 @@
 package com.ode;
 
 import com.gui.terrain.Terrain;
+import com.ode.UpdatedBall;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,6 @@ public class Ball {
         // this is how you get the ball to move and also get the trajectory
         return ball.getTrajectoryArray(timeStep, 4.0, 4.0, 0.3, 0, 10);
     }
-
     /**
      * Updates the ball state using the Runge-Kutta method for numerical integration.
      *
@@ -59,6 +59,42 @@ public class Ball {
             if (speed < epsilon) {
                 speed = epsilon;
             }
+            double fx = -PhysicsCoefficients.GRAVITATIONAL_CONSTANT * slope[0] - friction * vx / speed;
+            double fy = -PhysicsCoefficients.GRAVITATIONAL_CONSTANT * slope[1] - friction * vy / speed;
+            return new double[]{vx, vy, fx, fy};
+        };
+        double[] state = {getX(), getY(), getVx(), getVy()};
+        double[] newState = DifferentialEquation.RK4Method.solve(system, state, timeStep);
+        setState(newState[0], newState[1], newState[2], newState[3]);
+    }
+
+
+    /**
+     * Updates the ball state using the Runge-Kutta method for numerical integration with the more complex equation.
+     *
+     * @param timeStep The time step for the integration.
+     */
+    public void updateBallStateRungeKuttaCoolerEquation(double timeStep) {
+        DifferentialEquation system = (t, state) -> {
+            double x = state[0];
+            double y = state[1];
+            double vx = state[2];
+            double vy = state[3];
+            double[] slope = terrain.getSlope(x, y);
+            double kfriction = terrain.getKineticFriction(x, y);
+            double speed = Math.sqrt(vx * vx + vy * vy);
+            double epsilon = 1e-6;
+            if (speed < epsilon) {
+                speed = epsilon;
+            }
+
+            UpdatedBall updatedBall = new UpdatedBall(terrain);
+            double nForceX =  ((updatedBall.golfBallMass*PhysicsCoefficients.GRAVITATIONAL_CONSTANT)/(1+slope[0]*slope[0]+slope[1]*slope[1]))*(-slope[0]);
+            double nForceY =  ((updatedBall.golfBallMass*PhysicsCoefficients.GRAVITATIONAL_CONSTANT)/(1+slope[0]*slope[0]+slope[1]*slope[1]))*(-slope[1]);
+            double friction = (-kfriction*updatedBall.golfBallMass*PhysicsCoefficients.GRAVITATIONAL_CONSTANT)/((Math.sqrt(1+slope[0]*slope[0]+slope[0]*slope[1]))*(Math.sqrt(vx*vx+vy*vy+Math.pow((slope[0]*vx+slope[1]*vy),2))));
+            double accelX = (nForceX - friction)/updatedBall.golfBallMass;
+            double accelY = (nForceY - friction)/updatedBall.golfBallMass;
+
             double fx = -PhysicsCoefficients.GRAVITATIONAL_CONSTANT * slope[0] - friction * vx / speed;
             double fy = -PhysicsCoefficients.GRAVITATIONAL_CONSTANT * slope[1] - friction * vy / speed;
             return new double[]{vx, vy, fx, fy};

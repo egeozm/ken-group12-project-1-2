@@ -8,11 +8,10 @@ public class UpdatedBall {
     private double vx;
     private double vy;
     private final Terrain terrain;
-    private double golfBallMass = 0.0459; // kg
-    private double gravitationalConstant = PhysicsCoefficients.GRAVITATIONAL_CONSTANT;
+    public double golfBallMass = 0.0459; // kg
+    public double gravitationalConstant = PhysicsCoefficients.GRAVITATIONAL_CONSTANT;
     public double dhdx;
     public double dhdy;
-    public double[] scalar = new double[3];
     public double[] tempKF = new double[2];//placeholder, kinetic friction
     public int terrainType;//placeholder
 //in arrays 0 is for x, 1 for y, 2 for z
