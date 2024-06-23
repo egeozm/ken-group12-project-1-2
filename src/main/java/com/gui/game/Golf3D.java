@@ -36,6 +36,7 @@ public class Golf3D implements Screen {
     public static CameraController getCameraController() {
         return cameraController;
     }
+
     public static Material[][] materials;
 
     private static CameraController cameraController;
@@ -51,6 +52,8 @@ public class Golf3D implements Screen {
 
     public static House house;
     public static ArrayList<Tree> trees;
+
+    public static ArrayList<Wall> walls;
     public static ArrayList<House> houses;
     private Trajectory trajectory;
     private double[][] heightMap;
@@ -127,6 +130,7 @@ public class Golf3D implements Screen {
         obstacles = terrain.getObstaclesCoordinates();
         trees = new ArrayList<>();
         houses = new ArrayList<>();
+        walls = new ArrayList<>();
 
         ModelInstance[] terrainInstance = initVertices();
 
@@ -158,6 +162,10 @@ public class Golf3D implements Screen {
             renderer3D.addRenderableObject("trees", tree.getTrunkInstance());
             renderer3D.addRenderableObject("trees", tree.getLeavesInstance());
         }
+        for (Wall wall : walls) {
+            renderer3D.addRenderableObject("walls", wall.getTrunkInstance());
+            renderer3D.addRenderableObject("walls", wall.getLeavesInstance());
+        }
         for (House house : houses) {
             renderer3D.addRenderableObject("houses", house.getWallInstance());
             renderer3D.addRenderableObject("houses", house.getRoofInstance());
@@ -166,7 +174,6 @@ public class Golf3D implements Screen {
         }
         InputHandler.initialize(golfBall, advancedAI, trajectory, (int) kickPower, kickingMode, kickDirection, numberOfShots, bottomLeftLabel, shotsLabel, renderer3D, camera, terrain, debugger);
     }
-
 
 
     @Override

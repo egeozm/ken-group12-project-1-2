@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.gui.objects.House;
 import com.gui.objects.Tree;
+import com.gui.objects.Wall;
 import com.gui.terrain.Terrain;
 
 import static com.gui.game.Golf3D.*;
@@ -48,11 +49,11 @@ public class VertexProcessing {
         builder.triangle((short) i1, (short) i3, (short) i4);
     }
 
-    public static ModelInstance[] initVertices(){
+    public static ModelInstance[] initVertices() {
         int chunkSize = 50;
         ModelBuilder modelBuilder = new ModelBuilder();
-        int numChunksX = (Terrain.getInstance().getWidth()*2 + chunkSize - 1) / chunkSize;
-        int numChunksY = (Terrain.getInstance().getHeight()*2 + chunkSize - 1) / chunkSize;
+        int numChunksX = (Terrain.getInstance().getWidth() * 2 + chunkSize - 1) / chunkSize;
+        int numChunksY = (Terrain.getInstance().getHeight() * 2 + chunkSize - 1) / chunkSize;
         ModelInstance[] terrainInstances = new ModelInstance[numChunksX * numChunksY];
         int index = 0;
 
@@ -60,8 +61,8 @@ public class VertexProcessing {
             for (int cy = 0; cy < numChunksY; cy++) {
                 int startX = cx * chunkSize;
                 int startY = cy * chunkSize;
-                int endX = Math.min(startX + chunkSize, Terrain.getInstance().getWidth()*2 - 1);
-                int endY = Math.min(startY + chunkSize, Terrain.getInstance().getHeight()*2 - 1);
+                int endX = Math.min(startX + chunkSize, Terrain.getInstance().getWidth() * 2 - 1);
+                int endY = Math.min(startY + chunkSize, Terrain.getInstance().getHeight() * 2 - 1);
 
                 modelBuilder.begin();
 
@@ -90,14 +91,18 @@ public class VertexProcessing {
                         builder.triangle(i1, i3, i4);
 
                         // Extend boundary vertices downwards to create volume
-                        if (x == 0 || y == 0 || x == Terrain.getInstance().getWidth()*2 - 2 || y == Terrain.getInstance().getHeight()*2 - 2) {
+                        if (x == 0 || y == 0 || x == Terrain.getInstance().getWidth() * 2 - 2 || y == Terrain.getInstance().getHeight() * 2 - 2) {
                             createBoundaryFaces(modelBuilder, p1, p2, p3, p4, textures.get("side"));
                         }
-
                         if (Terrain.getInstance().getObstaclesCoordinates()[x][y].equals("tree")) {
                             Tree tree = new Tree("assets/log.jpeg", "assets/leaves.jpg");
                             tree.setPosition(x - Terrain.getInstance().getWidth(), (float) Terrain.getInstance().getHeightCoordinates()[x][y] - 3f, y - Terrain.getInstance().getHeight());
                             trees.add(tree);
+                        }
+                        if (Terrain.getInstance().getObstaclesCoordinates()[x][y].equals("wall")) {
+                            Wall wall = new Wall("assets/sand.jpeg", "assets/leaves.jpg");
+                            wall.setPosition(x - Terrain.getInstance().getWidth(), (float) Terrain.getInstance().getHeightCoordinates()[x][y] - 3f, y - Terrain.getInstance().getHeight());
+                            walls.add(wall);
                         } else if (Terrain.getInstance().getObstaclesCoordinates()[x][y].equals("house")) {
                             house = new House("assets/base.png", "assets/planks.png", "assets/door.png", "assets/glass.png", "assets/log.jpeg", 0.3f);
                             house.setPosition(x - Terrain.getInstance().getWidth(), (float) Terrain.getInstance().getHeightCoordinates()[x][y], y - Terrain.getInstance().getHeight());
