@@ -192,6 +192,9 @@ public class Random_AI_Player {
         ball = new Ball(golfBall.getTerrain());
         double[][] trajectory = ball.getTrajectoryArray(0.1, golfBall.getPosition().x, golfBall.getPosition().z, vx, vy, 30);
 
+        // Apply noise to the trajectory
+        trajectory = applyNoise(trajectory, 0.1);
+
         if (trajectory.length == 0) {
             return new double[]{golfBall.getPosition().x, golfBall.getPosition().z};
         }
@@ -212,6 +215,23 @@ public class Random_AI_Player {
 
         double[] finalState = trajectory[trajectory.length - 1];
         return new double[]{finalState[0], finalState[1]};
+    }
+
+    /**
+     * Apply noise to the given trajectory array.
+     *
+     * @param trajectory The trajectory array to which noise will be applied.
+     * @param noiseLevel The level of noise to be applied.
+     * @return The trajectory array with applied noise.
+     */
+    private double[][] applyNoise(double[][] trajectory, double noiseLevel) {
+        Random random = new Random();
+        for (int i = 0; i < trajectory.length; i++) {
+            for (int j = 0; j < 4; j++) { // Apply noise to position and velocity
+                trajectory[i][j] += (random.nextDouble() - 0.5) * 2 * noiseLevel; // Apply noise
+            }
+        }
+        return trajectory;
     }
 
     /**

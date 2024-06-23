@@ -5,12 +5,9 @@ import com.ode.PhysicsCoefficients;
 import com.gui.objects.GolfBall;
 import com.gui.terrain.Terrain;
 
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.BiFunction;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
 
 // Import the Random_Generator class
 
@@ -161,6 +158,23 @@ public class Random_AI_Player {
 
         double[] finalState = trajectory[trajectory.length - 1];
         return new double[]{finalState[0], finalState[1]};
+    }
+
+    /**
+     * Apply noise to the given trajectory array.
+     *
+     * @param trajectory The trajectory array to which noise will be applied.
+     * @param noiseLevel The level of noise to be applied.
+     * @return The trajectory array with applied noise.
+     */
+    private double[][] applyNoise(double[][] trajectory, double noiseLevel) {
+        Random random = new Random();
+        for (int i = 0; i < trajectory.length; i++) {
+            for (int j = 0; j < 2; j++) { // Apply noise to position only
+                trajectory[i][j] += (random.nextDouble() - 0.5) * 2 * noiseLevel; // Apply noise
+            }
+        }
+        return trajectory;
     }
 
     /**
