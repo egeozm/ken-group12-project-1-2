@@ -4,64 +4,50 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
-import com.ode.PhysicsCoefficients;
 import com.gui.parser.BiFunctionParser;
 
 import java.util.HashMap;
 import java.util.Random;
-import java.util.Stack;
 import java.util.function.BiFunction;
 
 /**
- * The Terrain class represents the game's terrain, including its height map, material map, and obstacles.
- * It uses a provided height function to generate the terrain and randomly places obstacles such as trees and houses.
+ * The Terrain class generates a terrain map with height, material, and obstacle information.
+ * It uses a height function to determine the terrain's height at any given point.
  */
 public class Terrain {
-    private static Terrain instance;
-
-    private BiFunction<Double, Double, Double> heightFunction;
-    private double kineticFrictionGrass;
-    private double kineticFrictionSand;
-    private double coefficient = 0.1;
-    private double heightCoefficient = 1;
-    private double heightBias = 0;
-    public static final HashMap<String, Texture> textures = new HashMap<>();
+    private final BiFunction<Double, Double, Double> heightFunction;
+    private final double coefficient;
+    private final double heightCoefficient;
+    private final double heightBias;
+    private static final HashMap<String, Texture> textures = new HashMap<>();
     private static final HashMap<String, Material> materials = new HashMap<>();
-    private double[][] heightCoordinates;
-    private HashMap<String, Double> parameters;
-    public String[][] obstaclesCoordinates;
+    HashMap<String, Double> parameters;
+
+    private String[][] obstaclesCoordinates;
     private Material[][] materialCoordinates;
-    private double treeRate = 0.003f;
-    private double houseRate = 0.001f;
-    private int width;
-    private int height;
-    private int holeX;
-    private int holeZ;
+    private final double treeRate;
+    private final double houseRate;
 
-    public double[][] maze;
+    private final int width;
+    private final int height;
 
-    public int getHoleX() {
-        return holeX;
-    }
-
-    public int getHoleZ() {
-        return holeZ;
+    /**
+     * Main method to demonstrate terrain generation.
+     *
+     * @param args Command line arguments.
+     */
+    public static void main(String[] args) {
+        // Height function for the terrain to be generated
+        new PhysicsCoefficients(0.08, 0.15, 0.2, 0.25, 0.15);
     }
 
     /**
-     * Private constructor to prevent instantiation from other classes.
+     * Constructs a Terrain instance with specified parameters and height function expression.
+     *
+     * @param expression The height function expression as a string.
+     * @param parameters The map of parameters for terrain generation.
      */
-    private Terrain() {
-        // Default initialization or leave empty if the instance will be initialized later
-    }
-
-    private Terrain(BiFunction<Double, Double, Double> heightFunction, double kineticFrictionGrass, double kineticFrictionSand) {
-        this.heightFunction = heightFunction;
-        this.kineticFrictionGrass = kineticFrictionGrass;
-        this.kineticFrictionSand = kineticFrictionSand;
-    }
-
-    private Terrain(String expression, HashMap<String, Double> parameters) {
+    public Terrain(String expression, HashMap<String, Double> parameters) {
         init();
         this.parameters = parameters;
         this.width = (int) (double) parameters.get("width");
@@ -72,81 +58,18 @@ public class Terrain {
         this.treeRate = parameters.get("treeSpawnRate");
         this.houseRate = parameters.get("housesSpawnRate");
         this.heightFunction = BiFunctionParser.parse(expression);
-        this.kineticFrictionGrass = 0.08;
-        this.kineticFrictionSand = 0.2;
-        generateMazeMap(width, height);
+        generateMap(width, height);
     }
 
     /**
-     * Method to get the single instance of the Terrain class.
-     */
-    public static synchronized Terrain getInstance() {
-        if (instance == null) {
-            instance = new Terrain();
-        }
-        return instance;
-    }
-
-    public static synchronized Terrain getInstance(BiFunction<Double, Double, Double> heightFunction, double kineticFrictionGrass, double kineticFrictionSand) {
-        if (instance == null) {
-            instance = new Terrain(heightFunction, kineticFrictionGrass, kineticFrictionSand);
-        } else {
-            instance.heightFunction = heightFunction;
-            instance.kineticFrictionGrass = kineticFrictionGrass;
-            instance.kineticFrictionSand = kineticFrictionSand;
-        }
-        return instance;
-    }
-
-    public static synchronized Terrain getInstance(String expression, HashMap<String, Double> parameters) {
-        if (instance == null) {
-            instance = new Terrain(expression, parameters);
-        } else {
-            instance.init();
-            instance.parameters = parameters;
-            instance.width = (int) (double) parameters.get("width");
-            instance.height = (int) (double) parameters.get("height");
-            instance.coefficient = parameters.get("functionStep");
-            instance.heightBias = parameters.get("yBias");
-            instance.heightCoefficient = parameters.get("heightCoefficient");
-            instance.treeRate = parameters.get("treeSpawnRate");
-            instance.houseRate = parameters.get("housesSpawnRate");
-            instance.heightFunction = BiFunctionParser.parse(expression);
-            instance.kineticFrictionGrass = 0.08;
-            instance.kineticFrictionSand = 0.2;
-            instance.generateMap(instance.width, instance.height);
-        }
-        return instance;
-    }
-
-
-    /**
-     * Initializes the textures and materials used in the terrain.
-     */
-    private static void init() {
-        textures.put("waterTexture", new Texture(Gdx.files.internal("assets/water.jpeg")));
-        textures.put("sandTexture", new Texture(Gdx.files.internal("assets/sand.jpeg")));
-        textures.put("grassTexture", new Texture(Gdx.files.internal("assets/grass.png")));
-        textures.put("rockTexture", new Texture(Gdx.files.internal("assets/rock.png")));
-        textures.put("snowTexture", new Texture(Gdx.files.internal("assets/snow.png")));
-        textures.put("holeTexture", new Texture(Gdx.files.internal("assets/golf-hole.png")));
-        materials.put("water", new Material(TextureAttribute.createDiffuse(textures.get("waterTexture"))));
-        materials.put("sand", new Material(TextureAttribute.createDiffuse(textures.get("sandTexture"))));
-        materials.put("grass", new Material(TextureAttribute.createDiffuse(textures.get("grassTexture"))));
-        materials.put("rock", new Material(TextureAttribute.createDiffuse(textures.get("rockTexture"))));
-        materials.put("snow", new Material(TextureAttribute.createDiffuse(textures.get("snowTexture"))));
-        materials.put("hole", new Material(TextureAttribute.createDiffuse(textures.get("holeTexture"))));
-    }
-
-    /**
-     * Generates the height map, material map, and obstacle map for the terrain.
+     * Generates the terrain map including height, material, and obstacle information.
      *
-     * @param width  the width of the terrain
-     * @param height the height of the terrain
+     * @param width  The width of the terrain.
+     * @param height The height of the terrain.
      */
     private void generateMap(int width, int height) {
         Random rand = new Random();
-        heightCoordinates = new double[2 * width][2 * height];
+        double[][] heightCoordinates = new double[2 * width][2 * height];
         materialCoordinates = new Material[2 * width][2 * height];
         obstaclesCoordinates = new String[2 * width][2 * height];
         for (int x = -width; x < width; x++) {
@@ -184,6 +107,7 @@ public class Terrain {
                         obstaclesCoordinates[x + width][y + height] = "0";
                 }
             }
+            // Debugger.printMatrix(obstaclesCoordinates);
         }
         for (int x = -width + 1; x < width - 1; x++)
             for (int y = -height + 1; y < height - 1; y++) {
@@ -201,106 +125,12 @@ public class Terrain {
         generateGolfHole();
     }
 
-    private double[][] mazeArray(int mazeWidth, int mazeHeight) {
-        double[][] maze = new double[mazeWidth][mazeHeight];
-        for (int i = 0; i < maze.length; i++) {
-            for (int j = 0; j < maze[0].length; j++) {
-                maze[i][j] = 1; // Initialize all cells as walls
-            }
-        }
-
-        // Generate maze using Depth-First Search (DFS) algorithm with backtracking
-        Stack<int[]> stack = new Stack<>();
-        int[] start = {1, 1}; // Start at cell (1, 1)
-        maze[start[0]][start[1]] = 0; // Mark the start cell as open
-        stack.push(start);
-
-        Random rand = new Random();
-        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}; // Possible directions: down, up, right, left
-
-        while (!stack.isEmpty()) {
-            int[] current = stack.peek();
-            int x = current[0];
-            int y = current[1];
-
-            // Shuffle the directions to ensure randomization
-            for (int i = 0; i < directions.length; i++) {
-                int[] temp = directions[i];
-                int randomIndex = rand.nextInt(directions.length);
-                directions[i] = directions[randomIndex];
-                directions[randomIndex] = temp;
-            }
-
-            boolean moved = false;
-            for (int[] direction : directions) {
-                int nx = x + direction[0] * 2;
-                int ny = y + direction[1] * 2;
-
-                if (nx > 0 && ny > 0 && nx < mazeWidth - 1 && ny < mazeHeight - 1 && maze[nx][ny] == 1) {
-                    maze[nx - direction[0]][ny - direction[1]] = 0; // Open cell between current and new cell
-                    maze[nx][ny] = 0; // Open new cell
-                    stack.push(new int[]{nx, ny});
-                    moved = true;
-                    break;
-                }
-            }
-
-            if (!moved) {
-                stack.pop();
-            }
-        }
-
-        return maze;
-    }
-
-    private void generateMazeMap(int width, int height) {
-        int mazeWidth = width / 2;  // or any other logic to determine maze size based on terrain size
-        int mazeHeight = height / 2; // or any other logic to determine maze size based on terrain size
-
-        this.maze = mazeArray(mazeWidth, mazeHeight);
-        Random rand = new Random();
-        heightCoordinates = new double[2 * width][2 * height];
-        materialCoordinates = new Material[2 * width][2 * height];
-        obstaclesCoordinates = new String[2 * width][2 * height];
-
-        for (int x = -width; x < width; x++) {
-            for (int y = -height; y < height; y++) {
-                double heightCell = getHeight(x, y);
-                heightCoordinates[x + width][y + height] = heightCell;
-                generateMaterialMap(x + width, y + height, heightCell);
-
-                // Initialize all obstacles as "0" (no obstacle)
-                obstaclesCoordinates[x + width][y + height] = "0";
-
-                if (materialCoordinates[x + width][y + height] == materials.get("water")) {
-                    obstaclesCoordinates[x + width][y + height] = "water";
-                }
-            }
-        }
-
-        for (int x = 0; x < maze.length; x++) {
-            for (int y = 0; y < maze[0].length; y++) {
-                if (maze[x][y] == 1) {
-                    // Convert maze coordinates to terrain coordinates
-                    int terrainX = x + width - maze.length / 2;
-                    int terrainY = y + height - maze[0].length / 2;
-
-                    if (terrainX >= 0 && terrainX < 2 * width && terrainY >= 0 && terrainY < 2 * height) {
-                        obstaclesCoordinates[terrainX][terrainY] = "wall";
-                    }
-                }
-            }
-        }
-
-        generateGolfHole();
-    }
-
     /**
-     * Generates the material map based on the height map.
+     * Generates the material map for the terrain based on height values.
      *
-     * @param x      the x-coordinate
-     * @param y      the y-coordinate
-     * @param height the height at the specified coordinates
+     * @param x      The x-coordinate.
+     * @param y      The y-coordinate.
+     * @param height The height at the given coordinate.
      */
     public void generateMaterialMap(int x, int y, double height) {
         Material material = materials.get("grass");
@@ -309,11 +139,12 @@ public class Terrain {
             material = materials.get("water");
         else if (height < 0.4 * divisionCoefficient)
             material = materials.get("grass");
+
         materialCoordinates[x][y] = material;
     }
 
     /**
-     * Generates the golf hole on the terrain.
+     * Generates a golf hole at a random position on the terrain.
      */
     private void generateGolfHole() {
         int holeX;
@@ -335,114 +166,35 @@ public class Terrain {
         }
         obstaclesCoordinates[holeX][holeZ] = "hole";
         materialCoordinates[holeX][holeZ] = materials.get("hole");
-        this.holeX = holeX - width;
-        this.holeZ = holeZ - height;
+
     }
 
     /**
-     * Returns the height of the terrain at the specified coordinates.
+     * Gets the height of the terrain at a given point.
      *
-     * @param x the x-coordinate
-     * @param y the y-coordinate
-     * @return the height of the terrain at the specified coordinates
+     * @param x The x-coordinate.
+     * @param y The y-coordinate.
+     * @return The height at the given point.
      */
     public double getHeight(double x, double y) {
         return heightFunction.apply(x * coefficient, y * coefficient) * heightCoefficient + heightBias;
     }
 
     /**
-     * Returns the slope of the terrain at the specified coordinates.
-     *
-     * @param x the x-coordinate
-     * @param y the y-coordinate
-     * @return an array containing the slopes in the x and y directions
+     * Initializes textures and materials for the terrain.
      */
-    public double[] getSlope(double x, double y) {
-        double epsilon = 1e-6;
-        double height = getHeight(x, y);
-        double dHdX = (getHeight(x + epsilon, y) - height) / epsilon;
-        double dHdY = (getHeight(x, y + epsilon) - height) / epsilon;
-        return new double[]{dHdX, dHdY};
-    }
-
-    /**
-     * Checks if the specified coordinates are in a sandpit.
-     *
-     * @param x the x-coordinate
-     * @param y the y-coordinate
-     * @return true if the coordinates are in a sandpit, false otherwise
-     */
-    public boolean isSand(double x, double y) {
-        boolean sandPit1 = (x - 4) * (x - 4) + (y - 2) * (y - 2) < 1.5; // circle at (4, 2)
-        boolean sandPit2 = (x + 3) * (x + 3) + (y + 2) * (y + 2) < 2; // circle at (-3, -2)
-        return sandPit1 || sandPit2;
-    }
-
-    /**
-     * Returns the kinetic friction at the specified coordinates.
-     *
-     * @param x the x-coordinate
-     * @param y the y-coordinate
-     * @return the kinetic friction at the specified coordinates
-     */
-    public double getKineticFriction(double x, double y) {
-        if (isSand(x, y)) {
-            return kineticFrictionSand;
-        }
-        return kineticFrictionGrass;
-    }
-
-    /**
-     * Returns the width of the terrain.
-     *
-     * @return the width of the terrain
-     */
-    public int getWidth() {
-        return width;
-    }
-
-    /**
-     * Returns the height of the terrain.
-     *
-     * @return the height of the terrain
-     */
-    public int getHeight() {
-        return height;
-    }
-
-    /**
-     * Sets the height of the terrain.
-     *
-     * @param height the height of the terrain
-     */
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    /**
-     * Returns the height coordinates of the terrain.
-     *
-     * @return a 2D array containing the height coordinates of the terrain
-     */
-    public double[][] getHeightCoordinates() {
-        return heightCoordinates;
-    }
-
-    /**
-     * Returns the material coordinates of the terrain.
-     *
-     * @return a 2D array containing the material coordinates of the terrain
-     */
-    public Material[][] getMaterialCoordinates() {
-        return materialCoordinates;
-    }
-
-    /**
-     * Returns the obstacle coordinates of the terrain.
-     *
-     * @return a 2D array containing the obstacle coordinates of the terrain
-     */
-    public String[][] getObstaclesCoordinates() {
-        return obstaclesCoordinates;
+    private static void init() {
+        textures.put("waterTexture", new Texture(Gdx.files.internal("assets/water.jpeg")));
+        textures.put("sandTexture", new Texture(Gdx.files.internal("assets/sand.jpeg")));
+        textures.put("grassTexture", new Texture(Gdx.files.internal("assets/grass.png")));
+        textures.put("rockTexture", new Texture(Gdx.files.internal("assets/rock.png")));
+        textures.put("snowTexture", new Texture(Gdx.files.internal("assets/snow.png")));
+        textures.put("holeTexture", new Texture(Gdx.files.internal("assets/golf-hole.png")));
+        materials.put("water", new Material(TextureAttribute.createDiffuse(textures.get("waterTexture"))));
+        materials.put("sand", new Material(TextureAttribute.createDiffuse(textures.get("sandTexture"))));
+        materials.put("grass", new Material(TextureAttribute.createDiffuse(textures.get("grassTexture"))));
+        materials.put("rock", new Material(TextureAttribute.createDiffuse(textures.get("rockTexture"))));
+        materials.put("snow", new Material(TextureAttribute.createDiffuse(textures.get("snowTexture"))));
+        materials.put("hole", new Material(TextureAttribute.createDiffuse(textures.get("holeTexture"))));
     }
 }

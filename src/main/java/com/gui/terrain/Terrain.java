@@ -37,6 +37,8 @@ public class Terrain {
     private int holeX;
     private int holeZ;
 
+    public double[][] maze;
+
     public int getHoleX() {
         return holeX;
     }
@@ -49,7 +51,7 @@ public class Terrain {
      * Private constructor to prevent instantiation from other classes.
      */
     private Terrain() {
-        // Default initialization or leave empty if the instance will be initialized later
+        // Default initialization or leave empty if the instance is initialized later
     }
 
     private Terrain(BiFunction<Double, Double, Double> heightFunction, double kineticFrictionGrass, double kineticFrictionSand) {
@@ -71,7 +73,7 @@ public class Terrain {
         this.heightFunction = BiFunctionParser.parse(expression);
         this.kineticFrictionGrass = 0.08;
         this.kineticFrictionSand = 0.2;
-        generateMap(width, height);
+        generateMazeMap(width, height);
     }
 
     /**
@@ -115,6 +117,7 @@ public class Terrain {
         }
         return instance;
     }
+
 
     /**
      * Initializes the textures and materials used in the terrain.
@@ -194,6 +197,67 @@ public class Terrain {
                     }
                 }
             }
+        generateGolfHole();
+    }
+
+    private double[][] mazeArray() {
+
+        double[][] maze = new double[50][50];
+        for (int i = 0; i < maze.length; i++) {
+            for (int j = 0; j < maze[0].length; j++) {
+
+                maze[i][j] = 0;
+
+            }
+        }
+        maze[4][1] = 1;
+
+        maze[4][2] = 1;
+        maze[4][4] = 1;
+        maze[4][3] = 1;
+        maze[2][10] = 1;
+        maze[12][6] = 1;
+        maze[0][10] = 1;
+
+        return maze;
+    }
+
+    private void generateMazeMap(int width, int height) {
+        this.maze = mazeArray();
+        Random rand = new Random();
+        heightCoordinates = new double[2 * width][2 * height];
+        materialCoordinates = new Material[2 * width][2 * height];
+        obstaclesCoordinates = new String[2 * width][2 * height];
+
+        for (int x = -width; x < width; x++) {
+            for (int y = -height; y < height; y++) {
+                double heightCell = getHeight(x, y);
+                heightCoordinates[x + width][y + height] = heightCell;
+                generateMaterialMap(x + width, y + height, heightCell);
+
+                // Initialize all obstacles as "0" (no obstacle)
+                obstaclesCoordinates[x + width][y + height] = "0";
+
+                if (materialCoordinates[x + width][y + height] == materials.get("water")) {
+                    obstaclesCoordinates[x + width][y + height] = "water";
+                }
+            }
+        }
+
+        for (int x = 0; x < maze.length; x++) {
+            for (int y = 0; y < maze[0].length; y++) {
+                if (maze[x][y] == 1) {
+                    // Convert maze coordinates to terrain coordinates
+                    int terrainX = x + width - maze.length / 2;
+                    int terrainY = y + height - maze[0].length / 2;
+
+                    if (terrainX >= 0 && terrainX < 2 * width && terrainY >= 0 && terrainY < 2 * height) {
+                        obstaclesCoordinates[terrainX][terrainY] = "wall";
+                    }
+                }
+            }
+        }
+
         generateGolfHole();
     }
 
