@@ -1,96 +1,71 @@
 package com.ode;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 
-/**
- * ODESolversAccuracyTest class to compare the accuracy of Euler and RK4 methods
- * for solving different differential equations.
- */
 public class ODESolversAccuracyTest {
 
-    /**
-     * Main method to execute the ODE solvers accuracy test.
-     *
-     * @param args Command line arguments (not used).
-     */
     public static void main(String[] args) {
-        // Example 1: Exponential Decay Equation
+        double initialTime = 0.0;
+        double endTime = 5.0;
+
+        // exponential decay equation
         System.out.println("Exponential Decay Equation:");
-        testEquation((t, state) -> {
-            double k = 1.0;
-            double[] derivatives = new double[state.length];
-            for (int i = 0; i < state.length; i++) {
-                derivatives[i] = -k * state[i];
-            }
-            return derivatives;
-        });
+        DifferentialEquation expDecayEquation = (t, state) -> new double[]{-1.0 * state[0]};
+        AnalyticalFunction expDecayAnalyticalSolution = ODESolversAccuracyTest::analyticalSolutionExpDecay;
+        double[] expDecayInitialState = new double[]{1.0};
+        String expDecayOutputFile = "exp_decay_errors.csv";
+        testEquation(expDecayEquation, expDecayAnalyticalSolution, expDecayInitialState, initialTime, endTime, expDecayOutputFile);
 
-//        // Example 2: Harmonic Oscillator Equation
-//        System.out.println("Harmonic Oscillator Equation:");
-//        testEquation((t, state) -> {
-//            double omega = 1.0;
-//            double[] derivatives = new double[2];
-//            derivatives[0] = state[1];               // dy/dt = v
-//            derivatives[1] = -omega * omega * state[0]; // dv/dt = -omega^2 * y
-//            return derivatives;
-//        });
+        // harmonic oscillator equation
+        System.out.println("Harmonic Oscillator Equation:");
+        DifferentialEquation harmonicOscillatorEquation = (t, state) -> new double[]{state[1], -1.0 * state[0]};
+        AnalyticalFunction harmonicOscillatorAnalyticalSolution = ODESolversAccuracyTest::analyticalSolutionHarmonic;
+        double[] harmonicOscillatorInitialState = new double[]{1.0, 0.0};
+        String harmonicOscillatorOutputFile = "harmonic_oscillator_errors.csv";
+        testEquation(harmonicOscillatorEquation, harmonicOscillatorAnalyticalSolution, harmonicOscillatorInitialState, initialTime, endTime, harmonicOscillatorOutputFile);
 
-        //  Change this if you want another differential equation
-//        // Example 3: 2*x^2 + 3*x Equation
-//        System.out.println("2*x^2 + 3*x Equation:");
-//        testEquation((t, state) -> {
-//            double[] derivatives = new double[state.length];
-//            for (int i = 0; i < state.length; i++) {
-//                derivatives[i] = 2 * t * t + 3 * t;
-//            }
-//            return derivatives;
-//        });
+        // logistic growth equation
+        System.out.println("Logistic Growth Equation:");
+        DifferentialEquation logisticGrowthEquation = (t, state) -> new double[]{state[0] * (1 - state[0] / 10)};
+        AnalyticalFunction logisticGrowthAnalyticalSolution = ODESolversAccuracyTest::analyticalSolutionLogisticGrowth;
+        double[] logisticGrowthInitialState = new double[]{1.0};
+        String logisticGrowthOutputFile = "logistic_growth_errors.csv";
+        testEquation(logisticGrowthEquation, logisticGrowthAnalyticalSolution, logisticGrowthInitialState, initialTime, endTime, logisticGrowthOutputFile);
     }
 
-    /**
-     * Test the given differential equation using Euler and RK4 methods.
-     *
-     * @param equation The differential equation to test.
-     */
-    private static void testEquation(DifferentialEquation equation) {
-        // Parameters for the ODE solving
-        double t0 = 0.0;
-        double[] y0 = {1.0, 0.0}; // Initial conditions for Harmonic Oscillator (y0, v0)
-        double tEnd = 5.0;
 
-        // Different step sizes to test
+    private static void testEquation(DifferentialEquation equation, AnalyticalFunction analyticalFunc, double[] y0, double t0, double tEnd, String filename) {
         double[] stepSizes = {0.1, 0.05, 0.01, 0.005, 0.001};
 
-        // Iterate over each step size
-        for (double stepSize : stepSizes) {
-            System.out.println("Step Size: " + stepSize);
-            System.out.println("------------------------");
+        try (FileWriter writer = new FileWriter(filename)) {
+            writer.append("StepSize,EulerMaxError,RK4MaxError\n");
 
-            // Solve the ODE using Euler's method
-            double[][] eulerResults = solveWithEuler(equation, t0, y0, tEnd, stepSize);
-            double[] eulerErrors = calculateErrors(eulerResults, t0, tEnd, stepSize, y0);
+            for (double stepSize : stepSizes) {
+                System.out.println("Step Size: " + stepSize);
+                System.out.println("------------------------");
 
-            // Solve the ODE using RK4 method
-            double[][] rk4Results = solveWithRK4(equation, t0, y0, tEnd, stepSize);
-            double[] rk4Errors = calculateErrors(rk4Results, t0, tEnd, stepSize, y0);
+                double[][] eulerResults = solveWithEuler(equation, t0, y0, tEnd, stepSize);
+                double[] eulerErrors = calculateErrors(eulerResults, t0, tEnd, stepSize, y0, analyticalFunc);
 
-            // Output the maximum errors for both methods
-            System.out.printf("Euler Method Max Error:  %.16f%n", Arrays.stream(eulerErrors).max().orElse(0.0));
-            System.out.printf("RK4 Method Max Error:    %.16f%n", Arrays.stream(rk4Errors).max().orElse(0.0));
-            System.out.println();
+                double[][] rk4Results = solveWithRK4(equation, t0, y0, tEnd, stepSize);
+                double[] rk4Errors = calculateErrors(rk4Results, t0, tEnd, stepSize, y0, analyticalFunc);
+
+                double eulerMaxError = Arrays.stream(eulerErrors).max().orElse(0.0);
+                double rk4MaxError = Arrays.stream(rk4Errors).max().orElse(0.0);
+
+                writer.append(stepSize + "," + eulerMaxError + "," + rk4MaxError + "\n");
+
+                System.out.println("Euler Method Max Error: " + eulerMaxError);
+                System.out.println("RK4 Method Max Error: " + rk4MaxError);
+                System.out.println();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Solves the ODE using Euler's method.
-     *
-     * @param eq   The differential equation.
-     * @param t0   The initial time.
-     * @param y0   The initial state.
-     * @param tEnd The end time.
-     * @param dt   The time step.
-     * @return The numerical solution at each time step.
-     */
     private static double[][] solveWithEuler(DifferentialEquation eq, double t0, double[] y0, double tEnd, double dt) {
         int n = (int) ((tEnd - t0) / dt);
         double[][] results = new double[n + 1][y0.length];
@@ -103,16 +78,6 @@ public class ODESolversAccuracyTest {
         return results;
     }
 
-    /**
-     * Solves the ODE using the RK4 method.
-     *
-     * @param eq   The differential equation.
-     * @param t0   The initial time.
-     * @param y0   The initial state.
-     * @param tEnd The end time.
-     * @param dt   The time step.
-     * @return The numerical solution at each time step.
-     */
     private static double[][] solveWithRK4(DifferentialEquation eq, double t0, double[] y0, double tEnd, double dt) {
         int n = (int) ((tEnd - t0) / dt);
         double[][] results = new double[n + 1][y0.length];
@@ -125,38 +90,41 @@ public class ODESolversAccuracyTest {
         return results;
     }
 
-    /**
-     * Calculates the errors between the numerical and analytical solutions.
-     *
-     * @param numericalResults The numerical results.
-     * @param t0               The initial time.
-     * @param tEnd             The end time.
-     * @param stepSize         The time step.
-     * @param y0               The initial state.
-     * @return The errors at each time step.
-     */
-    private static double[] calculateErrors(double[][] numericalResults, double t0, double tEnd, double stepSize, double[] y0) {
+    private static double[] calculateErrors(double[][] numericalResults, double t0, double tEnd, double stepSize, double[] y0, AnalyticalFunction analyticalFunc) {
         int steps = (int) ((tEnd - t0) / stepSize) + 1;
         double[] errors = new double[steps];
 
         for (int i = 0; i < steps; i++) {
             double t = t0 + i * stepSize;
-            double analytical = analyticalSolution(t, y0[0]);
-            errors[i] = Math.abs(analytical - numericalResults[i][0]);
+            double[] analytical = analyticalFunc.evaluate(t, y0);
+            for (int j = 0; j < y0.length; j++) {
+                errors[i] += Math.abs(analytical[j] - numericalResults[i][j]);
+            }
         }
 
         return errors;
     }
 
-    /**
-     * Analytical solution of the exponential decay differential equation.
-     *
-     * @param t  The time.
-     * @param y0 The initial state.
-     * @return The analytical solution at time t.
-     */
-    private static double analyticalSolution(double t, double y0) {
+    private static double[] analyticalSolutionExpDecay(double t, double[] y0) {
         double k = 1.0;
-        return y0 * Math.exp(-k * t);
+        return new double[]{y0[0] * Math.exp(-k * t)};
+    }
+
+    private static double[] analyticalSolutionHarmonic(double t, double[] y0) {
+        double A = y0[0];
+        double B = y0[1];
+        return new double[]{A * Math.cos(t) + B * Math.sin(t), -A * Math.sin(t) + B * Math.cos(t)};
+    }
+
+    private static double[] analyticalSolutionLogisticGrowth(double t, double[] y0) {
+        double K = 10.0;
+        double r = 1.0;
+        double y0Initial = y0[0];
+        return new double[]{K * y0Initial * Math.exp(r * t) / (K + y0Initial * (Math.exp(r * t) - 1))};
+    }
+
+    @FunctionalInterface
+    private interface AnalyticalFunction {
+        double[] evaluate(double t, double[] y0);
     }
 }
