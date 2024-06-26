@@ -6,8 +6,12 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.bots.advanced.PSO.AI_Player;
-import com.bots.advanced.PSO.Random_AI_Player;
 import com.bots.advanced.graph.GraphPSO.AdvancedPSO;
+import com.bots.advanced.graph.GraphSA.AdvancedSA;
+import com.bots.advanced.graph.MonteCarlo.MonteCarloTreeSearch;
+import com.bots.advanced.graph.genetic.VariableLengthChromosomeGeneticAlgorithm;
+import com.bots.advanced.graph.genetic.GeneticAlgorithm;
+import com.bots.advanced.graph.traverse.AdvancedTraverse;
 import com.ode.Ball;
 import com.bots.basic.BasicBot;
 import com.ode.PhysicsCoefficients;
@@ -19,6 +23,7 @@ import com.gui.terrain.Terrain;
 import com.gui.debbugers.Debugger3D;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -68,11 +73,23 @@ public class InputHandler {
         if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
             executeBasicPSOMove();
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
-            executeRandomMove();
-        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
             executeAdvancedPSOMove();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+            executeAdvancedTraverseMove();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+            executeGAMove();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+            executeAdvancedGAMove();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
+            executeAdvancedSAMove();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
+            executeMonteCarloMove();
         }
 
         if (kickingMode) {
@@ -82,7 +99,7 @@ public class InputHandler {
         if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
             debugger.toggleDebugger();
         }
-
+        shotsLabel.setText("Shots done: " + numberOfShots);
         debugger.handleInput((PerspectiveCamera) camera, terrain.getHeightCoordinates());
     }
 
@@ -104,20 +121,10 @@ public class InputHandler {
         advancedAI.setTrajectoryVec3(trajectoryData);
         advancedAI.kickingTurn();
     }
-
-    private static void executeRandomMove() throws ExecutionException, InterruptedException {
-        Ball ball = new Ball(terrain);
-        Random_AI_Player player2 = new Random_AI_Player(advancedAI, terrain.getHoleX(), terrain.getHoleZ(), physicsCoefficients);
-        double[] bestV = player2.getBestVxVy();
-        double[][] trajectoryData = ball.getTrajectoryArray(0.1, advancedAI.getPosition().x, advancedAI.getPosition().z, bestV[0], bestV[1], 30);
-        Debugger.printMatrix(trajectoryData);
-        advancedAI.setTrajectoryVec3(trajectoryData);
-        advancedAI.kickingTurn();
-    }
     private static void executeAdvancedPSOMove() throws ExecutionException, InterruptedException {
         Ball ball = new Ball(terrain);
-        AdvancedPSO player2 = new AdvancedPSO(advancedAI, terrain.getHoleX(), terrain.getHoleZ(), physicsCoefficients);
-        List<double[]> bestV = player2.getBestPath();
+        AdvancedPSO player2 = new AdvancedPSO(advancedAI, terrain.getHoleX(), terrain.getHoleZ());
+        List<double[]> bestV = player2.optimize();
         System.out.println(bestV.size());
         executeNextMove(ball, player2, bestV);
     }
@@ -130,7 +137,8 @@ public class InputHandler {
 
         if (!advancedAI.isMoving()) {
             System.out.println("dawdawdawdawd");
-            double[][] trajectoryData = ball.getTrajectoryArray(0.1, advancedAI.getPosition().x, advancedAI.getPosition().z, bestV.get(advancedPsoIdx)[2], bestV.get(advancedPsoIdx)[3], 30);
+            numberOfShots++;
+            double[][] trajectoryData = ball.getTrajectoryArray(0.1, advancedAI.getPosition().x, advancedAI.getPosition().z, bestV.get(advancedPsoIdx)[0], bestV.get(advancedPsoIdx)[1], 30);
             Debugger.printMatrix(trajectoryData);
             advancedAI.setTrajectoryVec3(trajectoryData);
             advancedAI.kickingTurn();
@@ -139,6 +147,157 @@ public class InputHandler {
 
         // Schedule the next check
         Executors.newSingleThreadScheduledExecutor().schedule(() -> executeNextMove(ball, player2, bestV), 100, TimeUnit.MILLISECONDS);
+    }
+    private static void executeAdvancedSAMove() throws ExecutionException, InterruptedException {
+        Ball ball = new Ball(terrain);
+        AdvancedSA player2 = new AdvancedSA(advancedAI, terrain.getHoleX(), terrain.getHoleZ());
+        List<double[]> bestV = player2.findOptimalPath();
+        System.out.println(bestV.size());
+        executeNextSAMove(ball, player2, bestV);
+    }
+
+    private static void executeNextSAMove(Ball ball, AdvancedSA player2, List<double[]> bestV) {
+        if (advancedPsoIdx >= bestV.size()) {
+            advancedPsoIdx = 0;
+            return; // All moves executed
+        }
+
+        if (!advancedAI.isMoving()) {
+            System.out.println("dawdawdawdawd");
+            numberOfShots++;
+            double[][] trajectoryData = ball.getTrajectoryArray(0.1, advancedAI.getPosition().x, advancedAI.getPosition().z, bestV.get(advancedPsoIdx)[0], bestV.get(advancedPsoIdx)[1], 30);
+            Debugger.printMatrix(trajectoryData);
+            advancedAI.setTrajectoryVec3(trajectoryData);
+            advancedAI.kickingTurn();
+            advancedPsoIdx++;
+        }
+
+        // Schedule the next check
+        Executors.newSingleThreadScheduledExecutor().schedule(() -> executeNextSAMove(ball, player2, bestV), 100, TimeUnit.MILLISECONDS);
+    }
+    private static void executeMonteCarloMove() throws ExecutionException, InterruptedException {
+        Ball ball = new Ball(terrain);
+        MonteCarloTreeSearch player2 = new MonteCarloTreeSearch(advancedAI, terrain.getHoleX(), terrain.getHoleZ());
+        List<double[]> bestV = player2.findBestPath();
+        System.out.println(bestV.size());
+        executeNextMonteCarloMove(ball, player2, bestV);
+    }
+
+    private static void executeNextMonteCarloMove(Ball ball, MonteCarloTreeSearch player2, List<double[]> bestV) {
+        if (advancedPsoIdx >= bestV.size()) {
+            advancedPsoIdx = 0;
+            return; // All moves executed
+        }
+
+        if (!advancedAI.isMoving()) {
+            System.out.println("dawdawdawdawd");
+            numberOfShots++;
+            double[][] trajectoryData = ball.getTrajectoryArray(0.1, advancedAI.getPosition().x, advancedAI.getPosition().z, bestV.get(advancedPsoIdx)[0], bestV.get(advancedPsoIdx)[1], 30);
+            Debugger.printMatrix(trajectoryData);
+            advancedAI.setTrajectoryVec3(trajectoryData);
+            advancedAI.kickingTurn();
+            advancedPsoIdx++;
+        }
+
+        // Schedule the next check
+        Executors.newSingleThreadScheduledExecutor().schedule(() -> executeNextMonteCarloMove(ball, player2, bestV), 100, TimeUnit.MILLISECONDS);
+    }
+
+    private static void executeAdvancedTraverseMove() throws ExecutionException, InterruptedException {
+        Ball ball = new Ball(terrain);
+        AdvancedTraverse player2 = new AdvancedTraverse(advancedAI, terrain.getHoleX(), terrain.getHoleZ());
+        List<double[]> bestV = player2.process();
+        System.out.println(bestV.size());
+        executeNextMoveTraverse(ball, player2, bestV);
+    }
+
+    private static void executeNextMoveTraverse(Ball ball, AdvancedTraverse player2, List<double[]> bestV) {
+        if (advancedPsoIdx >= bestV.size()) {
+            advancedPsoIdx = 0;
+            return; // All moves executed
+        }
+
+        if (!advancedAI.isMoving()) {
+            System.out.println("dawdawdawdawd");
+            double[][] trajectoryData = ball.getTrajectoryArray(0.1, advancedAI.getPosition().x, advancedAI.getPosition().z, bestV.get(advancedPsoIdx)[0], bestV.get(advancedPsoIdx)[1], 30);
+            Debugger.printMatrix(trajectoryData);
+            numberOfShots++;
+            advancedAI.setTrajectoryVec3(trajectoryData);
+
+            CompletableFuture.runAsync(() -> {
+                advancedAI.kickingTurn();
+            }).thenRun(() -> {
+                advancedPsoIdx++;
+                Executors.newSingleThreadScheduledExecutor().schedule(() -> executeNextMoveTraverse(ball, player2, bestV), 100, TimeUnit.MILLISECONDS);
+            });
+        } else {
+            // Schedule the next check if the AI is still moving
+            Executors.newSingleThreadScheduledExecutor().schedule(() -> executeNextMoveTraverse(ball, player2, bestV), 100, TimeUnit.MILLISECONDS);
+        }
+    }
+    private static void executeGAMove() throws ExecutionException, InterruptedException {
+        Ball ball = new Ball(terrain);
+        GeneticAlgorithm player2 = new GeneticAlgorithm(advancedAI, terrain.getHoleX(), terrain.getHoleZ());
+        List<double[]> bestV = player2.findOptimalPath();
+        System.out.println(bestV.size());
+        executeNextGAMove(ball, player2, bestV);
+    }
+
+    private static void executeNextGAMove(Ball ball, GeneticAlgorithm player2, List<double[]> bestV) {
+        if (advancedPsoIdx >= bestV.size()) {
+            advancedPsoIdx = 0;
+            return; // All moves executed
+        }
+
+        if (!advancedAI.isMoving()) {
+            System.out.println("dawdawdawdawd");
+            double[][] trajectoryData = ball.getTrajectoryArray(0.1, advancedAI.getPosition().x, advancedAI.getPosition().z, bestV.get(advancedPsoIdx)[0], bestV.get(advancedPsoIdx)[1], 30);
+            Debugger.printMatrix(trajectoryData);
+            numberOfShots++;
+            advancedAI.setTrajectoryVec3(trajectoryData);
+
+            CompletableFuture.runAsync(() -> {
+                advancedAI.kickingTurn();
+            }).thenRun(() -> {
+                advancedPsoIdx++;
+                Executors.newSingleThreadScheduledExecutor().schedule(() -> executeNextGAMove(ball, player2, bestV), 100, TimeUnit.MILLISECONDS);
+            });
+        } else {
+            // Schedule the next check if the AI is still moving
+            Executors.newSingleThreadScheduledExecutor().schedule(() -> executeNextGAMove(ball, player2, bestV), 100, TimeUnit.MILLISECONDS);
+        }
+    }
+    private static void executeAdvancedGAMove() throws ExecutionException, InterruptedException {
+        Ball ball = new Ball(terrain);
+        VariableLengthChromosomeGeneticAlgorithm player2 = new VariableLengthChromosomeGeneticAlgorithm(advancedAI, terrain.getHoleX(), terrain.getHoleZ());
+        List<double[]> bestV = player2.findOptimalPath();
+        System.out.println(bestV.size());
+        executeNextAdvancedGAMove(ball, player2, bestV);
+    }
+
+    private static void executeNextAdvancedGAMove(Ball ball, VariableLengthChromosomeGeneticAlgorithm player2, List<double[]> bestV) {
+        if (advancedPsoIdx >= bestV.size()) {
+            advancedPsoIdx = 0;
+            return; // All moves executed
+        }
+
+        if (!advancedAI.isMoving()) {
+            System.out.println("dawdawdawdawd");
+            double[][] trajectoryData = ball.getTrajectoryArray(0.1, advancedAI.getPosition().x, advancedAI.getPosition().z, bestV.get(advancedPsoIdx)[0], bestV.get(advancedPsoIdx)[1], 30);
+            Debugger.printMatrix(trajectoryData);
+            numberOfShots++;
+            advancedAI.setTrajectoryVec3(trajectoryData);
+
+            CompletableFuture.runAsync(() -> {
+                advancedAI.kickingTurn();
+            }).thenRun(() -> {
+                advancedPsoIdx++;
+                Executors.newSingleThreadScheduledExecutor().schedule(() -> executeNextAdvancedGAMove(ball, player2, bestV), 100, TimeUnit.MILLISECONDS);
+            });
+        } else {
+            // Schedule the next check if the AI is still moving
+            Executors.newSingleThreadScheduledExecutor().schedule(() -> executeNextAdvancedGAMove(ball, player2, bestV), 100, TimeUnit.MILLISECONDS);
+        }
     }
 
 
